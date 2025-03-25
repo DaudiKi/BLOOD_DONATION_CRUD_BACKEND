@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BloodLink | 3D Auth</title>
+  <!-- Link to the CSS file -->
+  <link rel="stylesheet" href="style.css" />
+  <!-- Font Awesome for icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+  <!-- Google Font -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body>
+  <div class="scene">
+    <!-- SPLIT CONTAINER with 3D TILT -->
+    <div class="split-container card-3d">
+      <!-- LEFT PANEL (Branding) -->
+      <div class="left-panel">
+        <div class="branding">
+          <div class="logo">
+            <i class="fas fa-heartbeat"></i>
+          </div>
+          <h1 class="brand-name">BloodLink</h1>
+          <h2 class="tagline">Saving Lives Through Technology</h2>
+        </div>
+        <p class="description">
+          Connect donors, patients, and healthcare institutions in real-time. Every second counts.
+        </p>
+        <ul class="features">
+          <li><i class="fas fa-bolt"></i><span>Real-time matching</span></li>
+          <li><i class="fas fa-map-marker-alt"></i><span>Location-based connection</span></li>
+          <li><i class="fas fa-lock"></i><span>Secure data handling</span></li>
+        </ul>
+        <div class="overlay"></div>
+      </div>
+
+      <!-- RIGHT PANEL (Auth Forms) -->
+      <div class="right-panel">
+        <!-- TOP TABS for Login & Sign Up -->
+        <div class="auth-tabs">
+          <button class="tab-btn active" data-target="login-section">Login</button>
+          <button class="tab-btn" data-target="signup-section">Sign Up</button>
+        </div>
+
+        <!-- LOGIN SECTION -->
+        <section id="login-section" class="auth-section active">
+          <form id="login-form" class="auth-form">
+            <h2>Welcome Back</h2>
+            <p>Enter your credentials to continue</p>
+            <div id="login-error" class="error-message"></div>
+
+            <!-- Email -->
+            <div class="input-group">
+              <label for="login-email">Email</label>
+              <div class="input-field">
+                <i class="fas fa-envelope"></i>
+                <input
+                  type="email"
+                  id="login-email"
+                  name="email"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="input-group">
+              <div class="label-row">
+                <label for="login-password">Password</label>
+                <a href="#" class="forgot-password">Forgot Password?</a>
+              </div>
+              <div class="input-field">
+                <i class="fas fa-lock"></i>
+                <input
+                  type="password"
+                  id="login-password"
+                  name="password"
+                  placeholder="Enter your password"
+                  required
+                />
+                <i class="fas fa-eye-slash toggle-password"></i>
+              </div>
+            </div>
+
+            <!-- User Type -->
+            <div class="input-group">
+              <label for="login-user-type">User Type</label>
+              <div class="input-field">
+                <i class="fas fa-user-check"></i>
+                <select id="login-user-type" name="userType" required>
+                  <option value="">Select</option>
+                  <option value="donor">Donor</option>
+                  <option value="patient">Patient</option>
+                  <option value="healthcare_institution">Healthcare Institution</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="primary-btn">Login</button>
+          </form>
+        </section>
+
+        <!-- SIGNUP SECTION -->
+        <section id="signup-section" class="auth-section">
+          <!-- Nested TABS for Donor, Patient, Institution -->
+          <div class="signup-tabs">
+            <button class="signup-tab-btn active" data-target="donor-form">Donor</button>
+            <button class="signup-tab-btn" data-target="patient-form">Patient</button>
+            <button class="signup-tab-btn" data-target="institution-form">Institution</button>
+          </div>
+
+          <div class="signup-forms">
+
+            <!-- DONOR FORM -->
+            <form id="donor-form" class="signup-form active">
+              <h2>Donor Sign Up</h2>
+              <div id="donor-error" class="error-message"></div>
+
+              <!-- First & Last Name -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="donor-first-name">First Name</label>
+                  <div class="input-field">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="donor-first-name" name="first_name" required />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="donor-last-name">Last Name</label>
+                  <div class="input-field">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="donor-last-name" name="last_name" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Email & Password -->
+              <div class="input-group">
+                <label for="donor-email">Email</label>
+                <div class="input-field">
+                  <i class="fas fa-envelope"></i>
+                  <input type="email" id="donor-email" name="email" required />
+                </div>
+              </div>
+              <div class="input-group">
+                <label for="donor-password">Password</label>
+                <div class="input-field">
+                  <i class="fas fa-lock"></i>
+                  <input type="password" id="donor-password" name="password" required />
+                  <i class="fas fa-eye-slash toggle-password"></i>
+                </div>
+              </div>
+
+              <!-- Phone & DOB -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="donor-phone">Phone Number</label>
+                  <div class="input-field">
+                    <i class="fas fa-phone"></i>
+                    <input type="text" id="donor-phone" name="phone_number" required />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="donor-dob">Date of Birth</label>
+                  <div class="input-field">
+                    <i class="fas fa-calendar"></i>
+                    <input type="date" id="donor-dob" name="date_of_birth" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Blood Type & Weight -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="donor-blood">Blood Type</label>
+                  <div class="input-field">
+                    <i class="fas fa-tint"></i>
+                    <select id="donor-blood" name="blood_type" required>
+                      <option value="">Select</option>
+                      <option value="A+">A+</option>
+                      <option value="A-">A-</option>
+                      <option value="B+">B+</option>
+                      <option value="B-">B-</option>
+                      <option value="AB+">AB+</option>
+                      <option value="AB-">AB-</option>
+                      <option value="O+">O+</option>
+                      <option value="O-">O-</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="donor-weight">Weight (kg)</label>
+                  <div class="input-field">
+                    <i class="fas fa-weight-hanging"></i>
+                    <input type="number" step="0.01" id="donor-weight" name="weight" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Address & City -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="donor-address">Address</label>
+                  <div class="input-field">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <input type="text" id="donor-address" name="address" required />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="donor-city">City</label>
+                  <div class="input-field">
+                    <i class="fas fa-city"></i>
+                    <input type="text" id="donor-city" name="city" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lat & Long -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="donor-lat">Latitude</label>
+                  <div class="input-field">
+                    <i class="fas fa-globe"></i>
+                    <input type="number" step="0.00000001" id="donor-lat" name="latitude" />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="donor-lng">Longitude</label>
+                  <div class="input-field">
+                    <i class="fas fa-globe"></i>
+                    <input type="number" step="0.00000001" id="donor-lng" name="longitude" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Last Donation & Availability -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="donor-last-donation">Last Donation Date</label>
+                  <div class="input-field">
+                    <i class="fas fa-calendar-check"></i>
+                    <input type="date" id="donor-last-donation" name="last_donation_date" />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="donor-available">Available?</label>
+                  <div class="input-field">
+                    <i class="fas fa-check-circle"></i>
+                    <select id="donor-available" name="is_available">
+                      <option value="true" selected>Yes</option>
+                      <option value="false">No</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Medical Conditions -->
+              <div class="input-group">
+                <label for="donor-medical">Medical Conditions</label>
+                <div class="input-field">
+                  <i class="fas fa-notes-medical"></i>
+                  <textarea id="donor-medical" name="medical_conditions" placeholder="List any conditions"></textarea>
+                </div>
+              </div>
+
+              <!-- Submit -->
+              <button type="submit" class="primary-btn">Sign Up as Donor</button>
+            </form>
+
+            <!-- PATIENT FORM -->
+            <form id="patient-form" class="signup-form">
+              <h2>Patient Sign Up</h2>
+              <div id="patient-error" class="error-message"></div>
+
+              <!-- First & Last Name -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="patient-first-name">First Name</label>
+                  <div class="input-field">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="patient-first-name" name="first_name" required />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="patient-last-name">Last Name</label>
+                  <div class="input-field">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="patient-last-name" name="last_name" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Email & Password -->
+              <div class="input-group">
+                <label for="patient-email">Email</label>
+                <div class="input-field">
+                  <i class="fas fa-envelope"></i>
+                  <input type="email" id="patient-email" name="email" required />
+                </div>
+              </div>
+              <div class="input-group">
+                <label for="patient-password">Password</label>
+                <div class="input-field">
+                  <i class="fas fa-lock"></i>
+                  <input type="password" id="patient-password" name="password" required />
+                  <i class="fas fa-eye-slash toggle-password"></i>
+                </div>
+              </div>
+
+              <!-- Phone & DOB -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="patient-phone">Phone Number</label>
+                  <div class="input-field">
+                    <i class="fas fa-phone"></i>
+                    <input type="text" id="patient-phone" name="phone_number" required />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="patient-dob">Date of Birth</label>
+                  <div class="input-field">
+                    <i class="fas fa-calendar"></i>
+                    <input type="date" id="patient-dob" name="date_of_birth" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Blood Type -->
+              <div class="input-group">
+                <label for="patient-blood">Blood Type</label>
+                <div class="input-field">
+                  <i class="fas fa-tint"></i>
+                  <select id="patient-blood" name="blood_type" required>
+                    <option value="">Select</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Address & City -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="patient-address">Address</label>
+                  <div class="input-field">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <input type="text" id="patient-address" name="address" required />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="patient-city">City</label>
+                  <div class="input-field">
+                    <i class="fas fa-city"></i>
+                    <input type="text" id="patient-city" name="city" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lat & Long -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="patient-lat">Latitude</label>
+                  <div class="input-field">
+                    <i class="fas fa-globe"></i>
+                    <input type="number" step="0.00000001" id="patient-lat" name="latitude" />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="patient-lng">Longitude</label>
+                  <div class="input-field">
+                    <i class="fas fa-globe"></i>
+                    <input type="number" step="0.00000001" id="patient-lng" name="longitude" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Medical & Emergency Contact -->
+              <div class="input-group">
+                <label for="patient-medical">Medical Conditions</label>
+                <div class="input-field">
+                  <i class="fas fa-notes-medical"></i>
+                  <textarea id="patient-medical" name="medical_conditions" placeholder="List any conditions"></textarea>
+                </div>
+              </div>
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="patient-emergency-name">Emergency Contact Name</label>
+                  <div class="input-field">
+                    <i class="fas fa-user-friends"></i>
+                    <input type="text" id="patient-emergency-name" name="emergency_contact_name" />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="patient-emergency-phone">Emergency Contact Phone</label>
+                  <div class="input-field">
+                    <i class="fas fa-phone-square-alt"></i>
+                    <input type="text" id="patient-emergency-phone" name="emergency_contact_phone" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit -->
+              <button type="submit" class="primary-btn">Sign Up as Patient</button>
+            </form>
+
+            <!-- INSTITUTION FORM -->
+            <form id="institution-form" class="signup-form">
+              <h2>Institution Sign Up</h2>
+              <div id="institution-error" class="error-message"></div>
+
+              <!-- Institution Name & Email -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="inst-name">Institution Name</label>
+                  <div class="input-field">
+                    <i class="fas fa-hospital"></i>
+                    <input type="text" id="inst-name" name="name" required />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="inst-email">Email</label>
+                  <div class="input-field">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="inst-email" name="email" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Password & Phone -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="inst-password">Password</label>
+                  <div class="input-field">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="inst-password" name="password" required />
+                    <i class="fas fa-eye-slash toggle-password"></i>
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="inst-phone">Phone Number</label>
+                  <div class="input-field">
+                    <i class="fas fa-phone"></i>
+                    <input type="text" id="inst-phone" name="phone_number" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- License Number & Institution Type -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="inst-license">License Number</label>
+                  <div class="input-field">
+                    <i class="fas fa-id-card"></i>
+                    <input type="text" id="inst-license" name="license_number" required />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="inst-type">Institution Type</label>
+                  <div class="input-field">
+                    <i class="fas fa-building"></i>
+                    <select id="inst-type" name="institution_type" required>
+                      <option value="">Select</option>
+                      <option value="Hospital">Hospital</option>
+                      <option value="Blood Bank">Blood Bank</option>
+                      <option value="Clinic">Clinic</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Address & City -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="inst-address">Address</label>
+                  <div class="input-field">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <input type="text" id="inst-address" name="address" required />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="inst-city">City</label>
+                  <div class="input-field">
+                    <i class="fas fa-city"></i>
+                    <input type="text" id="inst-city" name="city" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lat & Long -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="inst-lat">Latitude</label>
+                  <div class="input-field">
+                    <i class="fas fa-globe"></i>
+                    <input type="number" step="0.00000001" id="inst-lat" name="latitude" />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="inst-lng">Longitude</label>
+                  <div class="input-field">
+                    <i class="fas fa-globe"></i>
+                    <input type="number" step="0.00000001" id="inst-lng" name="longitude" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Contact Person -->
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="inst-contact-name">Contact Person Name</label>
+                  <div class="input-field">
+                    <i class="fas fa-user-friends"></i>
+                    <input type="text" id="inst-contact-name" name="contact_person_name" required />
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="inst-contact-phone">Contact Person Phone</label>
+                  <div class="input-field">
+                    <i class="fas fa-phone-square-alt"></i>
+                    <input type="text" id="inst-contact-phone" name="contact_person_phone" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit -->
+              <button type="submit" class="primary-btn">Sign Up as Institution</button>
+            </form>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript for interactivity -->
+  <script>
+    const card3D = document.querySelector('.card-3d');
+    const scene = document.querySelector('.scene');
+    let requestId = null;
+    
+    scene.addEventListener('mousemove', (e) => {
+      if (requestId) {
+        cancelAnimationFrame(requestId);
+      }
+      requestId = requestAnimationFrame(() => {
+        const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+        const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+        card3D.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+      });
+    });
+    
+    scene.addEventListener('mouseleave', () => {
+      card3D.style.transform = `rotateY(0deg) rotateX(0deg)`;
+    });
+    
+  
+    // Toggle password visibility (existing code)
+    document.querySelectorAll('.toggle-password').forEach(toggle => {
+      toggle.addEventListener('click', function() {
+        const input = this.previousElementSibling;
+        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+      });
+    });
+  
+    // Switch top-level (Login vs Sign Up)
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const authSections = document.querySelectorAll('.auth-section');
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        tabButtons.forEach(b => b.classList.remove('active'));
+        authSections.forEach(s => s.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById(this.dataset.target).classList.add('active');
+      });
+    });
+  
+    // Switch nested signup forms
+    const signupTabButtons = document.querySelectorAll('.signup-tab-btn');
+    const signupForms = document.querySelectorAll('.signup-form');
+    signupTabButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        signupTabButtons.forEach(b => b.classList.remove('active'));
+        signupForms.forEach(f => f.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById(this.dataset.target).classList.add('active');
+      });
+    });
+  
+     /**********************************************************************
+   *  FORM SUBMISSION - Actual fetch requests to your backend
+   **********************************************************************/
+  
+  // LOGIN FORM with redirect logic
+document.getElementById('login-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  // Gather login data
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  const userType = document.getElementById('login-user-type').value; // donor, patient, healthcare_institution, admin
+
+  // Build endpoint based on user type (explicitly including localhost:3000)
+  const endpoint = `http://localhost:3000/api/login/${userType}`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await response.json();
+
+    if (response.ok) {
+      // Save token, userType, and userId (if provided) in localStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userType', userType);
+      if (data.userId) {
+        localStorage.setItem('userId', data.userId);
+      }
+      alert('Login successful!');
+      // Redirect to role-specific dashboard
+      if (userType === 'donor') {
+        window.location.href = '/donor-dashboard.html';
+      } else if (userType === 'patient') {
+        window.location.href = '/patient-dashboard.html';
+      } else if (userType === 'healthcare_institution') {
+        window.location.href = '/healthcare-dashboard.html';
+      } else if (userType === 'admin') {
+        window.location.href = '/admin-dashboard.html';
+      }
+    } else {
+      document.getElementById('login-error').textContent = data.error || 'Login failed.';
+    }
+  } catch (error) {
+    console.error('Network error:', error);
+    document.getElementById('login-error').textContent = 'Network error. Please try again.';
+  }
+});
+
+  
+  // DONOR SIGNUP (unchanged or similar to previous implementation)
+  document.getElementById('donor-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    // Gather donor data (as before)
+    const first_name = document.getElementById('donor-first-name').value;
+    const last_name = document.getElementById('donor-last-name').value;
+    const email = document.getElementById('donor-email').value;
+    const password = document.getElementById('donor-password').value;
+    const phone_number = document.getElementById('donor-phone').value;
+    const date_of_birth = document.getElementById('donor-dob').value;
+    const blood_type = document.getElementById('donor-blood').value;
+    const weight = document.getElementById('donor-weight').value;
+    const address = document.getElementById('donor-address').value;
+    const city = document.getElementById('donor-city').value;
+    const latitude = document.getElementById('donor-lat').value;
+    const longitude = document.getElementById('donor-lng').value;
+    const last_donation_date = document.getElementById('donor-last-donation').value;
+    const is_available = document.getElementById('donor-available').value;
+    const medical_conditions = document.getElementById('donor-medical').value;
+  
+    try {
+      const response = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userType: 'donor',
+          first_name,
+          last_name,
+          email,
+          password,
+          phone_number,
+          date_of_birth,
+          blood_type,
+          weight,
+          address,
+          city,
+          latitude,
+          longitude,
+          last_donation_date,
+          is_available,
+          medical_conditions
+        })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log('Donor signup success:', data);
+        alert('Donor signup successful!');
+      } else {
+        document.getElementById('donor-error').textContent = data.error || 'Signup failed.';
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      document.getElementById('donor-error').textContent = 'Network error. Please try again.';
+    }
+  });
+  
+  // PATIENT SIGNUP (unchanged)
+  document.getElementById('patient-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    // Gather patient data (as before)
+    const first_name = document.getElementById('patient-first-name').value;
+    const last_name = document.getElementById('patient-last-name').value;
+    const email = document.getElementById('patient-email').value;
+    const password = document.getElementById('patient-password').value;
+    const phone_number = document.getElementById('patient-phone').value;
+    const date_of_birth = document.getElementById('patient-dob').value;
+    const blood_type = document.getElementById('patient-blood').value;
+    const address = document.getElementById('patient-address').value;
+    const city = document.getElementById('patient-city').value;
+    const latitude = document.getElementById('patient-lat').value;
+    const longitude = document.getElementById('patient-lng').value;
+    const medical_conditions = document.getElementById('patient-medical').value;
+    const emergency_contact_name = document.getElementById('patient-emergency-name').value;
+    const emergency_contact_phone = document.getElementById('patient-emergency-phone').value;
+  
+    try {
+      const response = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userType: 'patient',
+          first_name,
+          last_name,
+          email,
+          password,
+          phone_number,
+          date_of_birth,
+          blood_type,
+          address,
+          city,
+          latitude,
+          longitude,
+          medical_conditions,
+          emergency_contact_name,
+          emergency_contact_phone
+        })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log('Patient signup success:', data);
+        alert('Patient signup successful!');
+      } else {
+        document.getElementById('patient-error').textContent = data.error || 'Signup failed.';
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      document.getElementById('patient-error').textContent = 'Network error. Please try again.';
+    }
+  });
+  
+  // INSTITUTION SIGNUP (unchanged)
+  document.getElementById('institution-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    // Gather institution data (as before)
+    const name = document.getElementById('inst-name').value;
+    const email = document.getElementById('inst-email').value;
+    const password = document.getElementById('inst-password').value;
+    const phone_number = document.getElementById('inst-phone').value;
+    const license_number = document.getElementById('inst-license').value;
+    const institution_type = document.getElementById('inst-type').value;
+    const address = document.getElementById('inst-address').value;
+    const city = document.getElementById('inst-city').value;
+    const latitude = document.getElementById('inst-lat').value;
+    const longitude = document.getElementById('inst-lng').value;
+    const contact_person_name = document.getElementById('inst-contact-name').value;
+    const contact_person_phone = document.getElementById('inst-contact-phone').value;
+  
+    try {
+      const response = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userType: 'healthcare_institution',
+          name,
+          email,
+          password,
+          phone_number,
+          license_number,
+          institution_type,
+          address,
+          city,
+          latitude,
+          longitude,
+          contact_person_name,
+          contact_person_phone
+        })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log('Institution signup success:', data);
+        alert('Institution signup successful!');
+      } else {
+        document.getElementById('institution-error').textContent = data.error || 'Signup failed.';
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      document.getElementById('institution-error').textContent = 'Network error. Please try again.';
+    }
+  });
+  </script>  
+</body>
+</html>
