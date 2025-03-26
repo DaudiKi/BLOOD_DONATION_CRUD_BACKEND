@@ -1,12 +1,12 @@
 import express from 'express';
-import { markNotificationRead, getNotifications } from '../controllers/notificationController.js';
+import { acceptBloodRequest, rejectBloodRequest, markNotificationRead, getNotifications, getAllBloodRequests } from '../controllers/notificationController.js';
 
 const router = express.Router();
 
-// Endpoint to mark a notification as read
+router.put('/blood-requests/:requestId/accept', acceptBloodRequest);
+router.put('/blood-requests/:requestId/reject', rejectBloodRequest);
+router.get('/blood-requests', getAllBloodRequests); // For Admin
 router.put('/notifications/:notification_id/read', markNotificationRead);
-
-// Endpoint to retrieve notifications for a user (expects userId as a query parameter or from req.user)
 router.get('/notifications', getNotifications);
 
 export default router;

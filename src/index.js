@@ -15,9 +15,10 @@ import patientRoutes from "./routes/patientRoute.js";
 import healthcareInstituteRoutes from "./routes/healthcareInstitutionRoute.js";
 import authRoutes from "./routes/authRoute.js";
 import notificationRoutes from "./routes/notificationRoute.js";
+import requestRoutes from "./routes/requestRoute.js"; // Add the new route
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Create an HTTP server and attach Socket.IO
 const server = http.createServer(app);
@@ -60,6 +61,7 @@ app.use('/api', patientRoutes);
 app.use('/api', healthcareInstituteRoutes);
 app.use('/api', authRoutes);
 app.use('/api', notificationRoutes);
+app.use('/api', requestRoutes); // Mount the new request route
 
 // Serve your main HTML file for any unmatched routes (for SPA)
 app.get('*', (req, res) => {
@@ -69,14 +71,40 @@ app.get('*', (req, res) => {
 // Socket.IO connection handling
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
-  
+
   // Retrieve userId from the decoded token (or from handshake.auth if provided)
   const userId = socket.decoded?.userId || socket.handshake.auth.userId;
   if (userId) {
     socket.join(`user_${userId}`);
     console.log(`Socket ${socket.id} joined room user_${userId}`);
   }
-  
+
+  // Handle 'join' event (already covered by the above logic, but keeping for clarity)
+  socket.on('join', (userId) => {
+    socket.join(`user_${userId}`);
+    console.log(`User ${userId} joined room user_${userId}`);
+  });
+
+  // Handle 'joinAdmin' event for Admin users
+  socket.on('joinAdmin', () => {
+    socket.join('admin_room');
+    console.log('Admin joined admin_room');
+  });
+
+  // Handle 'bloodRequest' event to broadcast to donors and notify Admin
+  socket.on('bloodRequest', (data) => {
+    io.emit('bloodRequest', data); // Broadcast to all donors
+    io.to('admin_room').emit('bloodRequest', data); // Notify Admin
+  });
+
+  // Handle 'requestAction' event for accept/reject actions
+  socket.on('requestAction', (data) => {
+    if (data.patientId) io.to(`user_${data.patientId}`).emit('requestAction', data);
+    if (data.institutionId) io.to(`user_${data.institutionId}`).emit('requestAction', data);
+    io.to('admin_room').emit('requestAction', data); // Notify Admin
+  });
+
+  // Handle client disconnection
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
   });

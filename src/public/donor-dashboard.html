@@ -14,6 +14,7 @@
       <i class="fas fa-heartbeat"></i>
       <span>BloodLink</span>
     </div>
+    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
     <nav>
       <ul>
         <li><a href="donor-dashboard.html">Dashboard</a></li>
@@ -27,16 +28,224 @@
       </ul>
     </nav>
   </header>
-  <aside>
+
+  <aside id="sidebar">
     <ul>
-      <li><a href="#">My Requests</a></li>
-      <li><a href="#">My Profile</a></li>
-      <li><a href="#">Settings</a></li>
+      <li><a href="#overview" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+      <li><a href="#view-details"><i class="fas fa-user"></i> View Details</a></li>
+      <li><a href="#availability"><i class="fas fa-calendar-check"></i> Availability</a></li>
+      <li><a href="#blood-requests"><i class="fas fa-list"></i> Blood Requests</a></li>
     </ul>
   </aside>
+
   <main>
-    <h1>Welcome, Donor!</h1>
-    <p>This is your dashboard where you can view and manage your donation requests.</p>
+    <!-- Overview Section -->
+    <section id="overview">
+      <h1>Welcome, <span id="donor-name">Donor</span>! 👋</h1>
+      <p>Manage your donation activities and stay updated with BloodLink.</p>
+      <div class="stats">
+        <div class="card">
+          <h3>Total Donations</h3>
+          <p id="total-donations">0</p>
+        </div>
+        <div class="card">
+          <h3>Last Donation</h3>
+          <p id="last-donation">N/A</p>
+        </div>
+        <div class="card">
+          <h3>Blood Type</h3>
+          <p id="blood-type">N/A</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- View Details Section -->
+    <section id="view-details" class="view-details">
+      <h2>Your Details</h2>
+      <div class="card">
+        <p><strong>Name:</strong> <span id="view-name">N/A</span></p>
+        <p><strong>Blood Type:</strong> <span id="view-blood-type">N/A</span></p>
+        <p><strong>Contact Info:</strong> <span id="view-contact-info">N/A</span></p>
+        <p><strong>Phone:</strong> <span id="view-phone">N/A</span></p>
+        <p><strong>Address:</strong> <span id="view-address">N/A</span></p>
+        <p><strong>City:</strong> <span id="view-city">N/A</span></p>
+        <p><strong>Last Donation:</strong> <span id="view-last-donation">N/A</span></p>
+        <p><strong>Availability:</strong> <span id="view-availability">N/A</span></p>
+        <p><strong>Medical Conditions:</strong> <span id="view-medical-conditions">None</span></p>
+        <button class="btn" onclick="showEditDetails()">Edit Details</button>
+      </div>
+    </section>
+
+    <!-- Edit Details Section (Hidden by Default) -->
+    <section id="edit-details" class="edit-details" style="display: none;">
+      <h2>Edit Your Details</h2>
+      <div class="card">
+        <form id="edit-details-form">
+          <div class="input-row">
+            <div class="input-group">
+              <label for="edit-first-name">First Name</label>
+              <div class="input-field">
+                <i class="fas fa-user"></i>
+                <input type="text" id="edit-first-name" name="first_name" required>
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="edit-last-name">Last Name</label>
+              <div class="input-field">
+                <i class="fas fa-user"></i>
+                <input type="text" id="edit-last-name" name="last_name" required>
+              </div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="edit-email">Email</label>
+            <div class="input-field">
+              <i class="fas fa-envelope"></i>
+              <input type="email" id="edit-email" name="email" required>
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <label for="edit-phone">Phone Number</label>
+              <div class="input-field">
+                <i class="fas fa-phone"></i>
+                <input type="text" id="edit-phone" name="phone_number" required>
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="edit-dob">Date of Birth</label>
+              <div class="input-field">
+                <i class="fas fa-calendar"></i>
+                <input type="date" id="edit-dob" name="date_of_birth" required>
+              </div>
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <label for="edit-blood">Blood Type</label>
+              <div class="input-field">
+                <i class="fas fa-tint"></i>
+                <select id="edit-blood" name="blood_type" required>
+                  <option value="">Select</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="edit-weight">Weight (kg)</label>
+              <div class="input-field">
+                <i class="fas fa-weight-hanging"></i>
+                <input type="number" step="0.01" id="edit-weight" name="weight">
+              </div>
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <label for="edit-address">Address</label>
+              <div class="input-field">
+                <i class="fas fa-map-marker-alt"></i>
+                <input type="text" id="edit-address" name="address" required>
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="edit-city">City</label>
+              <div class="input-field">
+                <i class="fas fa-city"></i>
+                <input type="text" id="edit-city" name="city" required>
+              </div>
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <label for="edit-lat">Latitude</label>
+              <div class="input-field">
+                <i class="fas fa-globe"></i>
+                <input type="number" step="0.00000001" id="edit-lat" name="latitude">
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="edit-lng">Longitude</label>
+              <div class="input-field">
+                <i class="fas fa-globe"></i>
+                <input type="number" step="0.00000001" id="edit-lng" name="longitude">
+              </div>
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <label for="edit-last-donation">Last Donation Date</label>
+              <div class="input-field">
+                <i class="fas fa-calendar-check"></i>
+                <input type="date" id="edit-last-donation" name="last_donation_date">
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="edit-available">Available?</label>
+              <div class="input-field">
+                <i class="fas fa-check-circle"></i>
+                <select id="edit-available" name="is_available">
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="edit-medical">Medical Conditions</label>
+            <div class="input-field">
+              <i class="fas fa-notes-medical"></i>
+              <textarea id="edit-medical" name="medical_conditions" placeholder="List any conditions"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn">Save Changes</button>
+            <button type="button" class="btn secondary-btn" onclick="cancelEditDetails()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Availability Section -->
+    <section id="availability" class="availability">
+      <h2>Availability Status</h2>
+      <div class="card">
+        <p><strong>Current Status:</strong> <span id="availability-status">N/A</span></p>
+        <label for="availability-toggle">Available to Donate:</label>
+        <input type="checkbox" id="availability-toggle">
+        <button class="btn" onclick="confirmAvailability()">Confirm Availability</button>
+      </div>
+    </section>
+
+    <!-- Blood Requests Section -->
+    <section id="blood-requests" class="blood-requests">
+      <h2>Blood Requests</h2>
+      <div class="card">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Institution</th>
+                <th>Blood Type Needed</th>
+                <th>Urgency</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="blood-requests-table">
+              <!-- Requests will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Notifications Panel -->
     <div id="notifications-panel" class="notifications-panel">
       <h2>Notifications</h2>
       <div id="loading-spinner" class="spinner" style="display:none;"></div>
@@ -49,80 +258,12 @@
   <div id="toast-container"></div>
 
   <script src="/socket.io/socket.io.js"></script>
+  <script src="donor.js"></script>
   <script>
-    const socket = io();
-    const userId = localStorage.getItem('userId'); // Should be set after login
-    if (userId) {
-      socket.emit('join', userId);
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('active');
     }
-    
-    socket.on('notification', (data) => {
-      console.log('Received notification:', data);
-      showToast(data.notification_message || 'New notification received');
-      updateNotifications(data);
-    });
-    
-    function showToast(message) {
-      const toastContainer = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      toast.classList.add('toast');
-      toast.textContent = message;
-      toastContainer.appendChild(toast);
-      setTimeout(() => { toast.remove(); }, 5000);
-    }
-    
-    function updateNotifications(notification) {
-      const badge = document.getElementById('notification-badge');
-      let count = parseInt(badge.textContent) || 0;
-      count++;
-      badge.textContent = count;
-      
-      const notificationsList = document.getElementById('notifications-list');
-      const li = document.createElement('li');
-      li.textContent = notification.notification_message || 'New notification';
-      li.addEventListener('click', () => {
-        markNotificationAsRead(notification.notification_id);
-        li.style.textDecoration = 'line-through';
-        count = Math.max(0, count - 1);
-        badge.textContent = count;
-      });
-      notificationsList.appendChild(li);
-    }
-    
-    async function markNotificationAsRead(notificationId) {
-      try {
-        const response = await fetch(`/api/notifications/${notificationId}/read`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        const data = await response.json();
-        console.log('Notification marked as read:', data);
-      } catch (err) {
-        console.error('Error marking notification as read:', err);
-      }
-    }
-    
-    async function fetchNotifications() {
-      const spinner = document.getElementById('loading-spinner');
-      spinner.style.display = 'block';
-      try {
-        const response = await fetch(`/api/notifications?userId=${userId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        const notifications = await response.json();
-        spinner.style.display = 'none';
-        notifications.forEach(notification => updateNotifications(notification));
-      } catch (error) {
-        spinner.style.display = 'none';
-        console.error('Error fetching notifications:', error);
-      }
-    }
-    
-    fetchNotifications();
   </script>
 </body>
 </html>
