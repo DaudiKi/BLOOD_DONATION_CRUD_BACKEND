@@ -119,28 +119,34 @@ async function fetchBloodRequests() {
   }
 }
 
-// Inventory Data (Mock for now, replace with API call)
-const inventoryData = [
-  { bloodType: 'A+', units: 10, lastUpdated: '2025-03-24' },
-  { bloodType: 'A-', units: 5, lastUpdated: '2025-03-24' },
-  { bloodType: 'B+', units: 8, lastUpdated: '2025-03-24' },
-  { bloodType: 'B-', units: 3, lastUpdated: '2025-03-24' },
-  { bloodType: 'AB+', units: 2, lastUpdated: '2025-03-24' },
-  { bloodType: 'AB-', units: 1, lastUpdated: '2025-03-24' },
-  { bloodType: 'O+', units: 15, lastUpdated: '2025-03-24' },
-  { bloodType: 'O-', units: 7, lastUpdated: '2025-03-24' }
-];
+// Inventory Data
+let inventoryData = [];
+async function fetchInventory() {
+  try {
+    const response = await fetch(`/api/institutions/${userId}/inventory`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    inventoryData = await response.json();
+    populateInventory();
+  } catch (error) {
+    console.error('Error fetching inventory:', error);
+    showToast('Failed to load inventory.');
+  }
+}
 
 // Populate Overview
 function populateOverview() {
   document.getElementById('institution-name').textContent = institutionData.name || 'N/A';
-  document.getElementById('active-requests').textContent = bloodRequests.filter(r => r.request_status === 'Pending' || r.request_status === 'Matched').length;
-  document.getElementById('matched-donors').textContent = bloodRequests.filter(r => r.request_status === 'Matched').length;
-  document.getElementById('fulfilled-requests').textContent = bloodRequests.filter(r => r.request_status === 'Fulfilled').length;
+  document.getElementById('active-requests').textContent = bloodRequests.filter(r => r.request_status === 'Pending' || r.request_status === 'Matched').length || '0';
+  document.getElementById('matched-donors').textContent = bloodRequests.filter(r => r.request_status === 'Matched').length || '0';
+  document.getElementById('fulfilled-requests').textContent = bloodRequests.filter(r => r.request_status === 'Fulfilled').length || '0';
 }
 
 fetchInstitutionData();
 fetchBloodRequests();
+fetchInventory();
 
 // Submit Request Form Submission
 document.getElementById('submit-request-form').addEventListener('submit', async (e) => {
@@ -206,6 +212,14 @@ document.getElementById('submit-request-form').addEventListener('submit', async 
     populateOverview();
     showToast('Blood request submitted successfully!', 'success');
     document.getElementById('submit-request-form').reset();
+    socket.emit('bloodRequest', {
+      requestId: result.request.request_id,
+      bloodType: result.request.blood_type,
+      urgency: result.request.urgency_level,
+      patientId: patientId,
+      institutionId: userId,
+      notification_message: `New blood request for ${bloodType} by ${institutionData.name || 'Institution'}`
+    });
   } catch (error) {
     console.error('Error submitting blood request:', error);
     showToast(error.message || 'Failed to submit blood request.');

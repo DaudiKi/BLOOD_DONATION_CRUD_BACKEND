@@ -102,11 +102,11 @@ async function fetchPatientData() {
 
 function populatePatientDetails() {
   document.getElementById('patient-name').textContent = patientData.first_name || 'N/A';
-  document.getElementById('active-requests').textContent = bloodRequests.length;
+  document.getElementById('active-requests').textContent = bloodRequests.length || '0';
   document.getElementById('blood-type').textContent = patientData.blood_type || 'N/A';
   document.getElementById('last-request').textContent = bloodRequests.length > 0 ? bloodRequests[bloodRequests.length - 1].required_by_date : 'N/A';
 
-  documentA.getElementById('view-name').textContent = `${patientData.first_name || ''} ${patientData.last_name || ''}`;
+  document.getElementById('view-name').textContent = `${patientData.first_name || ''} ${patientData.last_name || ''}`.trim() || 'N/A';
   document.getElementById('view-blood-type').textContent = patientData.blood_type || 'N/A';
   document.getElementById('view-contact-info').textContent = patientData.email || 'N/A';
   document.getElementById('view-phone').textContent = patientData.phone_number || 'N/A';
@@ -196,6 +196,7 @@ document.getElementById('edit-details-form').addEventListener('submit', async (e
     populatePatientDetails();
     showToast('Details updated successfully!', 'success');
     cancelEditDetails();
+    socket.emit('patientUpdated', { userId, updatedData });
   } catch (error) {
     console.error('Error updating patient details:', error);
     showToast(error.message || 'Failed to update details.');
@@ -282,6 +283,14 @@ document.getElementById('request-blood-form').addEventListener('submit', async (
     populateBloodRequests();
     showToast('Blood request submitted successfully!', 'success');
     document.getElementById('request-blood-form').reset();
+    socket.emit('bloodRequest', {
+      requestId: result.request.request_id,
+      bloodType: result.request.blood_type,
+      urgency: result.request.urgency_level,
+      patientId: userId,
+      institutionId: null,
+      notification_message: `New blood request for ${bloodType} by ${patientData.first_name || 'Patient'}`
+    });
   } catch (error) {
     console.error('Error submitting blood request:', error);
     showToast(error.message || 'Failed to submit blood request.');
@@ -322,7 +331,7 @@ function populateBloodRequests() {
     `;
     tableBody.appendChild(row);
   });
-  document.getElementById('active-requests').textContent = bloodRequests.length;
+  document.getElementById('active-requests').textContent = bloodRequests.length || '0';
   document.getElementById('last-request').textContent = bloodRequests.length > 0 ? bloodRequests[bloodRequests.length - 1].required_by_date : 'N/A';
 }
 

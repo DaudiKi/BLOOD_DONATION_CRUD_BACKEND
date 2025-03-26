@@ -9,10 +9,13 @@ if (userId) {
 }
 
 // Toast Notification
-function showToast(message) {
+function showToast(message, type = 'error') {
   const toastContainer = document.getElementById('toast-container');
   const toast = document.createElement('div');
   toast.classList.add('toast');
+  if (type === 'success') {
+    toast.classList.add('success');
+  }
   toast.textContent = message;
   toastContainer.appendChild(toast);
   setTimeout(() => { toast.remove(); }, 5000);
@@ -80,16 +83,43 @@ async function fetchNotifications() {
 
 fetchNotifications();
 
-// Overview Stats (Mock Data - Replace with API call)
-document.getElementById('total-users').textContent = '1,245';
-document.getElementById('active-users').textContent = '342';
-document.getElementById('system-uptime').textContent = '99.9%';
+// Overview Stats
+async function fetchOverviewStats() {
+  try {
+    const response = await fetch('/api/admin/stats', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    const stats = await response.json();
+    document.getElementById('total-users').textContent = stats.totalUsers || '0';
+    document.getElementById('active-users').textContent = stats.activeUsers || '0';
+    document.getElementById('system-uptime').textContent = stats.systemUptime || '0%';
+  } catch (error) {
+    console.error('Error fetching overview stats:', error);
+    showToast('Failed to load overview stats.');
+  }
+}
 
-// Manage Users (Mock Data - Replace with API call)
-const users = [
-  { id: 1, name: 'John Doe', email: 'john@bloodlink.com', role: 'User' },
-  { id: 2, name: 'Jane Smith', email: 'jane@bloodlink.com', role: 'Admin' }
-];
+fetchOverviewStats();
+
+// Manage Users
+let users = [];
+
+async function fetchUsers() {
+  try {
+    const response = await fetch('/api/users', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    users = await response.json();
+    populateUsersTable();
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    showToast('Failed to fetch users.');
+  }
+}
 
 function populateUsersTable() {
   const tableBody = document.getElementById('users-table');
@@ -102,17 +132,17 @@ function populateUsersTable() {
       <td>${user.email}</td>
       <td>${user.role}</td>
       <td>
-        <button onclick="editUser(${user.id})">Edit</button>
-        <button onclick="deleteUser(${user.id})">Delete</button>
+        <button class="btn" onclick="openEditUserModal(${user.id})">Edit</button>
+        <button class="btn secondary-btn" onclick="deleteUser(${user.id})">Delete</button>
       </td>
     `;
     tableBody.appendChild(row);
   });
 }
 
-populateUsersTable();
+fetchUsers();
 
-// Add User Modal
+// Add/Edit User Modal
 function openAddUserModal() {
   document.getElementById('add-user-modal').style.display = 'flex';
 }
@@ -121,40 +151,120 @@ function closeAddUserModal() {
   document.getElementById('add-user-modal').style.display = 'none';
 }
 
-document.getElementById('add-user-form').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
-  const role = document.getElementById('role').value;
-  const newUser = { id: users.length + 1, name, email, role };
-  users.push(newUser);
-  populateUsersTable();
-  closeAddUserModal();
-  showToast('User added successfully!');
-});
-
-function editUser(id) {
-  const user = users.find(u => u.id === id);
+function openEditUserModal(userId) {
+  const user = users.find(u => u.id === userId);
   if (user) {
-    const name = prompt('Enter new name:', user.name);
-    const email = prompt('Enter new email:', user.email);
-    const role = prompt('Enter new role (User/Admin):', user.role);
-    if (name && email && role) {
-      user.name = name;
-      user.email = email;
-      user.role = role;
-      populateUsersTable();
-      showToast('User updated successfully!');
-    }
+    const modal = document.createElement('div');
+    modal.classList.add('modal');
+    modal.id = 'edit-user-modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <span class="close" onclick="closeEditUserModal()">&times;</span>
+        <h2>Edit User</h2>
+        <form id="edit-user-form">
+          <label for="edit-name">Name:</label>
+          <input type="text" id="edit-name" value="${user.name}" required>
+          <label for="edit-email">Email:</label>
+          <input type="email" id="edit-email" value="${user.email}" required>
+          <label for="edit-role">Role:</label>
+          <select id="edit-role" required>
+            <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
+            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+          </select>
+          <button type="submit" class="btn">Save Changes</button>
+        </form>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    modal.style.display = 'flex';
+
+    document.getElementById('edit-user-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const updatedUser = {
+        name: document.getElementById('edit-name').value,
+        email: document.getElementById('edit-email').value,
+        role: document.getElementById('edit-role').value
+      };
+      try {
+        const response = await fetch(`/api/users/${userId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(updatedUser)
+        });
+        const result = await response.json();
+        const index = users.findIndex(u => u.id === userId);
+        users[index] = { ...users[index], ...updatedUser };
+        populateUsersTable();
+        closeEditUserModal();
+        showToast('User updated successfully!', 'success');
+        socket.emit('userUpdated', { userId, updatedUser });
+      } catch (error) {
+        console.error('Error updating user:', error);
+        showToast('Failed to update user.');
+      }
+    });
   }
 }
 
-function deleteUser(id) {
-  const index = users.findIndex(u => u.id === id);
-  if (index !== -1) {
-    users.splice(index, 1);
+function closeEditUserModal() {
+  const modal = document.getElementById('edit-user-modal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+document.getElementById('add-user-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const newUser = {
+    name: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    role: document.getElementById('role').value
+  };
+  try {
+    const response = await fetch('/api/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify(newUser)
+    });
+    const result = await response.json();
+    users.push(result.user);
     populateUsersTable();
-    showToast('User deleted successfully!');
+    closeAddUserModal();
+    showToast('User added successfully!', 'success');
+    socket.emit('userAdded', result.user);
+  } catch (error) {
+    console.error('Error adding user:', error);
+    showToast('Failed to add user.');
+  }
+});
+
+async function deleteUser(id) {
+  if (confirm('Are you sure you want to delete this user?')) {
+    try {
+      const response = await fetch(`/api/users/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const result = await response.json();
+      const index = users.findIndex(u => u.id === id);
+      if (index !== -1) {
+        users.splice(index, 1);
+        populateUsersTable();
+        showToast('User deleted successfully!', 'success');
+        socket.emit('userDeleted', { userId: id });
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      showToast('Failed to delete user.');
+    }
   }
 }
 
@@ -201,12 +311,12 @@ fetchBloodRequests();
 // Listen for Real-time Blood Request Updates
 socket.on('bloodRequest', (data) => {
   fetchBloodRequests(); // Refresh table
-  showToast(data.notification_message);
+  showToast(data.notification_message, 'success');
 });
 
 socket.on('requestAction', (data) => {
   fetchBloodRequests(); // Refresh table
-  showToast(data.notification_message);
+  showToast(data.notification_message, 'success');
 });
 
 // System Analytics Chart
@@ -232,13 +342,23 @@ new Chart(ctx, {
   }
 });
 
-// User Activity Logs (Mock Data - Replace with API call)
-const activityLogs = [
-  { user: 'John Doe', action: 'Logged in', timestamp: '2025-03-25 10:00 AM' },
-  { user: 'Jane Smith', action: 'Updated profile', timestamp: '2025-03-25 09:30 AM' }
-];
+// User Activity Logs
+async function fetchActivityLogs() {
+  try {
+    const response = await fetch('/api/admin/activity-logs', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    const activityLogs = await response.json();
+    populateActivityLogs(activityLogs);
+  } catch (error) {
+    console.error('Error fetching activity logs:', error);
+    showToast('Failed to fetch activity logs.');
+  }
+}
 
-function populateActivityLogs() {
+function populateActivityLogs(activityLogs) {
   const tableBody = document.getElementById('activity-logs');
   tableBody.innerHTML = '';
   activityLogs.forEach(log => {
@@ -252,12 +372,27 @@ function populateActivityLogs() {
   });
 }
 
-populateActivityLogs();
+fetchActivityLogs();
 
-// System Usage Statistics (Mock Data - Replace with API call)
-document.getElementById('server-load').textContent = '45%';
-document.getElementById('api-calls').textContent = '1,234';
-document.getElementById('active-sessions').textContent = '567';
+// System Usage Statistics
+async function fetchSystemStats() {
+  try {
+    const response = await fetch('/api/admin/system-stats', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    const stats = await response.json();
+    document.getElementById('server-load').textContent = stats.serverLoad || '0%';
+    document.getElementById('api-calls').textContent = stats.apiCalls || '0';
+    document.getElementById('active-sessions').textContent = stats.activeSessions || '0';
+  } catch (error) {
+    console.error('Error fetching system stats:', error);
+    showToast('Failed to fetch system stats.');
+  }
+}
+
+fetchSystemStats();
 
 // Generate Report
 function generateReport() {
@@ -278,5 +413,5 @@ function generateReport() {
   a.download = 'system-usage-report.txt';
   a.click();
   URL.revokeObjectURL(url);
-  showToast('Report generated successfully!');
+  showToast('Report generated successfully!', 'success');
 }

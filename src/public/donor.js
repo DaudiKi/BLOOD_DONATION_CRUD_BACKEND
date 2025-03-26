@@ -8,10 +8,13 @@ if (userId) {
 }
 
 // Toast Notification
-function showToast(message) {
+function showToast(message, type = 'error') {
   const toastContainer = document.getElementById('toast-container');
   const toast = document.createElement('div');
   toast.classList.add('toast');
+  if (type === 'success') {
+    toast.classList.add('success');
+  }
   toast.textContent = message;
   toastContainer.appendChild(toast);
   setTimeout(() => { toast.remove(); }, 5000);
@@ -103,7 +106,7 @@ function populateDonorDetails() {
   document.getElementById('last-donation').textContent = donorData.last_donation_date || 'N/A';
   document.getElementById('blood-type').textContent = donorData.blood_type || 'N/A';
 
-  document.getElementById('view-name').textContent = `${donorData.first_name || ''} ${donorData.last_name || ''}`;
+  document.getElementById('view-name').textContent = `${donorData.first_name || ''} ${donorData.last_name || ''}`.trim() || 'N/A';
   document.getElementById('view-blood-type').textContent = donorData.blood_type || 'N/A';
   document.getElementById('view-contact-info').textContent = donorData.email || 'N/A';
   document.getElementById('view-phone').textContent = donorData.phone_number || 'N/A';
@@ -112,6 +115,11 @@ function populateDonorDetails() {
   document.getElementById('view-last-donation').textContent = donorData.last_donation_date || 'N/A';
   document.getElementById('view-availability').textContent = donorData.is_available ? 'Yes' : 'No';
   document.getElementById('view-medical-conditions').textContent = donorData.medical_conditions || 'None';
+
+  // Update availability toggle
+  const toggle = document.getElementById('availability-toggle');
+  toggle.checked = donorData.is_available || false;
+  document.getElementById('availability-status').textContent = donorData.is_available ? 'Available' : 'Not Available';
 }
 
 fetchDonorData();
@@ -134,7 +142,7 @@ function showEditDetails() {
   document.getElementById('edit-lat').value = donorData.latitude || '';
   document.getElementById('edit-lng').value = donorData.longitude || '';
   document.getElementById('edit-last-donation').value = donorData.last_donation_date || '';
-  document.getElementById('edit-available').value = donorData.is_available.toString();
+  document.getElementById('edit-available').value = (donorData.is_available || false).toString();
   document.getElementById('edit-medical').value = donorData.medical_conditions || '';
 }
 
@@ -153,14 +161,14 @@ document.getElementById('edit-details-form').addEventListener('submit', async (e
     phone_number: document.getElementById('edit-phone').value,
     date_of_birth: document.getElementById('edit-dob').value,
     blood_type: document.getElementById('edit-blood').value,
-    weight: document.getElementById('edit-weight').value,
+    weight: parseFloat(document.getElementById('edit-weight').value) || null,
     address: document.getElementById('edit-address').value,
     city: document.getElementById('edit-city').value,
-    latitude: document.getElementById('edit-lat').value,
-    longitude: document.getElementById('edit-lng').value,
-    last_donation_date: document.getElementById('edit-last-donation').value,
+    latitude: parseFloat(document.getElementById('edit-lat').value) || null,
+    longitude: parseFloat(document.getElementById('edit-lng').value) || null,
+    last_donation_date: document.getElementById('edit-last-donation').value || null,
     is_available: document.getElementById('edit-available').value === 'true',
-    medical_conditions: document.getElementById('edit-medical').value
+    medical_conditions: document.getElementById('edit-medical').value || null
   };
 
   try {
@@ -174,8 +182,9 @@ document.getElementById('edit-details-form').addEventListener('submit', async (e
     });
     donorData = await response.json();
     populateDonorDetails();
-    showToast('Details updated successfully!');
+    showToast('Details updated successfully!', 'success');
     cancelEditDetails();
+    socket.emit('donorUpdated', { userId, updatedData });
   } catch (error) {
     console.error('Error updating donor details:', error);
     showToast('Failed to update details.');
@@ -199,7 +208,8 @@ function confirmAvailability() {
     body: JSON.stringify({ is_available: isAvailable })
   })
     .then(() => {
-      showToast('Availability status updated!');
+      showToast('Availability status updated!', 'success');
+      socket.emit('donorAvailabilityUpdated', { userId, is_available: isAvailable });
     })
     .catch(error => {
       console.error('Error updating availability:', error);
@@ -210,13 +220,29 @@ function confirmAvailability() {
 // Blood Requests
 let bloodRequests = [];
 
+async function fetchInstitutionName(institutionId) {
+  try {
+    const response = await fetch(`/api/institutions/${institutionId}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    const institution = await response.json();
+    return institution.name || 'Unknown';
+  } catch (error) {
+    console.error('Error fetching institution name:', error);
+    return 'Unknown';
+  }
+}
+
 function populateBloodRequests() {
   const tableBody = document.getElementById('blood-requests-table');
   tableBody.innerHTML = '';
-  bloodRequests.forEach(request => {
+  bloodRequests.forEach(async (request) => {
+    const institutionName = await fetchInstitutionName(request.institution_id);
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td>${request.institution_name || 'Unknown'}</td>
+      <td>${institutionName}</td>
       <td>${request.blood_type}</td>
       <td>${request.urgency_level}</td>
       <td>
@@ -241,10 +267,29 @@ async function acceptBloodRequest(requestId) {
         body: JSON.stringify({ donorId: userId })
       });
       const result = await response.json();
-      showToast(`Blood request accepted!`);
+      showToast(`Blood request accepted!`, 'success');
       const index = bloodRequests.findIndex(r => r.request_id === requestId);
       bloodRequests.splice(index, 1);
       populateBloodRequests();
+      // Update availability to false after accepting a request
+      donorData.is_available = false;
+      await fetch('/api/donors/me/availability', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ is_available: false })
+      });
+      populateDonorDetails();
+      socket.emit('requestAction', {
+        requestId,
+        action: 'accepted',
+        donorId: userId,
+        patientId: request.patient_id,
+        institutionId: request.institution_id,
+        notification_message: `Donor ${donorData.first_name} accepted blood request #${requestId}`
+      });
     } catch (error) {
       console.error('Error accepting request:', error);
       showToast('Failed to accept blood request.');
@@ -264,10 +309,18 @@ async function rejectBloodRequest(requestId) {
         }
       });
       const result = await response.json();
-      showToast(`Blood request rejected.`);
+      showToast(`Blood request rejected.`, 'success');
       const index = bloodRequests.findIndex(r => r.request_id === requestId);
       bloodRequests.splice(index, 1);
       populateBloodRequests();
+      socket.emit('requestAction', {
+        requestId,
+        action: 'rejected',
+        donorId: userId,
+        patientId: request.patient_id,
+        institutionId: request.institution_id,
+        notification_message: `Donor ${donorData.first_name} rejected blood request #${requestId}`
+      });
     } catch (error) {
       console.error('Error rejecting request:', error);
       showToast('Failed to reject blood request.');
@@ -275,16 +328,18 @@ async function rejectBloodRequest(requestId) {
   }
 }
 
-socket.on('bloodRequest', (data) => {
+socket.on('bloodRequest', async (data) => {
   if (donorData.blood_type === data.bloodType && donorData.is_available) {
+    const institutionName = await fetchInstitutionName(data.institutionId);
     bloodRequests.push({
       request_id: data.requestId,
       blood_type: data.bloodType,
       urgency_level: data.urgency,
       patient_id: data.patientId,
-      institution_id: data.institutionId
+      institution_id: data.institutionId,
+      institution_name: institutionName
     });
     populateBloodRequests();
-    showToast(data.notification_message);
+    showToast(data.notification_message, 'success');
   }
 });
