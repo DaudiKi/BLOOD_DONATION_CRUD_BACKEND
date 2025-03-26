@@ -22,6 +22,18 @@ header {
   z-index: 10;
 }
 
+header .header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+header .header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
 header .logo {
   display: flex;
   align-items: center;
@@ -35,24 +47,29 @@ header .logo i {
   color: #D32F2F;
 }
 
-header nav ul {
+header .user-profile {
   display: flex;
-  gap: 20px;
-  list-style: none;
-}
-
-header nav ul li a {
-  text-decoration: none;
-  color: #333;
+  align-items: center;
+  gap: 10px;
   font-weight: 500;
-  font-size: 1rem;
 }
 
-header nav ul li a#notifications-icon {
+header .user-profile i {
+  font-size: 1.5rem;
+  color: #666;
+}
+
+header .notifications {
   position: relative;
 }
 
-header nav ul li a#notifications-icon #notification-badge {
+header .notifications #notifications-icon {
+  font-size: 1.5rem;
+  color: #666;
+  cursor: pointer;
+}
+
+header .notifications #notification-badge {
   position: absolute;
   top: -5px;
   right: -5px;
@@ -72,6 +89,16 @@ aside {
   background: #2E2E2E; /* Dark gray sidebar */
   padding-top: 80px;
   transition: transform 0.3s ease;
+}
+
+aside .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 aside ul {
@@ -127,24 +154,24 @@ section h2 {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.stats {
+.card-grid {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
 }
 
-.stats .card {
+.card-grid .card {
   flex: 1;
   text-align: center;
   min-width: 200px;
 }
 
-.stats .card h3 {
+.card-grid .card h3 {
   font-size: 1.2rem;
   color: #666;
 }
 
-.stats .card p {
+.card-grid .card p {
   font-size: 1.5rem;
   font-weight: 600;
   color: #D32F2F; /* BloodLink red */
@@ -182,6 +209,8 @@ section h2 {
 .submit-request .card form .input-group label,
 .request-blood .card form .input-group label {
   font-weight: 500;
+  display: block;
+  margin-bottom: 5px;
 }
 
 .edit-details .card form .input-field,
@@ -193,6 +222,13 @@ section h2 {
   border: 1px solid #ddd;
   border-radius: 5px;
   padding: 10px;
+  transition: border-color 0.3s ease;
+}
+
+.edit-details .card form .input-field:focus-within,
+.submit-request .card form .input-field:focus-within,
+.request-blood .card form .input-field:focus-within {
+  border-color: #D32F2F; /* BloodLink red */
 }
 
 .edit-details .card form .input-field i,
@@ -212,6 +248,25 @@ section h2 {
   outline: none;
   width: 100%;
   font-family: 'Poppins', sans-serif;
+}
+
+/* Style for number inputs across all forms */
+.edit-details .card form input[type="number"],
+.submit-request .card form input[type="number"],
+.request-blood .card form input[type="number"] {
+  -moz-appearance: textfield; /* Remove arrows in Firefox */
+  appearance: none; /* Fallback for modern browsers supporting the standard property */
+}
+
+/* Remove spinner arrows in WebKit/Blink browsers (Chrome, Safari, Edge) */
+.edit-details .card form input[type="number"]::-webkit-outer-spin-button,
+.edit-details .card form input[type="number"]::-webkit-inner-spin-button,
+.submit-request .card form input[type="number"]::-webkit-outer-spin-button,
+.submit-request .card form input[type="number"]::-webkit-inner-spin-button,
+.request-blood .card form input[type="number"]::-webkit-outer-spin-button,
+.request-blood .card form input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none; /* Remove arrows in Chrome/Safari/Edge */
+  margin: 0;
 }
 
 .edit-details .card form textarea {
@@ -276,6 +331,7 @@ table td {
   border-radius: 5px;
   cursor: pointer;
   font-weight: 500;
+  transition: background 0.3s ease;
 }
 
 .btn:hover {
@@ -288,6 +344,22 @@ table td {
 
 .secondary-btn:hover {
   background: #555;
+}
+
+/* Style for the "Use Current Location" button */
+.input-group .secondary-btn {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.input-group .secondary-btn::before {
+  content: '\f3c5'; /* Font Awesome location icon */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
 }
 
 .analytics canvas {
@@ -311,7 +383,7 @@ table td {
   z-index: 100;
 }
 
-.notifications-panel h2 {
+.notifications-panel h3 {
   font-size: 1.2rem;
   margin-bottom: 10px;
 }
@@ -324,6 +396,10 @@ table td {
   padding: 10px 0;
   border-bottom: 1px solid #eee;
   cursor: pointer;
+}
+
+.notifications-panel ul li:hover {
+  background: #f5f5f5;
 }
 
 .spinner {
@@ -397,11 +473,27 @@ table td {
 }
 
 .toast {
-  background: #D32F2F; /* BloodLink red */
-  color: #fff;
+  position: relative; /* Changed from fixed to relative for stacking within container */
+  background-color: #ff4d4f; /* Updated to match provided style */
+  color: white;
   padding: 10px 20px;
   border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Added shadow as per provided style */
   margin-top: 10px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideIn 0.3s ease forwards;
+}
+
+.toast.success {
+  background-color: #4caf50; /* Updated to match provided style */
+}
+
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive Design */
@@ -422,19 +514,15 @@ table td {
     padding: 15px 20px;
   }
 
-  header .logo {
+  header .header-left {
     font-size: 1.2rem;
   }
 
-  header nav ul {
+  header .header-right {
     gap: 10px;
   }
 
-  header nav ul li a {
-    font-size: 0.9rem;
-  }
-
-  .stats .card {
+  .card-grid .card {
     flex: 1 1 100%;
   }
 
@@ -456,7 +544,7 @@ table td {
     gap: 10px;
   }
 
-  header nav ul {
+  header .header-right {
     flex-direction: column;
     align-items: center;
   }
@@ -467,5 +555,12 @@ table td {
 
   .btn {
     padding: 8px 16px;
+  }
+
+  .toast {
+    width: 90%;
+    right: 5%;
+    left: 5%;
+    margin: 0 auto;
   }
 }

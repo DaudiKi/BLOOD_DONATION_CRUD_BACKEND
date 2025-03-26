@@ -8,10 +8,13 @@ if (userId) {
 }
 
 // Toast Notification
-function showToast(message) {
+function showToast(message, type = 'error') {
   const toastContainer = document.getElementById('toast-container');
   const toast = document.createElement('div');
   toast.classList.add('toast');
+  if (type === 'success') {
+    toast.classList.add('success');
+  }
   toast.textContent = message;
   toastContainer.appendChild(toast);
   setTimeout(() => { toast.remove(); }, 5000);
@@ -103,7 +106,7 @@ function populatePatientDetails() {
   document.getElementById('blood-type').textContent = patientData.blood_type || 'N/A';
   document.getElementById('last-request').textContent = bloodRequests.length > 0 ? bloodRequests[bloodRequests.length - 1].required_by_date : 'N/A';
 
-  document.getElementById('view-name').textContent = `${patientData.first_name || ''} ${patientData.last_name || ''}`;
+  documentA.getElementById('view-name').textContent = `${patientData.first_name || ''} ${patientData.last_name || ''}`;
   document.getElementById('view-blood-type').textContent = patientData.blood_type || 'N/A';
   document.getElementById('view-contact-info').textContent = patientData.email || 'N/A';
   document.getElementById('view-phone').textContent = patientData.phone_number || 'N/A';
@@ -144,6 +147,20 @@ function cancelEditDetails() {
 // Edit Details Form Submission
 document.getElementById('edit-details-form').addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  const latitude = parseFloat(document.getElementById('edit-lat').value);
+  const longitude = parseFloat(document.getElementById('edit-lng').value);
+
+  // Validate latitude and longitude
+  if (isNaN(latitude) || latitude < -90 || latitude > 90) {
+    showToast('Latitude must be between -90 and 90.');
+    return;
+  }
+  if (isNaN(longitude) || longitude < -180 || longitude > 180) {
+    showToast('Longitude must be between -180 and 180.');
+    return;
+  }
+
   const updatedData = {
     first_name: document.getElementById('edit-first-name').value,
     last_name: document.getElementById('edit-last-name').value,
@@ -153,8 +170,8 @@ document.getElementById('edit-details-form').addEventListener('submit', async (e
     blood_type: document.getElementById('edit-blood').value,
     address: document.getElementById('edit-address').value,
     city: document.getElementById('edit-city').value,
-    latitude: document.getElementById('edit-lat').value,
-    longitude: document.getElementById('edit-lng').value,
+    latitude: latitude,
+    longitude: longitude,
     medical_conditions: document.getElementById('edit-medical').value,
     emergency_contact_name: document.getElementById('edit-emergency-name').value,
     emergency_contact_phone: document.getElementById('edit-emergency-phone').value
@@ -169,13 +186,19 @@ document.getElementById('edit-details-form').addEventListener('submit', async (e
       },
       body: JSON.stringify(updatedData)
     });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update details');
+    }
+
     patientData = await response.json();
     populatePatientDetails();
-    showToast('Details updated successfully!');
+    showToast('Details updated successfully!', 'success');
     cancelEditDetails();
   } catch (error) {
     console.error('Error updating patient details:', error);
-    showToast('Failed to update details.');
+    showToast(error.message || 'Failed to update details.');
   }
 });
 
@@ -199,17 +222,36 @@ async function fetchBloodRequests() {
 
 document.getElementById('request-blood-form').addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  const bloodType = document.getElementById('request-blood-type').value;
+  const unitsNeeded = parseInt(document.getElementById('request-units-needed')?.value) || 1;
+  const urgencyLevel = document.getElementById('request-urgency').value;
+  const requiredByDate = document.getElementById('request-date').value;
+  const hospital = document.getElementById('request-hospital').value;
+  const locationLatitude = parseFloat(document.getElementById('request-lat').value);
+  const locationLongitude = parseFloat(document.getElementById('request-lng').value);
+
+  // Validate latitude and longitude
+  if (isNaN(locationLatitude) || locationLatitude < -90 || locationLatitude > 90) {
+    showToast('Latitude must be between -90 and 90.');
+    return;
+  }
+  if (isNaN(locationLongitude) || locationLongitude < -180 || locationLongitude > 180) {
+    showToast('Longitude must be between -180 and 180.');
+    return;
+  }
+
   const newRequest = {
     patient_id: userId,
     institution_id: null,
-    blood_type: document.getElementById('request-blood-type').value,
-    units_needed: parseInt(document.getElementById('request-units-needed')?.value) || 1,
-    urgency_level: document.getElementById('request-urgency').value,
+    blood_type: bloodType,
+    units_needed: unitsNeeded,
+    urgency_level: urgencyLevel,
     request_date: new Date().toISOString(),
-    required_by_date: document.getElementById('request-date').value,
-    request_notes: `Request from ${patientData.first_name || 'Unknown'} for ${document.getElementById('request-hospital').value}`,
-    location_latitude: patientData.latitude || null,
-    location_longitude: patientData.longitude || null
+    required_by_date: requiredByDate,
+    request_notes: `Request from ${patientData.first_name || 'Unknown'} for ${hospital}`,
+    location_latitude: locationLatitude,
+    location_longitude: locationLongitude
   };
 
   try {
@@ -221,24 +263,49 @@ document.getElementById('request-blood-form').addEventListener('submit', async (
       },
       body: JSON.stringify(newRequest)
     });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to submit blood request');
+    }
+
     const result = await response.json();
     bloodRequests.push({
       request_id: result.request.request_id,
       blood_type: result.request.blood_type,
-      hospital: document.getElementById('request-hospital').value,
+      hospital: hospital,
       urgency_level: result.request.urgency_level,
       required_by_date: result.request.required_by_date,
       request_status: result.request.request_status,
       matched_donor_id: null
     });
     populateBloodRequests();
-    showToast('Blood request submitted successfully!');
+    showToast('Blood request submitted successfully!', 'success');
     document.getElementById('request-blood-form').reset();
   } catch (error) {
     console.error('Error submitting blood request:', error);
-    showToast('Failed to submit blood request.');
+    showToast(error.message || 'Failed to submit blood request.');
   }
 });
+
+// Get Current Location using Geolocation API
+function getCurrentLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        document.getElementById('request-lat').value = position.coords.latitude;
+        document.getElementById('request-lng').value = position.coords.longitude;
+        showToast('Location retrieved successfully!', 'success');
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+        showToast('Unable to retrieve location. Please enter manually.');
+      }
+    );
+  } else {
+    showToast('Geolocation is not supported by this browser.');
+  }
+}
 
 function populateBloodRequests() {
   const tableBody = document.getElementById('requests-table');
@@ -269,7 +336,7 @@ socket.on('requestAction', (data) => {
       request.request_status = data.action === 'accepted' ? 'Matched' : 'Pending';
       request.matched_donor_id = data.action === 'accepted' ? data.donorId : null;
       populateBloodRequests();
-      showToast(data.notification_message);
+      showToast(data.notification_message, 'success');
     }
   }
 });

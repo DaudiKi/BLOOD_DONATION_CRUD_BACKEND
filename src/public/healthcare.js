@@ -8,10 +8,13 @@ if (userId) {
 }
 
 // Toast Notification
-function showToast(message) {
+function showToast(message, type = 'error') {
   const toastContainer = document.getElementById('toast-container');
   const toast = document.createElement('div');
   toast.classList.add('toast');
+  if (type === 'success') {
+    toast.classList.add('success');
+  }
   toast.textContent = message;
   toastContainer.appendChild(toast);
   setTimeout(() => { toast.remove(); }, 5000);
@@ -53,7 +56,7 @@ async function markNotificationAsRead(notificationId) {
     const data = await response.json();
     console.log('Notification marked as read:', data);
   } catch (err) {
-    console.error('Error marking notification as read:', error);
+    console.error('Error marking notification as read:', err);
   }
 }
 
@@ -142,17 +145,36 @@ fetchBloodRequests();
 // Submit Request Form Submission
 document.getElementById('submit-request-form').addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  const patientId = document.getElementById('request-patient-id').value || null;
+  const bloodType = document.getElementById('request-blood-type').value;
+  const unitsNeeded = parseInt(document.getElementById('request-units-needed')?.value) || 1;
+  const urgencyLevel = document.getElementById('request-urgency').value;
+  const requiredByDate = document.getElementById('request-date').value;
+  const locationLatitude = parseFloat(document.getElementById('request-lat').value);
+  const locationLongitude = parseFloat(document.getElementById('request-lng').value);
+
+  // Validate latitude and longitude
+  if (isNaN(locationLatitude) || locationLatitude < -90 || locationLatitude > 90) {
+    showToast('Latitude must be between -90 and 90.');
+    return;
+  }
+  if (isNaN(locationLongitude) || locationLongitude < -180 || locationLongitude > 180) {
+    showToast('Longitude must be between -180 and 180.');
+    return;
+  }
+
   const newRequest = {
-    patient_id: document.getElementById('request-patient-id').value || null,
+    patient_id: patientId,
     institution_id: userId,
-    blood_type: document.getElementById('request-blood-type').value,
-    units_needed: parseInt(document.getElementById('request-units-needed')?.value) || 1,
-    urgency_level: document.getElementById('request-urgency').value,
+    blood_type: bloodType,
+    units_needed: unitsNeeded,
+    urgency_level: urgencyLevel,
     request_date: new Date().toISOString(),
-    required_by_date: document.getElementById('request-date').value,
-    request_notes: `Request for Patient ${document.getElementById('request-patient-id').value || 'N/A'} by ${institutionData.name || 'Unknown'}`,
-    location_latitude: institutionData.latitude || null,
-    location_longitude: institutionData.longitude || null
+    required_by_date: requiredByDate,
+    request_notes: `Request for Patient ${patientId || 'N/A'} by ${institutionData.name || 'Unknown'}`,
+    location_latitude: locationLatitude,
+    location_longitude: locationLongitude
   };
 
   try {
@@ -164,10 +186,16 @@ document.getElementById('submit-request-form').addEventListener('submit', async 
       },
       body: JSON.stringify(newRequest)
     });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to submit blood request');
+    }
+
     const result = await response.json();
     bloodRequests.push({
       request_id: result.request.request_id,
-      patient_id: document.getElementById('request-patient-id').value,
+      patient_id: patientId,
       blood_type: result.request.blood_type,
       urgency_level: result.request.urgency_level,
       required_by_date: result.request.required_by_date,
@@ -176,13 +204,32 @@ document.getElementById('submit-request-form').addEventListener('submit', async 
     });
     populateBloodRequests();
     populateOverview();
-    showToast('Blood request submitted successfully!');
+    showToast('Blood request submitted successfully!', 'success');
     document.getElementById('submit-request-form').reset();
   } catch (error) {
     console.error('Error submitting blood request:', error);
-    showToast('Failed to submit blood request.');
+    showToast(error.message || 'Failed to submit blood request.');
   }
 });
+
+// Get Current Location using Geolocation API
+function getCurrentLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        document.getElementById('request-lat').value = position.coords.latitude;
+        document.getElementById('request-lng').value = position.coords.longitude;
+        showToast('Location retrieved successfully!', 'success');
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+        showToast('Unable to retrieve location. Please enter manually.');
+      }
+    );
+  } else {
+    showToast('Geolocation is not supported by this browser.');
+  }
+}
 
 // Populate Blood Requests Table
 function populateBloodRequests() {
@@ -227,7 +274,7 @@ socket.on('requestAction', (data) => {
       request.request_status = data.action === 'accepted' ? 'Matched' : 'Pending';
       request.matched_donor_id = data.action === 'accepted' ? data.donorId : null;
       populateBloodRequests();
-      showToast(data.notification_message);
+      showToast(data.notification_message, 'success');
     }
   }
 });

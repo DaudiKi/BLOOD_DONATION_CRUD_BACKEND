@@ -23,6 +23,10 @@ export const createRequest = async (req, res) => {
     });
   } catch (error) {
     console.error('Error creating blood request:', error);
+    // Check if the error is a validation error
+    if (error.message.includes('required') || error.message.includes('must be')) {
+      return res.status(400).json({ error: error.message });
+    }
     return res.status(500).json({ error: 'Internal server error.' });
   }
 };

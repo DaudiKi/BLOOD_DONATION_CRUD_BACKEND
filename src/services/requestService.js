@@ -7,7 +7,6 @@ import { query } from "../db.js";
  * @returns {Object} - The newly created request record.
  */
 export const createRequest = async (requestData) => {
-  // Destructure fields from requestData to match your table columns
   const {
     patient_id,
     institution_id,
@@ -22,8 +21,35 @@ export const createRequest = async (requestData) => {
     location_longitude
   } = requestData;
 
+  // Validate required fields
+  if (!blood_type) {
+    throw new Error('blood_type is required.');
+  }
+  if (!units_needed || !Number.isInteger(units_needed) || units_needed <= 0) {
+    throw new Error('units_needed must be a positive integer.');
+  }
+  if (!urgency_level || !['Low', 'Medium', 'High'].includes(urgency_level)) {
+    throw new Error('urgency_level must be one of: Low, Medium, High.');
+  }
+  if (!required_by_date) {
+    throw new Error('required_by_date is required.');
+  }
+
+  // Validate location fields
+  if (location_latitude === null || location_latitude === undefined) {
+    throw new Error('location_latitude is required.');
+  }
+  if (location_longitude === null || location_longitude === undefined) {
+    throw new Error('location_longitude is required.');
+  }
+  if (location_latitude < -90 || location_latitude > 90) {
+    throw new Error('location_latitude must be between -90 and 90.');
+  }
+  if (location_longitude < -180 || location_longitude > 180) {
+    throw new Error('location_longitude must be between -180 and 180.');
+  }
+
   // Build the INSERT query
-  // The columns should match exactly those in your blood_request table
   const insertQuery = `
     INSERT INTO bloodlink_schema.blood_request
       (patient_id, institution_id, blood_type, units_needed, urgency_level,
@@ -34,19 +60,18 @@ export const createRequest = async (requestData) => {
   `;
 
   // Prepare the values array
-  // You can provide defaults if any fields are optional
   const values = [
     patient_id || null,
     institution_id || null,
-    blood_type || null,
-    units_needed || null,
-    urgency_level || null,
-    request_date || new Date(),      // or rely on DB defaults if you prefer
-    required_by_date || null,
-    request_status || 'pending',     // or your preferred default status
+    blood_type,
+    units_needed,
+    urgency_level,
+    request_date || new Date(),
+    required_by_date,
+    request_status || 'pending',
     request_notes || '',
-    location_latitude || null,
-    location_longitude || null
+    location_latitude,
+    location_longitude
   ];
 
   // Execute the query
