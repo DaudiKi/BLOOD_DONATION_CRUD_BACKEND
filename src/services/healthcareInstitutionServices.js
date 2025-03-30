@@ -1,3 +1,4 @@
+// services/healthcareInstitutionServices.js
 import { query } from "../db.js";
 import bcrypt from 'bcrypt';
 
@@ -9,9 +10,17 @@ export const getHealthcareInstitutes = async () => {
   return rows;
 };
 
-// Create a new healthcare institution
-export const createHealthcareInstitutes = async (instituteData) => {
-  // Destructure role with a default of 'healthcare'
+// Get a specific healthcare institution by ID
+export const getHealthcareInstitutionById = async (institutionId) => {
+  const { rows } = await query(
+    'SELECT * FROM bloodlink_schema.healthcare_institution WHERE institution_id = $1',
+    [institutionId]
+  );
+  return rows[0];
+};
+
+// Create a new healthcare institution (renamed for consistency)
+export const createInstitution = async (instituteData) => {
   const {
     name,
     email,
@@ -28,11 +37,10 @@ export const createHealthcareInstitutes = async (instituteData) => {
     date_registered,
     last_login,
     is_active,
-    role = 'healthcare'
+    role = 'healthcare_institution'
   } = instituteData;
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
   
   const { rows } = await query(
     `INSERT INTO bloodlink_schema.healthcare_institution 
@@ -43,9 +51,8 @@ export const createHealthcareInstitutes = async (instituteData) => {
   return rows[0];
 };
 
-
-// Update an existing healthcare institution
-export const updateHealthcareInstitutes = async (instituteData, institution_id) => {
+// Update an existing healthcare institution (renamed for consistency)
+export const updateInstitution = async (instituteData, institution_id) => {
   const {
     name,
     email,
@@ -64,7 +71,6 @@ export const updateHealthcareInstitutes = async (instituteData, institution_id) 
     is_active
   } = instituteData;
 
-  // Hash the password
   const hashedPassword = await bcrypt.hash(password, saltRounds);
   
   const { rows } = await query(
@@ -76,8 +82,8 @@ export const updateHealthcareInstitutes = async (instituteData, institution_id) 
   return rows[0];
 };
 
-// Delete a healthcare institution
-export const deleteHealthcareInstitutes = async (institution_id) => {
+// Delete a healthcare institution (renamed for consistency)
+export const deleteInstitution = async (institution_id) => {
   const { rowCount } = await query(
     `DELETE FROM bloodlink_schema.healthcare_institution WHERE institution_id = $1`,
     [institution_id]
@@ -93,4 +99,13 @@ export const searchHealthcareInstitutes = async (searchTerm) => {
     [`%${searchTerm}%`]
   );
   return rows;
+};
+
+// Get healthcare institution by email for duplicate-checking in signup logic
+export const getHealthcareInstitutionByEmail = async (email) => {
+  const { rows } = await query(
+    'SELECT * FROM bloodlink_schema.healthcare_institution WHERE email = $1',
+    [email]
+  );
+  return rows[0];
 };

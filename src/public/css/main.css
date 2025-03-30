@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+@layer components {
+  .btn-blood {
+    @apply btn btn-primary normal-case;
+  }
+
+  .btn-blood-outline {
+    @apply btn btn-outline btn-primary normal-case;
+  }
+
+  .card-blood {
+    @apply card bg-base-100 shadow-xl;
+  }
+
+  .input-blood {
+    @apply input input-bordered w-full focus:input-primary;
+  }
+
+  .select-blood {
+    @apply select select-bordered w-full focus:select-primary;
+  }
+
+  .badge-blood {
+    @apply badge badge-lg;
+  }
+
+  .table-blood {
+    @apply table table-zebra w-full;
+  }
+
+  .drawer-blood {
+    @apply drawer-side bg-base-200;
+  }
+
+  .navbar-blood {
+    @apply navbar bg-base-100 shadow-lg;
+  }
+
+  .alert-blood {
+    @apply alert shadow-lg;
+  }
+
+  .modal-blood {
+    @apply modal-box relative;
+  }
+
+  .toast-blood {
+    @apply toast toast-end;
+  }
+}
+
+/* Custom animations */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.33);
+  }
+  80%, 100% {
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-dot {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.8);
+  }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 1.25s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.25s cubic-bezier(0.455, 0.03, 0.515, 0.955) -0.4s infinite;
+} 

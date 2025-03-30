@@ -1,3 +1,4 @@
+// middleware/authMiddleware.js
 import jwt from 'jsonwebtoken';
 
 export const verifyToken = (req, res, next) => {
@@ -16,7 +17,7 @@ export const verifyToken = (req, res, next) => {
       console.error('Token verification failed:', err);
       return res.status(403).json({ error: 'Invalid token.' });
     }
-    req.user = decoded; // For example, { userId, userType, iat, exp }
+    req.user = decoded; // Example: { userId, userType, iat, exp }
     next();
   });
 };

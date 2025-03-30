@@ -7,15 +7,9 @@
   <!-- Link to the CSS file -->
   <link rel="stylesheet" href="style.css" />
   <!-- Font Awesome for icons -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <!-- Google Font -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="scene">
@@ -55,41 +49,26 @@
             <h2>Welcome Back</h2>
             <p>Enter your credentials to continue</p>
             <div id="login-error" class="error-message"></div>
-
             <!-- Email -->
             <div class="input-group">
               <label for="login-email">Email</label>
               <div class="input-field">
                 <i class="fas fa-envelope"></i>
-                <input
-                  type="email"
-                  id="login-email"
-                  name="email"
-                  placeholder="Enter your email"
-                  required
-                />
+                <input type="email" id="login-email" name="email" placeholder="Enter your email" required />
               </div>
             </div>
-
             <!-- Password -->
             <div class="input-group">
               <div class="label-row">
                 <label for="login-password">Password</label>
-                <a href="#" class="forgot-password">Forgot Password?</a>
+                <a href="#" class="forgot-password" onclick="showForgotPasswordForm()">Forgot Password?</a>
               </div>
               <div class="input-field">
                 <i class="fas fa-lock"></i>
-                <input
-                  type="password"
-                  id="login-password"
-                  name="password"
-                  placeholder="Enter your password"
-                  required
-                />
+                <input type="password" id="login-password" name="password" placeholder="Enter your password" required />
                 <i class="fas fa-eye-slash toggle-password"></i>
               </div>
             </div>
-
             <!-- User Type -->
             <div class="input-group">
               <label for="login-user-type">User Type</label>
@@ -100,12 +79,76 @@
                   <option value="donor">Donor</option>
                   <option value="patient">Patient</option>
                   <option value="healthcare_institution">Healthcare Institution</option>
+                  <option value="admin">Admin</option>
                 </select>
               </div>
             </div>
-
             <!-- Submit -->
             <button type="submit" class="primary-btn">Login</button>
+          </form>
+        </section>
+
+        <!-- FORGOT PASSWORD SECTION -->
+        <section id="forgot-password-section" class="auth-section">
+          <form id="forgot-password-form" class="auth-form">
+            <h2>Reset Password</h2>
+            <p>Enter your email to receive password reset instructions</p>
+            <div id="forgot-password-error" class="error-message"></div>
+            <div id="forgot-password-success" class="success-message"></div>
+            <!-- Email -->
+            <div class="input-group">
+              <label for="forgot-email">Email</label>
+              <div class="input-field">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="forgot-email" name="email" placeholder="Enter your email" required />
+              </div>
+            </div>
+            <!-- User Type -->
+            <div class="input-group">
+              <label for="forgot-user-type">User Type</label>
+              <div class="input-field">
+                <i class="fas fa-user-check"></i>
+                <select id="forgot-user-type" name="userType" required>
+                  <option value="">Select</option>
+                  <option value="donor">Donor</option>
+                  <option value="patient">Patient</option>
+                  <option value="healthcare_institution">Healthcare Institution</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+            </div>
+            <!-- Submit -->
+            <button type="submit" class="primary-btn">Send Reset Instructions</button>
+            <button type="button" class="secondary-btn" onclick="showLoginForm()">Back to Login</button>
+          </form>
+        </section>
+
+        <!-- RESET PASSWORD SECTION -->
+        <section id="reset-password-section" class="auth-section">
+          <form id="reset-password-form" class="auth-form">
+            <h2>Set New Password</h2>
+            <p>Enter your new password</p>
+            <div id="reset-password-error" class="error-message"></div>
+            <!-- New Password -->
+            <div class="input-group">
+              <label for="new-password">New Password</label>
+              <div class="input-field">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="new-password" name="newPassword" placeholder="Enter new password" required />
+                <i class="fas fa-eye-slash toggle-password"></i>
+              </div>
+            </div>
+            <!-- Confirm Password -->
+            <div class="input-group">
+              <label for="confirm-password">Confirm Password</label>
+              <div class="input-field">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="confirm-password" name="confirmPassword" placeholder="Confirm new password" required />
+                <i class="fas fa-eye-slash toggle-password"></i>
+              </div>
+            </div>
+            <!-- Submit -->
+            <button type="submit" class="primary-btn">Reset Password</button>
           </form>
         </section>
 
@@ -117,14 +160,11 @@
             <button class="signup-tab-btn" data-target="patient-form">Patient</button>
             <button class="signup-tab-btn" data-target="institution-form">Institution</button>
           </div>
-
           <div class="signup-forms">
-
             <!-- DONOR FORM -->
             <form id="donor-form" class="signup-form active">
               <h2>Donor Sign Up</h2>
               <div id="donor-error" class="error-message"></div>
-
               <!-- First & Last Name -->
               <div class="input-row">
                 <div class="input-group">
@@ -142,7 +182,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Email & Password -->
               <div class="input-group">
                 <label for="donor-email">Email</label>
@@ -159,7 +198,6 @@
                   <i class="fas fa-eye-slash toggle-password"></i>
                 </div>
               </div>
-
               <!-- Phone & DOB -->
               <div class="input-row">
                 <div class="input-group">
@@ -177,7 +215,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Blood Type & Weight -->
               <div class="input-row">
                 <div class="input-group">
@@ -205,7 +242,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Address & City -->
               <div class="input-row">
                 <div class="input-group">
@@ -223,7 +259,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Lat & Long -->
               <div class="input-row">
                 <div class="input-group">
@@ -241,7 +276,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Last Donation & Availability -->
               <div class="input-row">
                 <div class="input-group">
@@ -262,7 +296,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Medical Conditions -->
               <div class="input-group">
                 <label for="donor-medical">Medical Conditions</label>
@@ -271,7 +304,6 @@
                   <textarea id="donor-medical" name="medical_conditions" placeholder="List any conditions"></textarea>
                 </div>
               </div>
-
               <!-- Submit -->
               <button type="submit" class="primary-btn">Sign Up as Donor</button>
             </form>
@@ -280,7 +312,6 @@
             <form id="patient-form" class="signup-form">
               <h2>Patient Sign Up</h2>
               <div id="patient-error" class="error-message"></div>
-
               <!-- First & Last Name -->
               <div class="input-row">
                 <div class="input-group">
@@ -298,7 +329,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Email & Password -->
               <div class="input-group">
                 <label for="patient-email">Email</label>
@@ -315,7 +345,6 @@
                   <i class="fas fa-eye-slash toggle-password"></i>
                 </div>
               </div>
-
               <!-- Phone & DOB -->
               <div class="input-row">
                 <div class="input-group">
@@ -333,7 +362,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Blood Type -->
               <div class="input-group">
                 <label for="patient-blood">Blood Type</label>
@@ -352,7 +380,6 @@
                   </select>
                 </div>
               </div>
-
               <!-- Address & City -->
               <div class="input-row">
                 <div class="input-group">
@@ -370,7 +397,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Lat & Long -->
               <div class="input-row">
                 <div class="input-group">
@@ -388,7 +414,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Medical & Emergency Contact -->
               <div class="input-group">
                 <label for="patient-medical">Medical Conditions</label>
@@ -413,7 +438,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Submit -->
               <button type="submit" class="primary-btn">Sign Up as Patient</button>
             </form>
@@ -422,7 +446,6 @@
             <form id="institution-form" class="signup-form">
               <h2>Institution Sign Up</h2>
               <div id="institution-error" class="error-message"></div>
-
               <!-- Institution Name & Email -->
               <div class="input-row">
                 <div class="input-group">
@@ -440,7 +463,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Password & Phone -->
               <div class="input-row">
                 <div class="input-group">
@@ -459,7 +481,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- License Number & Institution Type -->
               <div class="input-row">
                 <div class="input-group">
@@ -482,7 +503,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Address & City -->
               <div class="input-row">
                 <div class="input-group">
@@ -500,7 +520,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Lat & Long -->
               <div class="input-row">
                 <div class="input-group">
@@ -518,7 +537,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Contact Person -->
               <div class="input-row">
                 <div class="input-group">
@@ -536,7 +554,6 @@
                   </div>
                 </div>
               </div>
-
               <!-- Submit -->
               <button type="submit" class="primary-btn">Sign Up as Institution</button>
             </form>
@@ -545,7 +562,7 @@
       </div>
     </div>
   </div>
-
+  
   <!-- JavaScript for interactivity -->
   <script>
     const card3D = document.querySelector('.card-3d');
@@ -567,18 +584,22 @@
       card3D.style.transform = `rotateY(0deg) rotateX(0deg)`;
     });
     
-  
-    // Toggle password visibility (existing code)
-    document.querySelectorAll('.toggle-password').forEach(toggle => {
-      toggle.addEventListener('click', function() {
-        const input = this.previousElementSibling;
-        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-        input.setAttribute('type', type);
-        this.classList.toggle('fa-eye');
-        this.classList.toggle('fa-eye-slash');
+    // Toggle password visibility
+    document.querySelectorAll('.toggle-password').forEach(icon => {
+      icon.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('input');
+        if (input.type === 'password') {
+          input.type = 'text';
+          this.classList.remove('fa-eye-slash');
+          this.classList.add('fa-eye');
+        } else {
+          input.type = 'password';
+          this.classList.remove('fa-eye');
+          this.classList.add('fa-eye-slash');
+        }
       });
     });
-  
+    
     // Switch top-level (Login vs Sign Up)
     const tabButtons = document.querySelectorAll('.tab-btn');
     const authSections = document.querySelectorAll('.auth-section');
@@ -590,7 +611,7 @@
         document.getElementById(this.dataset.target).classList.add('active');
       });
     });
-  
+    
     // Switch nested signup forms
     const signupTabButtons = document.querySelectorAll('.signup-tab-btn');
     const signupForms = document.querySelectorAll('.signup-form');
@@ -602,218 +623,306 @@
         document.getElementById(this.dataset.target).classList.add('active');
       });
     });
-  
-     /**********************************************************************
-   *  FORM SUBMISSION - Actual fetch requests to your backend
-   **********************************************************************/
-  
-  // LOGIN FORM with redirect logic
-document.getElementById('login-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
+    
+    /**********************************************************************
+     *  FORM SUBMISSION - Actual fetch requests to your backend
+     **********************************************************************/
+    
+    // LOGIN FORM with redirect logic
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const userType = document.getElementById('login-user-type').value;
 
-  // Gather login data
-  const email = document.getElementById('login-email').value;
-  const password = document.getElementById('login-password').value;
-  const userType = document.getElementById('login-user-type').value; // donor, patient, healthcare_institution, admin
+      try {
+        const response = await fetch(`/api/auth/login/${userType}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
 
-  // Build endpoint based on user type (explicitly including localhost:3000)
-  const endpoint = `http://localhost:3000/api/login/${userType}`;
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Login failed');
+        }
 
-  try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+        // Store auth data
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userId', data[userType].id);
+        localStorage.setItem('userType', userType);
+        localStorage.setItem('email', data[userType].email);
+
+        // Redirect based on user type
+        switch(userType) {
+          case 'donor':
+            window.location.replace('/donor-dashboard');
+            break;
+          case 'patient':
+            window.location.replace('/patient-dashboard');
+            break;
+          case 'healthcare_institution':
+            window.location.replace('/healthcare-dashboard');
+            break;
+          case 'admin':
+            window.location.replace('/admin-dashboard');
+            break;
+          default:
+            window.location.replace('/');
+        }
+      } catch (error) {
+        document.getElementById('login-error').textContent = error.message;
+      }
     });
-    const data = await response.json();
+    
+    // DONOR SIGNUP
+    document.getElementById('donor-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      // Gather donor data
+      const first_name = document.getElementById('donor-first-name').value;
+      const last_name = document.getElementById('donor-last-name').value;
+      const email = document.getElementById('donor-email').value;
+      const password = document.getElementById('donor-password').value;
+      const phone_number = document.getElementById('donor-phone').value;
+      const date_of_birth = document.getElementById('donor-dob').value;
+      const blood_type = document.getElementById('donor-blood').value;
+      const weight = document.getElementById('donor-weight').value;
+      const address = document.getElementById('donor-address').value;
+      const city = document.getElementById('donor-city').value;
+      const latitude = document.getElementById('donor-lat').value;
+      const longitude = document.getElementById('donor-lng').value;
+      const last_donation_date = document.getElementById('donor-last-donation').value;
+      const is_available = document.getElementById('donor-available').value;
+      const medical_conditions = document.getElementById('donor-medical').value;
+    
+      try {
+        const response = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            role: 'donor', // Standardized field
+            first_name,
+            last_name,
+            email,
+            password,
+            phone_number,
+            date_of_birth,
+            blood_type,
+            weight,
+            address,
+            city,
+            latitude,
+            longitude,
+            last_donation_date,
+            is_available,
+            medical_conditions
+          })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          console.log('Donor signup success:', data);
+          alert('Donor signup successful!');
+        } else {
+          document.getElementById('donor-error').textContent = data.error || 'Signup failed.';
+        }
+      } catch (error) {
+        console.error('Network error:', error);
+        document.getElementById('donor-error').textContent = 'Network error. Please try again.';
+      }
+    });
+    
+    // PATIENT SIGNUP
+    document.getElementById('patient-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const first_name = document.getElementById('patient-first-name').value;
+      const last_name = document.getElementById('patient-last-name').value;
+      const email = document.getElementById('patient-email').value;
+      const password = document.getElementById('patient-password').value;
+      const phone_number = document.getElementById('patient-phone').value;
+      const date_of_birth = document.getElementById('patient-dob').value;
+      const blood_type = document.getElementById('patient-blood').value;
+      const address = document.getElementById('patient-address').value;
+      const city = document.getElementById('patient-city').value;
+      const latitude = document.getElementById('patient-lat').value;
+      const longitude = document.getElementById('patient-lng').value;
+      const medical_conditions = document.getElementById('patient-medical').value;
+      const emergency_contact_name = document.getElementById('patient-emergency-name').value;
+      const emergency_contact_phone = document.getElementById('patient-emergency-phone').value;
+    
+      try {
+        const response = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            role: 'patient', // Standardized field
+            first_name,
+            last_name,
+            email,
+            password,
+            phone_number,
+            date_of_birth,
+            blood_type,
+            address,
+            city,
+            latitude,
+            longitude,
+            medical_conditions,
+            emergency_contact_name,
+            emergency_contact_phone
+          })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          console.log('Patient signup success:', data);
+          alert('Patient signup successful!');
+        } else {
+          document.getElementById('patient-error').textContent = data.error || 'Signup failed.';
+        }
+      } catch (error) {
+        console.error('Network error:', error);
+        document.getElementById('patient-error').textContent = 'Network error. Please try again.';
+      }
+    });
+    
+    // INSTITUTION SIGNUP
+    document.getElementById('institution-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('inst-name').value;
+      const email = document.getElementById('inst-email').value;
+      const password = document.getElementById('inst-password').value;
+      const phone_number = document.getElementById('inst-phone').value;
+      const license_number = document.getElementById('inst-license').value;
+      const institution_type = document.getElementById('inst-type').value;
+      const address = document.getElementById('inst-address').value;
+      const city = document.getElementById('inst-city').value;
+      const latitude = document.getElementById('inst-lat').value;
+      const longitude = document.getElementById('inst-lng').value;
+      const contact_person_name = document.getElementById('inst-contact-name').value;
+      const contact_person_phone = document.getElementById('inst-contact-phone').value;
+    
+      try {
+        const response = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            role: 'healthcare_institution', // Standardized field
+            name,
+            email,
+            password,
+            phone_number,
+            license_number,
+            institution_type,
+            address,
+            city,
+            latitude,
+            longitude,
+            contact_person_name,
+            contact_person_phone
+          })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          console.log('Institution signup success:', data);
+          alert('Institution signup successful!');
+        } else {
+          document.getElementById('institution-error').textContent = data.error || 'Signup failed.';
+        }
+      } catch (error) {
+        console.error('Network error:', error);
+        document.getElementById('institution-error').textContent = 'Network error. Please try again.';
+      }
+    });
 
-    if (response.ok) {
-      // Save token, userType, and userId (if provided) in localStorage
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userType', userType);
-      if (data.userId) {
-        localStorage.setItem('userId', data.userId);
-      }
-      alert('Login successful!');
-      // Redirect to role-specific dashboard
-      if (userType === 'donor') {
-        window.location.href = '/donor-dashboard.html';
-      } else if (userType === 'patient') {
-        window.location.href = '/patient-dashboard.html';
-      } else if (userType === 'healthcare_institution') {
-        window.location.href = '/healthcare-dashboard.html';
-      } else if (userType === 'admin') {
-        window.location.href = '/admin-dashboard.html';
-      }
-    } else {
-      document.getElementById('login-error').textContent = data.error || 'Login failed.';
+    // Show/Hide form functions
+    function showLoginForm() {
+      document.getElementById('login-section').classList.add('active');
+      document.getElementById('forgot-password-section').classList.remove('active');
+      document.getElementById('reset-password-section').classList.remove('active');
     }
-  } catch (error) {
-    console.error('Network error:', error);
-    document.getElementById('login-error').textContent = 'Network error. Please try again.';
-  }
-});
 
-  
-  // DONOR SIGNUP (unchanged or similar to previous implementation)
-  document.getElementById('donor-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    // Gather donor data (as before)
-    const first_name = document.getElementById('donor-first-name').value;
-    const last_name = document.getElementById('donor-last-name').value;
-    const email = document.getElementById('donor-email').value;
-    const password = document.getElementById('donor-password').value;
-    const phone_number = document.getElementById('donor-phone').value;
-    const date_of_birth = document.getElementById('donor-dob').value;
-    const blood_type = document.getElementById('donor-blood').value;
-    const weight = document.getElementById('donor-weight').value;
-    const address = document.getElementById('donor-address').value;
-    const city = document.getElementById('donor-city').value;
-    const latitude = document.getElementById('donor-lat').value;
-    const longitude = document.getElementById('donor-lng').value;
-    const last_donation_date = document.getElementById('donor-last-donation').value;
-    const is_available = document.getElementById('donor-available').value;
-    const medical_conditions = document.getElementById('donor-medical').value;
-  
-    try {
-      const response = await fetch('/api/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userType: 'donor',
-          first_name,
-          last_name,
-          email,
-          password,
-          phone_number,
-          date_of_birth,
-          blood_type,
-          weight,
-          address,
-          city,
-          latitude,
-          longitude,
-          last_donation_date,
-          is_available,
-          medical_conditions
-        })
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log('Donor signup success:', data);
-        alert('Donor signup successful!');
-      } else {
-        document.getElementById('donor-error').textContent = data.error || 'Signup failed.';
-      }
-    } catch (error) {
-      console.error('Network error:', error);
-      document.getElementById('donor-error').textContent = 'Network error. Please try again.';
+    function showForgotPasswordForm() {
+      document.getElementById('login-section').classList.remove('active');
+      document.getElementById('forgot-password-section').classList.add('active');
+      document.getElementById('reset-password-section').classList.remove('active');
     }
-  });
-  
-  // PATIENT SIGNUP (unchanged)
-  document.getElementById('patient-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    // Gather patient data (as before)
-    const first_name = document.getElementById('patient-first-name').value;
-    const last_name = document.getElementById('patient-last-name').value;
-    const email = document.getElementById('patient-email').value;
-    const password = document.getElementById('patient-password').value;
-    const phone_number = document.getElementById('patient-phone').value;
-    const date_of_birth = document.getElementById('patient-dob').value;
-    const blood_type = document.getElementById('patient-blood').value;
-    const address = document.getElementById('patient-address').value;
-    const city = document.getElementById('patient-city').value;
-    const latitude = document.getElementById('patient-lat').value;
-    const longitude = document.getElementById('patient-lng').value;
-    const medical_conditions = document.getElementById('patient-medical').value;
-    const emergency_contact_name = document.getElementById('patient-emergency-name').value;
-    const emergency_contact_phone = document.getElementById('patient-emergency-phone').value;
-  
-    try {
-      const response = await fetch('/api/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userType: 'patient',
-          first_name,
-          last_name,
-          email,
-          password,
-          phone_number,
-          date_of_birth,
-          blood_type,
-          address,
-          city,
-          latitude,
-          longitude,
-          medical_conditions,
-          emergency_contact_name,
-          emergency_contact_phone
-        })
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log('Patient signup success:', data);
-        alert('Patient signup successful!');
-      } else {
-        document.getElementById('patient-error').textContent = data.error || 'Signup failed.';
-      }
-    } catch (error) {
-      console.error('Network error:', error);
-      document.getElementById('patient-error').textContent = 'Network error. Please try again.';
+
+    function showResetPasswordForm() {
+      document.getElementById('login-section').classList.remove('active');
+      document.getElementById('forgot-password-section').classList.remove('active');
+      document.getElementById('reset-password-section').classList.add('active');
     }
-  });
-  
-  // INSTITUTION SIGNUP (unchanged)
-  document.getElementById('institution-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    // Gather institution data (as before)
-    const name = document.getElementById('inst-name').value;
-    const email = document.getElementById('inst-email').value;
-    const password = document.getElementById('inst-password').value;
-    const phone_number = document.getElementById('inst-phone').value;
-    const license_number = document.getElementById('inst-license').value;
-    const institution_type = document.getElementById('inst-type').value;
-    const address = document.getElementById('inst-address').value;
-    const city = document.getElementById('inst-city').value;
-    const latitude = document.getElementById('inst-lat').value;
-    const longitude = document.getElementById('inst-lng').value;
-    const contact_person_name = document.getElementById('inst-contact-name').value;
-    const contact_person_phone = document.getElementById('inst-contact-phone').value;
-  
-    try {
-      const response = await fetch('/api/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userType: 'healthcare_institution',
-          name,
-          email,
-          password,
-          phone_number,
-          license_number,
-          institution_type,
-          address,
-          city,
-          latitude,
-          longitude,
-          contact_person_name,
-          contact_person_phone
-        })
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log('Institution signup success:', data);
-        alert('Institution signup successful!');
-      } else {
-        document.getElementById('institution-error').textContent = data.error || 'Signup failed.';
+
+    // Forgot Password Form Handler
+    document.getElementById('forgot-password-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('forgot-email').value;
+      const userType = document.getElementById('forgot-user-type').value;
+
+      try {
+        const response = await fetch('/api/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, userType })
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          document.getElementById('forgot-password-success').textContent = data.message;
+          // In development, store the reset token (remove in production)
+          localStorage.setItem('resetToken', data.resetToken);
+          localStorage.setItem('resetUserType', userType);
+          // Show reset password form
+          showResetPasswordForm();
+        } else {
+          document.getElementById('forgot-password-error').textContent = data.error;
+        }
+      } catch (error) {
+        console.error('Network error:', error);
+        document.getElementById('forgot-password-error').textContent = 'Network error. Please try again.';
       }
-    } catch (error) {
-      console.error('Network error:', error);
-      document.getElementById('institution-error').textContent = 'Network error. Please try again.';
-    }
-  });
-  </script>  
+    });
+
+    // Reset Password Form Handler
+    document.getElementById('reset-password-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (newPassword !== confirmPassword) {
+        document.getElementById('reset-password-error').textContent = 'Passwords do not match.';
+        return;
+      }
+
+      // Get token and userType from localStorage (in production, get token from URL)
+      const token = localStorage.getItem('resetToken');
+      const userType = localStorage.getItem('resetUserType');
+
+      try {
+        const response = await fetch('/api/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, newPassword, userType })
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          // Clear stored reset data
+          localStorage.removeItem('resetToken');
+          localStorage.removeItem('resetUserType');
+          // Show success message and return to login
+          alert('Password reset successful. Please login with your new password.');
+          showLoginForm();
+        } else {
+          document.getElementById('reset-password-error').textContent = data.error;
+        }
+      } catch (error) {
+        console.error('Network error:', error);
+        document.getElementById('reset-password-error').textContent = 'Network error. Please try again.';
+      }
+    });
+  </script>
 </body>
 </html>

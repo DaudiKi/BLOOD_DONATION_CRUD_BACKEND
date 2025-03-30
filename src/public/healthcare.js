@@ -1,11 +1,128 @@
-// Initialize Socket.IO with authentication
-const socket = io({
-  auth: { token: localStorage.getItem('token') }
-});
-const userId = localStorage.getItem('userId');
-if (userId) {
-  socket.emit('join', userId);
+// healthcare.js
+// Global variables
+let socket = null;
+
+// Session Management
+function checkSession() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = '/login';
+    return;
+  }
+  
+  // Check token expiration
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (payload.exp * 1000 < Date.now()) {
+      localStorage.clear();
+      window.location.href = '/login';
+    }
+  } catch (e) {
+    console.error('Error checking session:', e);
+    localStorage.clear();
+    window.location.href = '/login';
+  }
 }
+
+// Check session every 5 minutes
+setInterval(checkSession, 300000);
+
+// Loading State Management
+function showLoading(elementId) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.classList.add('loading');
+  }
+}
+
+function hideLoading(elementId) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.classList.remove('loading');
+  }
+}
+
+// Form Validation
+function validateForm(formData) {
+  const errors = [];
+  for (const [key, value] of formData.entries()) {
+    if (!value && key !== 'optional_field') {
+      errors.push(`${key.replace('_', ' ')} is required`);
+    }
+  }
+  return errors;
+}
+
+// Initialize Socket.IO with authentication
+function initializeSocket() {
+  if (socket) {
+    socket.disconnect();
+  }
+  
+  socket = io({
+    reconnection: true,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    reconnectionAttempts: 5,
+    auth: { token: localStorage.getItem('token') }
+  });
+
+  const userId = localStorage.getItem('userId');
+  if (userId) {
+    socket.emit('join', userId);
+  }
+
+  // Socket Connection Status
+  socket.on('connect', () => {
+    console.log('Connected to server');
+    showToast('Connected to server', 'success');
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Disconnected from server');
+    showToast('Lost connection to server');
+  });
+
+  socket.on('reconnect', (attemptNumber) => {
+    console.log('Reconnected to server after ' + attemptNumber + ' attempts');
+    showToast('Reconnected to server', 'success');
+  });
+
+  socket.on('reconnect_failed', () => {
+    showToast('Unable to reconnect to server. Please refresh the page.', 'error');
+  });
+
+  socket.on('reconnect_attempt', (attemptNumber) => {
+    console.log(`Attempting to reconnect... (${attemptNumber})`);
+  });
+
+  // Listen for real-time updates
+  socket.on('inventory_update', (data) => {
+    updateInventory(data);
+    showToast('Blood inventory updated', 'info');
+  });
+
+  socket.on('new_request', (data) => {
+    updateRequestsTable(data);
+    showToast('New blood request received', 'info');
+  });
+
+  socket.on('donor_matched', (data) => {
+    updateDonorMatch(data);
+    showToast('Donor matched to request', 'success');
+  });
+
+  socket.on('request_fulfilled', (data) => {
+    updateRequestStatus(data);
+    showToast('Request fulfilled successfully', 'success');
+  });
+}
+
+// Error Handling
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Unhandled promise rejection:', event.reason);
+  showToast('An unexpected error occurred. Please try again.', 'error');
+});
 
 // Toast Notification
 function showToast(message, type = 'error') {
@@ -62,21 +179,37 @@ async function markNotificationAsRead(notificationId) {
 
 async function fetchNotifications() {
   const spinner = document.getElementById('loading-spinner');
-  spinner.style.display = 'block';
+  if (spinner) {
+    spinner.style.display = 'block';
+  }
+  
   try {
-    const response = await fetch(`/api/notifications?userId=${userId}`, {
+    const userId = localStorage.getItem('userId');
+    const userType = localStorage.getItem('userType') || 'healthcare_institution';
+    
+    const response = await fetch(`/api/notifications?userId=${userId}&userType=${userType}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch notifications: ${response.status}`);
+    }
+    
     const notifications = await response.json();
-    spinner.style.display = 'none';
+    if (spinner) {
+      spinner.style.display = 'none';
+    }
     notifications.forEach(notification => updateNotifications(notification));
   } catch (error) {
-    spinner.style.display = 'none';
+    if (spinner) {
+      spinner.style.display = 'none';
+    }
     console.error('Error fetching notifications:', error);
+    showToast('Failed to load notifications', 'error');
   }
 }
 
@@ -85,6 +218,7 @@ fetchNotifications();
 // Fetch Institution Data
 let institutionData = {};
 async function fetchInstitutionData() {
+  showLoading('institution-data');
   try {
     const response = await fetch('/api/institutions/me', {
       headers: {
@@ -92,11 +226,16 @@ async function fetchInstitutionData() {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     });
+    if (!response.ok) {
+      throw new Error('Failed to fetch institution data');
+    }
     institutionData = await response.json();
     populateOverview();
   } catch (error) {
     console.error('Error fetching institution data:', error);
-    showToast('Failed to load institution details.');
+    showToast('Failed to load institution details.', 'error');
+  } finally {
+    hideLoading('institution-data');
   }
 }
 
@@ -104,7 +243,7 @@ async function fetchInstitutionData() {
 let bloodRequests = [];
 async function fetchBloodRequests() {
   try {
-    const response = await fetch(`/api/institutions/${userId}/requests`, {
+    const response = await fetch(`/api/institutions/${localStorage.getItem('userId')}/requests`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -123,7 +262,7 @@ async function fetchBloodRequests() {
 let inventoryData = [];
 async function fetchInventory() {
   try {
-    const response = await fetch(`/api/institutions/${userId}/inventory`, {
+    const response = await fetch(`/api/institutions/${localStorage.getItem('userId')}/inventory`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
@@ -139,52 +278,40 @@ async function fetchInventory() {
 // Populate Overview
 function populateOverview() {
   document.getElementById('institution-name').textContent = institutionData.name || 'N/A';
-  document.getElementById('active-requests').textContent = bloodRequests.filter(r => r.request_status === 'Pending' || r.request_status === 'Matched').length || '0';
-  document.getElementById('matched-donors').textContent = bloodRequests.filter(r => r.request_status === 'Matched').length || '0';
-  document.getElementById('fulfilled-requests').textContent = bloodRequests.filter(r => r.request_status === 'Fulfilled').length || '0';
+  document.getElementById('active-requests').textContent = bloodRequests.filter(r => r.request_status === 'pending' || r.request_status === 'matched').length || '0';
+  document.getElementById('matched-donors').textContent = bloodRequests.filter(r => r.request_status === 'matched').length || '0';
+  document.getElementById('fulfilled-requests').textContent = bloodRequests.filter(r => r.request_status === 'fulfilled').length || '0';
 }
 
 fetchInstitutionData();
 fetchBloodRequests();
 fetchInventory();
 
-// Submit Request Form Submission
-document.getElementById('submit-request-form').addEventListener('submit', async (e) => {
+// Enhanced form submission with validation
+document.getElementById('submit-request-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
+  showLoading('submit-request-btn');
 
-  const patientId = document.getElementById('request-patient-id').value || null;
-  const bloodType = document.getElementById('request-blood-type').value;
-  const unitsNeeded = parseInt(document.getElementById('request-units-needed')?.value) || 1;
-  const urgencyLevel = document.getElementById('request-urgency').value;
-  const requiredByDate = document.getElementById('request-date').value;
-  const locationLatitude = parseFloat(document.getElementById('request-lat').value);
-  const locationLongitude = parseFloat(document.getElementById('request-lng').value);
-
-  // Validate latitude and longitude
-  if (isNaN(locationLatitude) || locationLatitude < -90 || locationLatitude > 90) {
-    showToast('Latitude must be between -90 and 90.');
-    return;
-  }
-  if (isNaN(locationLongitude) || locationLongitude < -180 || locationLongitude > 180) {
-    showToast('Longitude must be between -180 and 180.');
+  const formData = new FormData(e.target);
+  const errors = validateForm(formData);
+  
+  if (errors.length > 0) {
+    errors.forEach(error => showToast(error, 'error'));
+    hideLoading('submit-request-btn');
     return;
   }
 
   const newRequest = {
-    patient_id: patientId,
-    institution_id: userId,
-    blood_type: bloodType,
-    units_needed: unitsNeeded,
-    urgency_level: urgencyLevel,
-    request_date: new Date().toISOString(),
-    required_by_date: requiredByDate,
-    request_notes: `Request for Patient ${patientId || 'N/A'} by ${institutionData.name || 'Unknown'}`,
-    location_latitude: locationLatitude,
-    location_longitude: locationLongitude
+    blood_type: formData.get('blood_type'),
+    units_needed: parseInt(formData.get('units_needed')) || 1,
+    urgency_level: formData.get('urgency_level'),
+    required_by_date: formData.get('required_by_date'),
+    location_latitude: parseFloat(formData.get('location_latitude')),
+    location_longitude: parseFloat(formData.get('location_longitude'))
   };
 
   try {
-    const response = await fetch('/api/blood-requests', {
+    const response = await fetch('/blood-requests', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -194,101 +321,149 @@ document.getElementById('submit-request-form').addEventListener('submit', async 
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to submit blood request');
+      throw new Error('Failed to submit request');
     }
 
     const result = await response.json();
-    bloodRequests.push({
-      request_id: result.request.request_id,
-      patient_id: patientId,
-      blood_type: result.request.blood_type,
-      urgency_level: result.request.urgency_level,
-      required_by_date: result.request.required_by_date,
-      request_status: result.request.request_status,
-      matched_donor_id: null
-    });
-    populateBloodRequests();
-    populateOverview();
-    showToast('Blood request submitted successfully!', 'success');
-    document.getElementById('submit-request-form').reset();
-    socket.emit('bloodRequest', {
-      requestId: result.request.request_id,
-      bloodType: result.request.blood_type,
-      urgency: result.request.urgency_level,
-      patientId: patientId,
-      institutionId: userId,
-      notification_message: `New blood request for ${bloodType} by ${institutionData.name || 'Institution'}`
-    });
+    showToast('Request submitted successfully!', 'success');
+    fetchBloodRequests();
   } catch (error) {
-    console.error('Error submitting blood request:', error);
-    showToast(error.message || 'Failed to submit blood request.');
+    console.error('Error submitting request:', error);
+    showToast('Failed to submit request. Please try again.', 'error');
+  } finally {
+    hideLoading('submit-request-btn');
   }
 });
 
-// Get Current Location using Geolocation API
-function getCurrentLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        document.getElementById('request-lat').value = position.coords.latitude;
-        document.getElementById('request-lng').value = position.coords.longitude;
-        showToast('Location retrieved successfully!', 'success');
-      },
-      (error) => {
-        console.error('Error getting location:', error);
-        showToast('Unable to retrieve location. Please enter manually.');
-      }
-    );
-  } else {
-    showToast('Geolocation is not supported by this browser.');
-  }
-}
-
-// Populate Blood Requests Table
-function populateBloodRequests() {
-  const tableBody = document.getElementById('requests-table');
-  tableBody.innerHTML = '';
-  bloodRequests.forEach(request => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${request.patient_id || 'N/A'}</td>
-      <td>${request.blood_type}</td>
-      <td>${request.urgency_level}</td>
-      <td>${request.required_by_date}</td>
-      <td>${request.request_status}</td>
-      <td>${request.donor_name || 'Not Matched'}</td>
-    `;
-    tableBody.appendChild(row);
-  });
-}
-
-// Populate Inventory Table
-function populateInventory() {
-  const tableBody = document.getElementById('inventory-table');
-  tableBody.innerHTML = '';
-  inventoryData.forEach(item => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${item.bloodType}</td>
-      <td>${item.units}</td>
-      <td>${item.lastUpdated}</td>
-    `;
-    tableBody.appendChild(row);
-  });
-}
-
-populateInventory();
-
-// Listen for Request Actions
-socket.on('requestAction', (data) => {
-  if (data.institutionId === userId) {
-    const request = bloodRequests.find(r => r.request_id === data.requestId);
-    if (request) {
-      request.request_status = data.action === 'accepted' ? 'Matched' : 'Pending';
-      request.matched_donor_id = data.action === 'accepted' ? data.donorId : null;
-      populateBloodRequests();
-      showToast(data.notification_message, 'success');
+function updateInventory(data) {
+  // Update blood inventory cards
+  Object.entries(data).forEach(([bloodType, units]) => {
+    const unitElement = document.getElementById(`${bloodType.toLowerCase()}-units`);
+    if (unitElement) {
+      unitElement.textContent = units;
     }
+  });
+}
+
+function updateRequestsTable(data) {
+  const requestsTable = document.getElementById('requests-table');
+  if (!requestsTable) return;
+
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td>${data.requestId}</td>
+    <td>${data.bloodType}</td>
+    <td>${data.unitsNeeded}</td>
+    <td><span class="badge badge-${getUrgencyClass(data.urgency)}">${data.urgency}</span></td>
+    <td>${data.requiredBy}</td>
+    <td><span class="badge badge-${getStatusClass(data.status)}">${data.status}</span></td>
+    <td>${data.matchedDonors || 0}</td>
+    <td>
+      <button class="btn btn-outline" onclick="viewRequest('${data.requestId}')">
+        <i class="fas fa-eye"></i>
+      </button>
+    </td>
+  `;
+  requestsTable.insertBefore(row, requestsTable.firstChild);
+}
+
+function updateDonorMatch(data) {
+  const donorsTable = document.getElementById('donors-table');
+  if (!donorsTable) return;
+
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td>${data.donorId}</td>
+    <td>${data.bloodType}</td>
+    <td>${data.distance}km</td>
+    <td>${data.lastDonation || 'Never'}</td>
+    <td><span class="badge badge-${getStatusClass(data.status)}">${data.status}</span></td>
+    <td>
+      <button class="btn btn-primary" onclick="contactDonor('${data.donorId}')">
+        <i class="fas fa-envelope"></i> Contact
+      </button>
+    </td>
+  `;
+  donorsTable.insertBefore(row, donorsTable.firstChild);
+}
+
+function updateRequestStatus(data) {
+  // Implementation needed
+}
+
+function getUrgencyClass(urgency) {
+  switch(urgency.toLowerCase()) {
+    case 'high': return 'danger';
+    case 'medium': return 'warning';
+    case 'low': return 'info';
+    default: return 'secondary';
   }
+}
+
+function getStatusClass(status) {
+  switch(status.toLowerCase()) {
+    case 'pending': return 'warning';
+    case 'matched': return 'info';
+    case 'fulfilled': return 'success';
+    case 'cancelled': return 'danger';
+    default: return 'secondary';
+  }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+  checkSession();
+  initializeSocket();
+  fetchInstitutionData();
+  fetchNotifications();
+  updateOverviewStats();
 });
+
+function initializeCharts() {
+  // Blood Type Distribution Chart
+  const bloodTypeCtx = document.getElementById('blood-type-chart');
+  if (bloodTypeCtx) {
+    new Chart(bloodTypeCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+        datasets: [{
+          data: [0, 0, 0, 0, 0, 0, 0, 0],
+          backgroundColor: [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+            '#9966FF', '#FF9F40', '#FF6384', '#36A2EB'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  }
+
+  // Request Trends Chart
+  const trendsCtx = document.getElementById('request-trends-chart');
+  if (trendsCtx) {
+    new Chart(trendsCtx, {
+      type: 'line',
+      data: {
+        labels: Array.from({length: 7}, (_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - (6 - i));
+          return d.toLocaleDateString();
+        }),
+        datasets: [{
+          label: 'Requests',
+          data: [0, 0, 0, 0, 0, 0, 0],
+          borderColor: '#2563eb',
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  }
+}

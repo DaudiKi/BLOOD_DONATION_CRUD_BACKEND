@@ -1,12 +1,15 @@
 import express from 'express';
-import { acceptBloodRequest, rejectBloodRequest, markNotificationRead, getNotifications, getAllBloodRequests } from '../controllers/notificationController.js';
+import { verifyToken } from '../middleware/authMiddleware.js';
+import * as notificationController from '../controllers/notificationController.js';
 
 const router = express.Router();
 
-router.put('/blood-requests/:requestId/accept', acceptBloodRequest);
-router.put('/blood-requests/:requestId/reject', rejectBloodRequest);
-router.get('/blood-requests', getAllBloodRequests); // For Admin
-router.put('/notifications/:notification_id/read', markNotificationRead);
-router.get('/notifications', getNotifications);
+// Get notifications for a user
+router.get('/notifications', verifyToken, notificationController.getNotifications);
+
+// Mark notification as read
+router.put('/notifications/:notification_id', verifyToken, notificationController.markNotificationRead);
 
 export default router;
+
+// TODO: Add integration tests for notification routes.

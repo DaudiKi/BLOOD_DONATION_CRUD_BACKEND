@@ -1,12 +1,525 @@
-// Initialize Socket.IO with authentication
-const socket = io({
-  auth: { token: localStorage.getItem('token') }
-});
-const userId = localStorage.getItem('userId');
-if (userId) {
-  socket.emit('join', userId);
-  socket.emit('joinAdmin');
+// admin.js
+// Global variables
+let socket = null;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
+
+// Session Management
+function checkSession() {
+  const token = localStorage.getItem('token');
+  const userType = localStorage.getItem('userType');
+
+  console.log('Checking session...', { token: !!token, userType });
+
+  // Only redirect if we're on the admin dashboard page
+  const isOnDashboard = window.location.pathname.includes('admin-dashboard');
+  
+  if (!token || !userType) {
+    console.log('No token or user type');
+    if (isOnDashboard) {
+      window.location.href = '/';
+    }
+    return false;
+  }
+
+  if (userType !== 'admin') {
+    console.log('Not admin user type');
+    if (isOnDashboard) {
+      window.location.href = '/';
+    }
+    return false;
+  }
+  
+  // Check token expiration
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    console.log('Token payload:', payload);
+
+    // Check expiration
+    if (payload.exp * 1000 < Date.now()) {
+      console.log('Token expired');
+      localStorage.clear();
+      if (isOnDashboard) {
+        window.location.href = '/';
+      }
+      return false;
+    }
+
+    // Verify admin role
+    if (payload.role !== 'admin') {
+      console.log('Not admin role');
+      localStorage.clear();
+      if (isOnDashboard) {
+        window.location.href = '/';
+      }
+      return false;
+    }
+
+    // Store user info if not already stored
+    if (!localStorage.getItem('userId')) {
+      localStorage.setItem('userId', payload.userId);
+      localStorage.setItem('userEmail', payload.email);
+      localStorage.setItem('userRole', payload.role);
+    }
+
+    // Update admin name in the dashboard
+    const adminNameElement = document.getElementById('admin-name');
+    if (adminNameElement) {
+      adminNameElement.textContent = payload.email.split('@')[0];
+    }
+
+    return true;
+  } catch (e) {
+    console.error('Error checking session:', e);
+    localStorage.clear();
+    if (isOnDashboard) {
+      window.location.href = '/';
+    }
+    return false;
+  }
 }
+
+// Initialize admin dashboard
+async function initializeDashboard() {
+  try {
+    console.log('Initializing dashboard...');
+    
+    // Only proceed if we're on the admin dashboard page
+    if (!window.location.pathname.includes('admin-dashboard')) {
+      console.log('Not on admin dashboard, skipping initialization');
+      return;
+    }
+    
+    // Check session first
+    if (!checkSession()) {
+      console.log('Session check failed');
+      return;
+    }
+    
+    console.log('Session valid, initializing socket...');
+    // Initialize socket connection
+    await initializeSocket().catch(error => {
+      console.error('Socket initialization failed:', error);
+      // Don't redirect on socket failure, just show error
+      showToast('Failed to connect to server. Some features may be limited.', 'warning');
+    });
+    
+    console.log('Socket initialized, fetching data...');
+    // Fetch initial data
+    await Promise.all([
+      fetchOverviewStats().catch(console.error),
+      fetchUsers().catch(console.error),
+      fetchNotifications().catch(console.error)
+    ]);
+    
+    console.log('Initial data fetched, setting up updates...');
+    // Set up periodic updates
+    const updateInterval = setInterval(() => {
+      if (!checkSession()) {
+        clearInterval(updateInterval);
+        return;
+      }
+      fetchOverviewStats().catch(console.error);
+      fetchNotifications().catch(console.error);
+    }, 30000); // Update every 30 seconds
+    
+  } catch (error) {
+    console.error('Dashboard initialization error:', error);
+    showToast('Error initializing dashboard. Some features may be limited.', 'warning');
+  }
+}
+
+// Call initialization when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializeDashboard);
+
+// Loading State Management
+function showLoading(elementId) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.classList.add('loading');
+  }
+}
+
+function hideLoading(elementId) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.classList.remove('loading');
+  }
+}
+
+// Form Validation
+function validateForm(formData) {
+  const errors = [];
+  for (const [key, value] of formData.entries()) {
+    if (!value && key !== 'optional_field') {
+      errors.push(`${key.replace('_', ' ')} is required`);
+    }
+  }
+  return errors;
+}
+
+// Initialize Socket.IO with authentication
+async function initializeSocket() {
+  return new Promise((resolve, reject) => {
+    try {
+      if (socket) {
+        socket.disconnect();
+      }
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+      
+      // Create socket instance
+      socket = io({
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
+        transports: ['websocket', 'polling'],
+        auth: { 
+          token,
+          userType: 'admin'
+        },
+        path: '/socket.io'
+      });
+
+      let connectionTimeout = setTimeout(() => {
+        console.error('Socket connection timeout');
+        reject(new Error('Connection timeout'));
+      }, 5000);
+
+      // Socket Connection Status
+      socket.on('connect', () => {
+        clearTimeout(connectionTimeout);
+        console.log('Connected to server');
+        reconnectAttempts = 0;
+        socket.emit('joinAdmin');
+        showToast('Connected to server', 'success');
+        resolve();
+      });
+
+      socket.on('admin_connected', (data) => {
+        console.log('Admin connected:', data);
+        localStorage.setItem('lastConnected', new Date().toISOString());
+      });
+
+      socket.on('connect_error', (error) => {
+        console.error('Connection error:', error);
+        reconnectAttempts++;
+        showToast(`Connection error (attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`, 'error');
+        if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+          socket.disconnect();
+          reject(error);
+        }
+      });
+
+      socket.on('disconnect', (reason) => {
+        console.log('Disconnected from server:', reason);
+        if (reason === 'io server disconnect' || reason === 'transport close') {
+          // Server initiated disconnect or transport closed, attempt to reconnect
+          console.log('Attempting to reconnect...');
+          socket.connect();
+        }
+        showToast('Lost connection to server. Attempting to reconnect...', 'warning');
+      });
+
+      socket.on('reconnect', (attemptNumber) => {
+        console.log('Reconnected to server after ' + attemptNumber + ' attempts');
+        socket.emit('joinAdmin');
+        showToast('Reconnected to server', 'success');
+        reconnectAttempts = 0;
+      });
+
+      socket.on('reconnect_error', (error) => {
+        console.error('Reconnection error:', error);
+        reconnectAttempts++;
+        if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+          showToast('Unable to reconnect to server. Please refresh the page.', 'error');
+          reject(error);
+        }
+      });
+
+      socket.on('reconnect_failed', () => {
+        console.error('Reconnection failed after all attempts');
+        showToast('Unable to reconnect to server. Please refresh the page.', 'error');
+        reject(new Error('Reconnection failed'));
+      });
+
+      // Listen for real-time updates
+      socket.on('user_activity', (data) => {
+        if (data && typeof updateActivityLog === 'function') {
+          updateActivityLog(data);
+          showToast('New user activity recorded', 'info');
+        }
+      });
+
+      socket.on('system_alert', (data) => {
+        if (data && typeof updateSystemHealth === 'function') {
+          updateSystemHealth(data);
+          showToast(`System alert: ${data.message}`, data.type || 'info');
+        }
+      });
+
+      // Handle auth errors
+      socket.on('auth_error', (error) => {
+        console.error('Authentication error:', error);
+        showToast('Authentication failed. Please log in again.', 'error');
+        handleLogout();
+      });
+
+    } catch (error) {
+      console.error('Socket initialization error:', error);
+      reject(error);
+    }
+  });
+}
+
+// Error Handling
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Unhandled promise rejection:', event.reason);
+  showToast('An unexpected error occurred. Please try again.', 'error');
+});
+
+// Enhanced API calls with loading states
+async function fetchOverviewStats() {
+  showLoading('overview-stats');
+  try {
+    const response = await fetch('/api/admin/stats', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch overview stats');
+    }
+    const stats = await response.json();
+    document.getElementById('total-users').textContent = stats.totalUsers || '0';
+    document.getElementById('active-users').textContent = stats.activeUsers || '0';
+    document.getElementById('system-uptime').textContent = stats.systemUptime || '0%';
+  } catch (error) {
+    console.error('Error fetching overview stats:', error);
+    showToast('Failed to load overview stats.', 'error');
+  } finally {
+    hideLoading('overview-stats');
+  }
+}
+
+// User Management
+async function fetchUsers(userType = 'all') {
+  showLoading('users-table');
+  try {
+    const response = await fetch(`/api/admin/users/${userType}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch users');
+    }
+
+    const users = await response.json();
+    updateUsersTable(users);
+
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    showToast('Failed to fetch users: ' + error.message, 'error');
+  } finally {
+    hideLoading('users-table');
+  }
+}
+
+// Update Users Table
+function updateUsersTable(users) {
+  const tableBody = document.getElementById('users-table');
+  if (!tableBody) return;
+  
+  tableBody.innerHTML = '';
+  users.forEach(user => {
+    const row = document.createElement('tr');
+    row.dataset.userId = user.user_id;
+    
+    const statusClass = user.is_active ? 'active' : 'inactive';
+    const verifiedClass = user.is_verified ? 'verified' : 'unverified';
+
+    row.innerHTML = `
+      <td>${user.user_id}</td>
+      <td>${user.name}</td>
+      <td>${user.email}</td>
+      <td>${user.user_type}</td>
+      <td><span class="status ${statusClass}">${user.is_active ? 'Active' : 'Inactive'}</span></td>
+      <td><span class="status ${verifiedClass}">${user.is_verified ? 'Verified' : 'Unverified'}</span></td>
+      <td class="actions">
+        ${!user.is_verified ? `
+          <button class="btn btn-success btn-sm" onclick="verifyUser('${user.user_id}')">
+            <i class="fas fa-check"></i> Verify
+          </button>
+        ` : ''}
+        <button class="btn ${user.is_active ? 'btn-danger' : 'btn-success'} btn-sm" 
+                onclick="toggleUserStatus('${user.user_id}', ${!user.is_active})">
+          <i class="fas fa-${user.is_active ? 'ban' : 'check'}"></i>
+          ${user.is_active ? 'Deactivate' : 'Activate'}
+        </button>
+      </td>
+    `;
+    
+    tableBody.appendChild(row);
+  });
+}
+
+// Verify User
+async function verifyUser(userId) {
+  try {
+    const response = await fetch(`/api/admin/users/${userId}/verify`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to verify user');
+    }
+
+    showToast('User verified successfully', 'success');
+    await fetchUsers();
+
+  } catch (error) {
+    console.error('Error verifying user:', error);
+    showToast('Failed to verify user: ' + error.message, 'error');
+  }
+}
+
+// Toggle User Status
+async function toggleUserStatus(userId, newStatus) {
+  try {
+    const response = await fetch(`/api/admin/users/${userId}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ is_active: newStatus })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update user status');
+    }
+
+    showToast(`User ${newStatus ? 'activated' : 'deactivated'} successfully`, 'success');
+    await fetchUsers();
+
+  } catch (error) {
+    console.error('Error updating user status:', error);
+    showToast('Failed to update user status: ' + error.message, 'error');
+  }
+}
+
+// Activity Tracking
+async function fetchActivityLog() {
+  showLoading('activity-log');
+  try {
+    const response = await fetch('/api/admin/activity-log', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch activity log');
+    }
+
+    const activities = await response.json();
+    updateActivityLog(activities);
+
+  } catch (error) {
+    console.error('Error fetching activity log:', error);
+    showToast('Failed to fetch activity log: ' + error.message, 'error');
+  } finally {
+    hideLoading('activity-log');
+  }
+}
+
+// Update Activity Log
+function updateActivityLog(activities) {
+  const logContainer = document.getElementById('activity-log');
+  if (!logContainer) return;
+  
+  logContainer.innerHTML = '';
+  activities.forEach(activity => {
+    const activityElement = document.createElement('div');
+    activityElement.className = 'activity-item';
+    
+    const timestamp = new Date(activity.timestamp).toLocaleString();
+    const actionClass = {
+      'create': 'success',
+      'update': 'info',
+      'delete': 'danger',
+      'verify': 'warning'
+    }[activity.action_type] || 'default';
+
+    activityElement.innerHTML = `
+      <div class="activity-header">
+        <span class="activity-type ${actionClass}">${activity.action_type}</span>
+        <span class="activity-time">${timestamp}</span>
+      </div>
+      <div class="activity-content">
+        <p>${activity.description}</p>
+        <small>By: ${activity.user_name} (${activity.user_type})</small>
+      </div>
+    `;
+    
+    logContainer.appendChild(activityElement);
+  });
+}
+
+// Initialize Admin Dashboard
+async function initializeAdminDashboard() {
+  try {
+    await Promise.all([
+      fetchUsers(),
+      fetchActivityLog(),
+      initializeSocket()
+    ]);
+    
+    // Set up periodic updates
+    setInterval(fetchUsers, 300000); // Every 5 minutes
+    setInterval(fetchActivityLog, 60000); // Every minute
+    
+  } catch (error) {
+    console.error('Error initializing admin dashboard:', error);
+    showToast('Failed to initialize dashboard: ' + error.message, 'error');
+  }
+}
+
+// Enhanced Socket Event Listeners for Admin
+socket.on('user_registered', (data) => {
+  showToast(`New ${data.userType} registered: ${data.name}`, 'info');
+  fetchUsers();
+  fetchActivityLog();
+});
+
+socket.on('request_created', (data) => {
+  showToast(`New blood request from ${data.patientName}`, 'info');
+  fetchActivityLog();
+});
+
+socket.on('request_matched', (data) => {
+  showToast(`Request #${data.requestId} matched with donor ${data.donorName}`, 'success');
+  fetchActivityLog();
+});
+
+socket.on('request_fulfilled', (data) => {
+  showToast(`Request #${data.requestId} fulfilled successfully`, 'success');
+  fetchActivityLog();
+});
 
 // Toast Notification
 function showToast(message, type = 'error') {
@@ -63,63 +576,44 @@ async function markNotificationAsRead(notificationId) {
 
 async function fetchNotifications() {
   const spinner = document.getElementById('loading-spinner');
+  if (spinner) {
   spinner.style.display = 'block';
+  }
+  
   try {
-    const response = await fetch(`/api/notifications?userId=${userId}`, {
+    const userId = localStorage.getItem('userId');
+    const userType = localStorage.getItem('userType') || 'admin';
+    
+    const response = await fetch(`/api/notifications?userId=${userId}&userType=${userType}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch notifications: ${response.status}`);
+    }
+    
     const notifications = await response.json();
+    if (spinner) {
     spinner.style.display = 'none';
+    }
     notifications.forEach(notification => updateNotifications(notification));
   } catch (error) {
+    if (spinner) {
     spinner.style.display = 'none';
+    }
     console.error('Error fetching notifications:', error);
+    showToast('Failed to load notifications', 'error');
   }
 }
 
 fetchNotifications();
 
-// Overview Stats
-async function fetchOverviewStats() {
-  try {
-    const response = await fetch('/api/admin/stats', {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    const stats = await response.json();
-    document.getElementById('total-users').textContent = stats.totalUsers || '0';
-    document.getElementById('active-users').textContent = stats.activeUsers || '0';
-    document.getElementById('system-uptime').textContent = stats.systemUptime || '0%';
-  } catch (error) {
-    console.error('Error fetching overview stats:', error);
-    showToast('Failed to load overview stats.');
-  }
-}
-
-fetchOverviewStats();
-
 // Manage Users
 let users = [];
-
-async function fetchUsers() {
-  try {
-    const response = await fetch('/api/users', {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    users = await response.json();
-    populateUsersTable();
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    showToast('Failed to fetch users.');
-  }
-}
 
 function populateUsersTable() {
   const tableBody = document.getElementById('users-table');
@@ -140,278 +634,21 @@ function populateUsersTable() {
   });
 }
 
-fetchUsers();
+window.openEditUserModal = openEditUserModal;
+window.deleteUser = deleteUser;
 
-// Add/Edit User Modal
-function openAddUserModal() {
-  document.getElementById('add-user-modal').style.display = 'flex';
-}
-
-function closeAddUserModal() {
-  document.getElementById('add-user-modal').style.display = 'none';
-}
-
-function openEditUserModal(userId) {
-  const user = users.find(u => u.id === userId);
-  if (user) {
-    const modal = document.createElement('div');
-    modal.classList.add('modal');
-    modal.id = 'edit-user-modal';
-    modal.innerHTML = `
-      <div class="modal-content">
-        <span class="close" onclick="closeEditUserModal()">&times;</span>
-        <h2>Edit User</h2>
-        <form id="edit-user-form">
-          <label for="edit-name">Name:</label>
-          <input type="text" id="edit-name" value="${user.name}" required>
-          <label for="edit-email">Email:</label>
-          <input type="email" id="edit-email" value="${user.email}" required>
-          <label for="edit-role">Role:</label>
-          <select id="edit-role" required>
-            <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
-            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
-          </select>
-          <button type="submit" class="btn">Save Changes</button>
-        </form>
-      </div>
-    `;
-    document.body.appendChild(modal);
-    modal.style.display = 'flex';
-
-    document.getElementById('edit-user-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const updatedUser = {
-        name: document.getElementById('edit-name').value,
-        email: document.getElementById('edit-email').value,
-        role: document.getElementById('edit-role').value
-      };
-      try {
-        const response = await fetch(`/api/users/${userId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          body: JSON.stringify(updatedUser)
-        });
-        const result = await response.json();
-        const index = users.findIndex(u => u.id === userId);
-        users[index] = { ...users[index], ...updatedUser };
-        populateUsersTable();
-        closeEditUserModal();
-        showToast('User updated successfully!', 'success');
-        socket.emit('userUpdated', { userId, updatedUser });
-      } catch (error) {
-        console.error('Error updating user:', error);
-        showToast('Failed to update user.');
-      }
-    });
+// Add logout function
+function handleLogout() {
+  console.log('Logging out...');
+  // Disconnect socket
+  if (socket) {
+    socket.disconnect();
   }
+  // Clear local storage
+  localStorage.clear();
+  // Redirect to login page
+  window.location.href = '/';
 }
 
-function closeEditUserModal() {
-  const modal = document.getElementById('edit-user-modal');
-  if (modal) {
-    modal.remove();
-  }
-}
-
-document.getElementById('add-user-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const newUser = {
-    name: document.getElementById('name').value,
-    email: document.getElementById('email').value,
-    role: document.getElementById('role').value
-  };
-  try {
-    const response = await fetch('/api/users', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify(newUser)
-    });
-    const result = await response.json();
-    users.push(result.user);
-    populateUsersTable();
-    closeAddUserModal();
-    showToast('User added successfully!', 'success');
-    socket.emit('userAdded', result.user);
-  } catch (error) {
-    console.error('Error adding user:', error);
-    showToast('Failed to add user.');
-  }
-});
-
-async function deleteUser(id) {
-  if (confirm('Are you sure you want to delete this user?')) {
-    try {
-      const response = await fetch(`/api/users/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      const result = await response.json();
-      const index = users.findIndex(u => u.id === id);
-      if (index !== -1) {
-        users.splice(index, 1);
-        populateUsersTable();
-        showToast('User deleted successfully!', 'success');
-        socket.emit('userDeleted', { userId: id });
-      }
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      showToast('Failed to delete user.');
-    }
-  }
-}
-
-// Blood Requests Tracking
-let bloodRequests = [];
-
-async function fetchBloodRequests() {
-  try {
-    const response = await fetch('/api/blood-requests', {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    bloodRequests = await response.json();
-    populateBloodRequestsTable();
-  } catch (error) {
-    console.error('Error fetching blood requests:', error);
-    showToast('Failed to fetch blood requests.');
-  }
-}
-
-function populateBloodRequestsTable() {
-  const tableBody = document.getElementById('blood-requests-table');
-  tableBody.innerHTML = '';
-  bloodRequests.forEach(request => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${request.request_id}</td>
-      <td>${request.patient_name || 'N/A'}</td>
-      <td>${request.institution_name || 'N/A'}</td>
-      <td>${request.blood_type}</td>
-      <td>${request.units_needed}</td>
-      <td>${request.urgency_level}</td>
-      <td>${new Date(request.request_date).toLocaleString()}</td>
-      <td>${request.request_status}</td>
-      <td>${request.donor_name || 'Not Matched'}</td>
-    `;
-    tableBody.appendChild(row);
-  });
-}
-
-fetchBloodRequests();
-
-// Listen for Real-time Blood Request Updates
-socket.on('bloodRequest', (data) => {
-  fetchBloodRequests(); // Refresh table
-  showToast(data.notification_message, 'success');
-});
-
-socket.on('requestAction', (data) => {
-  fetchBloodRequests(); // Refresh table
-  showToast(data.notification_message, 'success');
-});
-
-// System Analytics Chart
-const ctx = document.getElementById('active-users-chart').getContext('2d');
-new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [{
-      label: 'Active Users',
-      data: [120, 190, 300, 500, 200, 300, 400],
-      backgroundColor: '#D32F2F',
-      borderColor: '#D32F2F',
-      borderWidth: 1
-    }]
-  },
-  options: {
-    scales: {
-      y: {
-        beginAtZero: true
-      }
-    }
-  }
-});
-
-// User Activity Logs
-async function fetchActivityLogs() {
-  try {
-    const response = await fetch('/api/admin/activity-logs', {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    const activityLogs = await response.json();
-    populateActivityLogs(activityLogs);
-  } catch (error) {
-    console.error('Error fetching activity logs:', error);
-    showToast('Failed to fetch activity logs.');
-  }
-}
-
-function populateActivityLogs(activityLogs) {
-  const tableBody = document.getElementById('activity-logs');
-  tableBody.innerHTML = '';
-  activityLogs.forEach(log => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${log.user}</td>
-      <td>${log.action}</td>
-      <td>${log.timestamp}</td>
-    `;
-    tableBody.appendChild(row);
-  });
-}
-
-fetchActivityLogs();
-
-// System Usage Statistics
-async function fetchSystemStats() {
-  try {
-    const response = await fetch('/api/admin/system-stats', {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    const stats = await response.json();
-    document.getElementById('server-load').textContent = stats.serverLoad || '0%';
-    document.getElementById('api-calls').textContent = stats.apiCalls || '0';
-    document.getElementById('active-sessions').textContent = stats.activeSessions || '0';
-  } catch (error) {
-    console.error('Error fetching system stats:', error);
-    showToast('Failed to fetch system stats.');
-  }
-}
-
-fetchSystemStats();
-
-// Generate Report
-function generateReport() {
-  const report = `
-    System Usage Report
-    Date: ${new Date().toLocaleDateString()}
-    Total Users: ${document.getElementById('total-users').textContent}
-    Active Users: ${document.getElementById('active-users').textContent}
-    System Uptime: ${document.getElementById('system-uptime').textContent}
-    Server Load: ${document.getElementById('server-load').textContent}
-    API Calls: ${document.getElementById('api-calls').textContent}
-    Active Sessions: ${document.getElementById('active-sessions').textContent}
-  `;
-  const blob = new Blob([report], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'system-usage-report.txt';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Report generated successfully!', 'success');
-}
+// Make handleLogout available globally
+window.handleLogout = handleLogout;
