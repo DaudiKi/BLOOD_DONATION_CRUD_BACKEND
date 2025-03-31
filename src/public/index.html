@@ -635,6 +635,11 @@
       const password = document.getElementById('login-password').value;
       const userType = document.getElementById('login-user-type').value;
 
+      if (!userType) {
+        document.getElementById('login-error').textContent = 'Please select a user type.';
+        return;
+      }
+
       try {
         const response = await fetch(`/api/auth/login/${userType}`, {
           method: 'POST',
@@ -650,30 +655,42 @@
           throw new Error(data.error || 'Login failed');
         }
 
-        // Store auth data
+        // Log response for debugging
+        console.log('Login response:', data);
+
+        // Store auth data in localStorage
         localStorage.setItem('token', data.token);
-        localStorage.setItem('userId', data[userType].id);
+        localStorage.setItem('userId', data[userType].id.toString());
         localStorage.setItem('userType', userType);
         localStorage.setItem('email', data[userType].email);
+
+        // Verify storage
+        console.log('Stored in localStorage:', {
+          token: localStorage.getItem('token'),
+          userId: localStorage.getItem('userId'),
+          userType: localStorage.getItem('userType'),
+          email: localStorage.getItem('email')
+        });
 
         // Redirect based on user type
         switch(userType) {
           case 'donor':
-            window.location.replace('/donor-dashboard');
+            window.location.href = '/donor-dashboard';
             break;
           case 'patient':
-            window.location.replace('/patient-dashboard');
+            window.location.href = '/patient-dashboard';
             break;
           case 'healthcare_institution':
-            window.location.replace('/healthcare-dashboard');
+            window.location.href = '/healthcare-dashboard';
             break;
           case 'admin':
-            window.location.replace('/admin-dashboard');
+            window.location.href = '/admin-dashboard';
             break;
           default:
-            window.location.replace('/');
+            window.location.href = '/';
         }
       } catch (error) {
+        console.error('Login error:', error);
         document.getElementById('login-error').textContent = error.message;
       }
     });

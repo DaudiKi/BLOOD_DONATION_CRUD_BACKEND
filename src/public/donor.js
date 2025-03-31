@@ -73,6 +73,7 @@ function initializeSocket() {
   socket.on('connect', () => {
     console.log('Connected to server');
     showToast('Connected to server', 'success');
+    socket.emit('fetch_notifications'); // Fetch notifications on connect
   });
 
   socket.on('disconnect', () => {
@@ -103,11 +104,28 @@ function initializeSocket() {
     updateDonationHistory(data);
     showToast('Donation confirmed', 'success');
   });
+
+  socket.on('new_notification', (notification) => {
+    notificationsData.unshift(notification);
+    populateNotifications();
+    showToast(`${notification.notification_title}: ${notification.notification_message}`, 'info');
+  });
+
+  socket.on('notifications', (notifications) => {
+    notificationsData = notifications;
+    populateNotifications();
+  });
+
+  socket.on('notifications_error', (error) => {
+    console.error('Error fetching notifications via Socket.IO:', error);
+    showToast('Failed to load notifications', 'error');
+  });
 }
 
 // Toast Notification
 function showToast(message, type = 'error') {
   const toastContainer = document.getElementById('toast-container');
+  if (!toastContainer) return;
   const toast = document.createElement('div');
   toast.classList.add('toast');
   if (type === 'success') toast.classList.add('success');
@@ -116,28 +134,82 @@ function showToast(message, type = 'error') {
   setTimeout(() => toast.remove(), 5000);
 }
 
+function getToastIcon(type) {
+  switch (type) {
+    case 'success': return 'fa-check-circle';
+    case 'error': return 'fa-exclamation-circle';
+    case 'warning': return 'fa-exclamation-triangle';
+    case 'info': return 'fa-info-circle';
+    default: return 'fa-info-circle';
+  }
+}
+
 // Notifications Panel
 const notificationsPanel = document.getElementById('notifications-panel');
-document.getElementById('notifications-icon').addEventListener('click', () => {
-  notificationsPanel.style.display = notificationsPanel.style.display === 'block' ? 'none' : 'block';
+document.getElementById('notifications-icon')?.addEventListener('click', () => {
+  if (notificationsPanel) {
+    notificationsPanel.style.display = notificationsPanel.style.display === 'block' ? 'none' : 'block';
+    if (notificationsPanel.style.display === 'block') {
+      socket.emit('fetch_notifications'); // Refresh notifications when panel is opened
+    }
+  }
 });
 
-function updateNotifications(notification) {
-  const badge = document.getElementById('notification-badge');
-  let count = parseInt(badge.textContent) || 0;
-  count++;
-  badge.textContent = count;
+// Notifications Data Store
+let notificationsData = [];
 
+async function fetchNotifications() {
+  showLoading('notifications-panel');
+  try {
+    const response = await fetch('/api/notifications', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    if (!response.ok) throw new Error('Failed to fetch notifications');
+    notificationsData = await response.json();
+    populateNotifications();
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    showToast('Failed to load notifications', 'error');
+  } finally {
+    hideLoading('notifications-panel');
+  }
+}
+
+function populateNotifications() {
+  const badge = document.getElementById('notification-badge');
   const notificationsList = document.getElementById('notifications-list');
-  const li = document.createElement('li');
-  li.textContent = notification.notification_message || 'New notification';
-  li.addEventListener('click', () => {
-    markNotificationAsRead(notification.notification_id);
-    li.style.textDecoration = 'line-through';
-    count = Math.max(0, count - 1);
-    badge.textContent = count;
+  
+  if (!badge || !notificationsList) return;
+
+  // Update badge with unread count
+  const unreadCount = notificationsData.filter(n => !n.is_read).length;
+  badge.textContent = unreadCount;
+
+  // Clear existing notifications
+  notificationsList.innerHTML = '';
+
+  // Populate notifications
+  notificationsData.forEach(notification => {
+    const li = document.createElement('li');
+    li.className = `notification ${notification.is_read ? 'read' : 'unread'}`;
+    li.innerHTML = `
+      <div>
+        <strong>${notification.notification_title}</strong>
+        <p>${notification.notification_message}</p>
+        <small>${new Date(notification.created_at).toLocaleString()}</small>
+        ${notification.related_request_id ? `<a href="/request/${notification.related_request_id}" class="notification-link">View Request</a>` : ''}
+      </div>
+    `;
+    li.addEventListener('click', () => {
+      if (!notification.is_read) {
+        markNotificationAsRead(notification.notification_id);
+      }
+    });
+    notificationsList.appendChild(li);
   });
-  notificationsList.appendChild(li);
 }
 
 async function markNotificationAsRead(notificationId) {
@@ -150,29 +222,15 @@ async function markNotificationAsRead(notificationId) {
       }
     });
     if (!response.ok) throw new Error('Failed to mark notification as read');
-    console.log('Notification marked as read');
+    console.log('Notification marked as read:', notificationId);
+    const notification = notificationsData.find(n => n.notification_id === notificationId);
+    if (notification) {
+      notification.is_read = true;
+      populateNotifications();
+    }
   } catch (err) {
     console.error('Error marking notification as read:', err);
-  }
-}
-
-async function fetchNotifications() {
-  showLoading('notifications-panel');
-  try {
-    const response = await fetch(`/api/notifications?userId=${localStorage.getItem('userId')}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    if (!response.ok) throw new Error('Failed to fetch notifications');
-    const notifications = await response.json();
-    notifications.forEach(updateNotifications);
-  } catch (error) {
-    console.error('Error fetching notifications:', error);
-    showToast('Failed to load notifications', 'error');
-  } finally {
-    hideLoading('notifications-panel');
+    showToast('Failed to mark notification as read', 'error');
   }
 }
 
@@ -231,8 +289,16 @@ async function fetchBloodRequests() {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     });
-    if (!response.ok) throw new Error('Failed to fetch blood requests');
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to fetch blood requests: ${response.status} - ${errorText}`);
+    }
     const requests = await response.json();
+    console.log('Blood requests response:', requests);
+    if (!Array.isArray(requests)) {
+      console.warn('Blood requests is not an array:', requests);
+      return;
+    }
     requests.forEach(updateRequestsTable);
   } catch (error) {
     console.error('Error fetching blood requests:', error);
@@ -258,16 +324,16 @@ function updateRequestsTable(data) {
   if (!requestsTable) return;
 
   const row = document.createElement('tr');
-  row.setAttribute('data-request-id', data.requestId);
+  row.setAttribute('data-request-id', data.request_id || data.requestId);
   row.innerHTML = `
-    <td>${data.requestId}</td>
-    <td>${data.bloodType}</td>
-    <td>${data.unitsNeeded}</td>
+    <td>${data.request_id || data.requestId}</td>
+    <td>${data.blood_type || data.bloodType}</td>
+    <td>${data.units_needed || data.unitsNeeded}</td>
     <td><span class="status-badge status-${getUrgencyClass(data.urgency)}">${data.urgency}</span></td>
     <td>${data.location}</td>
-    <td><span class="status-badge status-${getStatusClass(data.status)}">${data.status}</span></td>
+    <td><span class="status-badge status-${getStatusClass(data.request_status || data.status)}">${data.request_status || data.status}</span></td>
     <td>
-      <button class="btn btn-primary" onclick="respondToRequest('${data.requestId}')">
+      <button class="btn btn-primary" onclick="respondToRequest('${data.request_id || data.requestId}')">
         Respond
       </button>
     </td>
@@ -305,6 +371,7 @@ function updateDonationHistory(data) {
 }
 
 function getUrgencyClass(urgency) {
+  if (!urgency) return 'secondary';
   switch(urgency.toLowerCase()) {
     case 'high': return 'danger';
     case 'medium': return 'warning';
@@ -314,6 +381,7 @@ function getUrgencyClass(urgency) {
 }
 
 function getStatusClass(status) {
+  if (!status) return 'secondary';
   switch(status.toLowerCase()) {
     case 'pending': return 'warning';
     case 'matched': return 'info';
@@ -392,7 +460,7 @@ async function updateAvailability() {
   } catch (error) {
     console.error('Error updating availability:', error);
     showToast('Failed to update availability', 'error');
-    document.getElementById('availability-toggle').checked = !isAvailable; // Revert on error
+    document.getElementById('availability-toggle').checked = !isAvailable;
   } finally {
     hideLoading('availability');
   }

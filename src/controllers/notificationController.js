@@ -1,3 +1,4 @@
+// controllers/notificationController.js
 import * as notificationService from '../services/notificationService.js';
 
 /**
@@ -7,8 +8,8 @@ import * as notificationService from '../services/notificationService.js';
 export const markNotificationRead = async (req, res) => {
   try {
     const { notification_id } = req.params;
-    if (!notification_id) {
-      return res.status(400).json({ error: 'Notification ID is required' });
+    if (!notification_id || isNaN(notification_id)) {
+      return res.status(400).json({ error: 'Valid Notification ID is required' });
     }
     const updatedNotification = await notificationService.markNotificationAsRead(notification_id);
     
@@ -53,5 +54,3 @@ export const getNotifications = async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
-
-// TODO: Add tests for notification controllers.

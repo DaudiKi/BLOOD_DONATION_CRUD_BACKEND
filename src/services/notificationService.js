@@ -1,3 +1,4 @@
+// services/notificationService.js
 import { query } from '../db.js';
 import Joi from 'joi';
 
@@ -58,7 +59,10 @@ export const createNotification = async (notificationData, io) => {
 
     // Broadcast notification via Socket.IO if available
     if (io) {
-      io.to(`user_${recipient_id}`).emit('notification', newNotification);
+      io.to(`user_${recipient_id}`).emit('new_notification', newNotification);
+      if (recipient_type === 'admin') {
+        io.to('admin').emit('new_notification', newNotification);
+      }
     }
 
     return newNotification;
