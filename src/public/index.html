@@ -334,7 +334,7 @@
                 <label for="patient-email">Email</label>
                 <div class="input-field">
                   <i class="fas fa-envelope"></i>
-                  <input type="email" id="patient-email" name="email" required />
+                    <input type="email" id="patient-email" name="email" required />
                 </div>
               </div>
               <div class="input-group">
@@ -641,6 +641,7 @@
       }
 
       try {
+        console.log('Attempting login with:', { email, userType }); // Debug: Log the login attempt
         const response = await fetch(`/api/auth/login/${userType}`, {
           method: 'POST',
           headers: {
@@ -651,18 +652,17 @@
 
         const data = await response.json();
         
+        console.log('Login response:', data); // Debug: Log the full response
+
         if (!response.ok) {
           throw new Error(data.error || 'Login failed');
         }
 
-        // Log response for debugging
-        console.log('Login response:', data);
-
         // Store auth data in localStorage
         localStorage.setItem('token', data.token);
-        localStorage.setItem('userId', data[userType].id.toString());
+        localStorage.setItem('userId', data[userType]?.id?.toString() || '');
         localStorage.setItem('userType', userType);
-        localStorage.setItem('email', data[userType].email);
+        localStorage.setItem('email', data[userType]?.email || '');
 
         // Verify storage
         console.log('Stored in localStorage:', {
@@ -673,20 +673,26 @@
         });
 
         // Redirect based on user type
+        console.log('Redirecting based on userType:', userType); // Debug: Log the userType before redirect
         switch(userType) {
           case 'donor':
+            console.log('Redirecting to /donor-dashboard');
             window.location.href = '/donor-dashboard';
             break;
           case 'patient':
+            console.log('Redirecting to /patient-dashboard');
             window.location.href = '/patient-dashboard';
             break;
           case 'healthcare_institution':
+            console.log('Redirecting to /healthcare-dashboard');
             window.location.href = '/healthcare-dashboard';
             break;
           case 'admin':
+            console.log('Redirecting to /admin-dashboard');
             window.location.href = '/admin-dashboard';
             break;
           default:
+            console.log('Redirecting to / (default)');
             window.location.href = '/';
         }
       } catch (error) {
@@ -716,11 +722,11 @@
       const medical_conditions = document.getElementById('donor-medical').value;
     
       try {
-        const response = await fetch('/api/signup', {
+        const response = await fetch('/api/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            role: 'donor', // Standardized field
+            userType: 'donor',
             first_name,
             last_name,
             email,
@@ -741,7 +747,9 @@
         const data = await response.json();
         if (response.ok) {
           console.log('Donor signup success:', data);
-          alert('Donor signup successful!');
+          alert('Donor signup successful! Please login.');
+          // Optionally redirect to login section
+          document.querySelector('.tab-btn[data-target="login-section"]').click();
         } else {
           document.getElementById('donor-error').textContent = data.error || 'Signup failed.';
         }
@@ -770,11 +778,11 @@
       const emergency_contact_phone = document.getElementById('patient-emergency-phone').value;
     
       try {
-        const response = await fetch('/api/signup', {
+        const response = await fetch('/api/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            role: 'patient', // Standardized field
+            userType: 'patient',
             first_name,
             last_name,
             email,
@@ -794,7 +802,9 @@
         const data = await response.json();
         if (response.ok) {
           console.log('Patient signup success:', data);
-          alert('Patient signup successful!');
+          alert('Patient signup successful! Please login.');
+          // Optionally redirect to login section
+          document.querySelector('.tab-btn[data-target="login-section"]').click();
         } else {
           document.getElementById('patient-error').textContent = data.error || 'Signup failed.';
         }
@@ -821,11 +831,11 @@
       const contact_person_phone = document.getElementById('inst-contact-phone').value;
     
       try {
-        const response = await fetch('/api/signup', {
+        const response = await fetch('/api/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            role: 'healthcare_institution', // Standardized field
+            userType: 'healthcare_institution',
             name,
             email,
             password,
@@ -843,7 +853,9 @@
         const data = await response.json();
         if (response.ok) {
           console.log('Institution signup success:', data);
-          alert('Institution signup successful!');
+          alert('Institution signup successful! Please login.');
+          // Optionally redirect to login section
+          document.querySelector('.tab-btn[data-target="login-section"]').click();
         } else {
           document.getElementById('institution-error').textContent = data.error || 'Signup failed.';
         }

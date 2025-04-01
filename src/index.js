@@ -11,16 +11,55 @@ import pkg from 'pg';
 const { Pool } = pkg;
 import * as notificationService from './services/notificationService.js'; // Import notification service
 
-dotenv.config();
-
 // Define __dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// PostgreSQL connection setup using Pool
+// Load environment variables with debug logging
+const envPath = path.resolve(__dirname, '../.env');
+console.log('Looking for .env file at:', envPath);
+const result = dotenv.config({ path: envPath });
+if (result.error) {
+  console.error('Error loading .env file:', result.error.message);
+} else {
+  console.log('.env file loaded successfully');
+}
+console.log('DATABASE_URL:', process.env.DATABASE_URL);
+
+// Validate environment variables
+if (!process.env.DATABASE_URL) {
+  console.error('Error: DATABASE_URL environment variable is not set');
+  process.exit(1);
+}
+if (!process.env.JWT_SECRET) {
+  console.error('Error: JWT_SECRET environment variable is not set');
+  process.exit(1);
+}
+if (!process.env.PORT) {
+  console.warn('PORT environment variable not set, defaulting to 3000');
+}
+
+// PostgreSQL connection setup using Pool (unchanged)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL
 });
+
+// Add error handler for the pool
+pool.on('error', (err, client) => {
+  console.error('Unexpected error on idle client:', err.message);
+});
+
+// Test database connection
+const testDatabaseConnection = async () => {
+  try {
+    const client = await pool.connect();
+    console.log('Connected to PostgreSQL');
+    client.release(); // Release the client back to the pool
+  } catch (err) {
+    console.error('Failed to connect to PostgreSQL:', err.message);
+    process.exit(1);
+  }
+};
 
 // Import routes
 import clientRoutes from "./routes/clientRoute.js";
@@ -52,7 +91,7 @@ io.use((socket, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     socket.decoded = decoded;
     next();
   } catch (err) {
@@ -101,7 +140,7 @@ app.use("/api", requestRoutes);
 const authenticateToken = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'No token provided' });
-  jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret', (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ error: 'Invalid token' });
     req.user = user;
     next();
@@ -333,9 +372,11 @@ io.on("connection", (socket) => {
   });
 });
 
-// Start server
-server.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
+// Start server after database connection
+testDatabaseConnection().then(() => {
+  server.listen(port, () => {
+    console.log(`Server is listening on port ${port}`);
+  });
 });
 
 // Global error handling

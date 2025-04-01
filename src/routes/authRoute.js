@@ -2,17 +2,8 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import pkg from 'pg';
-const { Pool } = pkg;
+import { pool } from '../index.js';
 import { signup } from '../controllers/authController.js';
-
-const pool = new Pool({
-  user: process.env.PG_USER || 'postgres',
-  host: process.env.PG_HOST || 'localhost',
-  database: process.env.PG_DATABASE || 'bloodlink_db',
-  password: process.env.PG_PASSWORD || 'postgres',
-  port: process.env.PG_PORT || 5432,
-});
 
 const schema = process.env.PG_SCHEMA || 'bloodlink_schema';
 const router = express.Router();
@@ -62,7 +53,6 @@ const handleLogin = async (req, res, table, idField, roleValue) => {
       isActive: user.is_active
     });
 
-    // Add password debug logging
     console.log('Password comparison:', {
       providedPassword: password,
       hasStoredHash: !!user.password,
@@ -92,14 +82,12 @@ const handleLogin = async (req, res, table, idField, roleValue) => {
     }
 
     console.log('Generating token...');
-    const tokenPayload = {
-      userId: user[idField],
-      role: roleValue,
-      email: user.email,
-      exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour expiration
-    };
-    console.log('Token payload:', tokenPayload);
-    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET || 'your_jwt_secret');
+    const token = jwt.sign(
+      { userId: user[idField], role: roleValue, email: user.email },
+      process.env.JWT_SECRET || 'your_jwt_secret',
+      { expiresIn: '1h' }
+    );
+    console.log('Generated token:', token);
 
     if (table === 'admin') {
       console.log('Sending admin response...');
@@ -116,13 +104,11 @@ const handleLogin = async (req, res, table, idField, roleValue) => {
       });
     }
 
-    // Send response with user data based on role
     const userData = {
       message: `${roleValue} login successful.`,
       token
     };
 
-    // Add role-specific user data
     switch (table) {
       case 'healthcare_institution':
         userData.institution = {
@@ -200,7 +186,31 @@ router.post('/login/admin', async (req, res) => {
 // -----------------------
 // SIGNUP Endpoint (Unified)
 // -----------------------
-router.post('/signup', signup);
+router.post('/signup', async (req, res) => {
+  console.log('=== Signup Attempt ===');
+  console.log('Request body:', req.body);
+
+  const { email, password, userType } = req.body;
+  if (!email || !password || !userType) {
+    console.log('Error: Missing required fields');
+    return res.status(400).json({ error: 'Email, password, and user type are required.' });
+  }
+
+  const validUserTypes = ['donor', 'patient', 'healthcare_institution', 'admin'];
+  if (!validUserTypes.includes(userType)) {
+    console.log('Error: Invalid user type');
+    return res.status(400).json({ error: 'Invalid user type.' });
+  }
+
+  try {
+    await signup(req, res);
+  } catch (error) {
+    console.error('=== Signup Error ===');
+    console.error('Error details:', error);
+    console.error('Stack trace:', error.stack);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
 
 // -----------------------
 // Password Reset Endpoints
