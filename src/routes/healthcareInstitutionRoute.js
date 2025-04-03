@@ -1,3 +1,4 @@
+
 // routes/healthcareInstitutionRoute.js
 import express from 'express';
 import * as instituteController from '../controllers/healthcareInstitutionController.js';

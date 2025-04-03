@@ -1,4 +1,3 @@
-// index.js
 import express from "express";
 import cors from "cors";
 import path from "path";
@@ -9,7 +8,9 @@ import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import pkg from 'pg';
 const { Pool } = pkg;
-import * as notificationService from './services/notificationService.js'; // Import notification service
+import * as notificationService from './services/notificationService.js';
+// Import the two analytics routers from analyticsRoute.js
+import { analyticsRouter, reportsRouter } from "./routes/analyticsRoute.js";
 
 // Define __dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -69,6 +70,7 @@ import healthcareInstituteRoutes from "./routes/healthcareInstitutionRoute.js";
 import authRoutes from "./routes/authRoute.js";
 import notificationRoutes from "./routes/notificationRoute.js";
 import requestRoutes from "./routes/requestRoute.js";
+import userRoutes from "./routes/userRoute.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -89,7 +91,6 @@ io.use((socket, next) => {
     console.log('Socket connection rejected: No token provided');
     return next(new Error('Authentication token missing'));
   }
-
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     socket.decoded = decoded;
@@ -135,6 +136,11 @@ app.use("/api", requestRoutes);
 app.use("/api", patientRoutes);
 app.use("/api", healthcareInstituteRoutes);
 app.use("/api", notificationRoutes);
+app.use("/api", userRoutes);
+
+// Mount the analytics and reports routers at separate base paths
+app.use("/api/analytics", analyticsRouter);
+app.use("/api/reports", reportsRouter);
 
 // Authentication middleware for HTTP routes
 const authenticateToken = (req, res, next) => {
@@ -236,28 +242,22 @@ app.use(express.static(path.join(__dirname, "public"), {
   }
 }));
 
-// Default route
+// Default route and dashboard routes
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
-// Dashboard routes
 app.get('/donor-dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'donor-dashboard.html'));
 });
-
 app.get('/patient-dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'patient-dashboard.html'));
 });
-
 app.get('/healthcare-dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'healthcare-dashboard.html'));
 });
-
 app.get('/admin-dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin-dashboard.html'));
 });
-
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

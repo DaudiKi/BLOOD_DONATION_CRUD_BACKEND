@@ -23,7 +23,7 @@
     .edit-btn {
       float: right;
       padding: 8px 16px;
-      background: #4CAF50;
+      background: #dc3545;
       color: white;
       border: none;
       border-radius: 6px;
@@ -38,7 +38,7 @@
     }
 
     .edit-btn:hover {
-      background: #45a049;
+      background: #c82333;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
@@ -96,14 +96,14 @@
     }
 
     #editProfileForm input:focus {
-      border-color: #4CAF50;
+      border-color: #dc3545;
       outline: none;
     }
 
     #editProfileForm button {
       grid-column: span 2;
       padding: 14px;
-      background: #4CAF50;
+      background: #dc3545;
       color: white;
       border: none;
       border-radius: 6px;
@@ -116,7 +116,7 @@
     }
 
     #editProfileForm button:hover {
-      background: #45a049;
+      background: #c82333;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       transform: translateY(-1px);
     }
@@ -153,7 +153,7 @@
     }
 
     .status-indicator.available {
-      background: #4CAF50;
+      background: #dc3545;
     }
 
     .toggle-switch {
@@ -196,7 +196,7 @@
     }
 
     input:checked + .slider {
-      background-color: #4CAF50;
+      background-color: #dc3545;
     }
 
     input:checked + .slider:before {
@@ -239,11 +239,11 @@
     }
 
     .blood-requests .accept-btn {
-      background: #4CAF50;
+      background: #dc3545;
     }
 
     .blood-requests .accept-btn:hover {
-      background: #45a049;
+      background: #c82333;
     }
 
     .blood-requests .reject-btn {
@@ -316,6 +316,49 @@
       padding: 24px;
       font-weight: 500;
     }
+
+    .status-pending { color: #ffc107; }
+    .status-accepted { color: #dc3545; }
+    .status-completed { color: #17a2b8; }
+    .status-cancelled { color: #dc3545; }
+
+    .accept-btn {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .accept-btn:hover {
+      background: #c82333;
+      transform: translateY(-1px);
+    }
+
+    /* Add logout button styles */
+    .logout-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      margin-left: 16px;
+    }
+
+    .logout-btn:hover {
+      background: #c82333;
+      transform: translateY(-1px);
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
   </style>
 </head>
 <body>
@@ -327,7 +370,6 @@
       <nav>
         <a href="#" class="active"><i class="fas fa-th-large"></i></a>
         <a href="#"><i class="fas fa-users"></i></a>
-        <a href="#"><i class="fas fa-image"></i></a>
         <a href="#"><i class="fas fa-file-alt"></i></a>
         <a href="#"><i class="fas fa-folder"></i></a>
       </nav>
@@ -346,6 +388,10 @@
             <img src="" alt="Profile" id="profileImage">
             <span id="profileName"></span>
           </div>
+          <button onclick="logout()" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+          </button>
         </div>
       </header>
 
@@ -772,7 +818,7 @@
             .urgency-low { color: #28a745; font-weight: bold; }
             
             .status-pending { color: #ffc107; }
-            .status-accepted { color: #28a745; }
+            .status-accepted { color: #dc3545; }
             .status-completed { color: #17a2b8; }
             .status-cancelled { color: #dc3545; }
             
@@ -796,12 +842,12 @@
             }
             
             .accept-btn {
-              background: #4CAF50;
+              background: #dc3545;
               color: white;
             }
             
             .accept-btn:hover {
-              background: #45a049;
+              background: #c82333;
               transform: translateY(-1px);
             }
             
@@ -863,7 +909,7 @@
           top: 20px;
           right: 20px;
           padding: 15px 25px;
-          background: #4CAF50;
+          background: #dc3545;
           color: white;
           border-radius: 6px;
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);

@@ -38,10 +38,6 @@
     <div class="header">
       <h1>Overview</h1>
       <div class="header-right">
-        <div class="search-bar">
-          <input type="text" placeholder="Search something...">
-          <i class="fas fa-search"></i>
-        </div>
         <div class="notification-bell" onclick="toggleNotifications()">
           <i class="fas fa-bell"></i>
           <span class="badge" id="notificationCount">0</span>
@@ -65,10 +61,9 @@
             <tr>
               <th>ID</th>
               <th>Name</th>
+              <th>Email</th>
+              <th>Contact</th>
               <th>Role</th>
-              <th>Status</th>
-              <th>Last Login</th>
-              <th>Verified</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -112,50 +107,6 @@
           <tbody></tbody>
         </table>
       </div>
-    </ 🙂
-
-    <!-- Blood Requests -->
-    <div class="section" id="blood-requests">
-      <h2>Blood Requests</h2>
-      <div class="card">
-        <div class="request-form">
-          <h3>Create New Blood Request</h3>
-          <select id="requestBloodType">
-            <option value="">Select Blood Type</option>
-            <option value="A+">A+</option>
-            <option value="A-">A-</option>
-            <option value="B+">B+</option>
-            <option value="B-">B-</option>
-            <option value="AB+">AB+</option>
-            <option value="AB-">AB-</option>
-            <option value="O+">O+</option>
-            <option value="O-">O-</option>
-          </select>
-          <input type="number" id="requestUnitsNeeded" placeholder="Units Needed">
-          <select id="requestUrgencyLevel">
-            <option value="">Select Urgency Level</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
-          <input type="date" id="requestRequiredByDate">
-          <textarea id="requestNotes" placeholder="Request Notes"></textarea>
-          <button onclick="createBloodRequest()">Create Request</button>
-        </div>
-        <table id="requestTable">
-          <thead>
-            <tr>
-              <th>Request ID</th>
-              <th>Blood Type</th>
-              <th>Units Needed</th>
-              <th>Urgency</th>
-              <th>Location</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
     </div>
 
     <!-- Activity Logs -->
@@ -169,19 +120,55 @@
     <!-- System Analytics -->
     <div class="section" id="stats">
       <h2>System Analytics</h2>
+      <div class="analytics-grid">
       <div class="card">
-        <canvas id="usageChart"></canvas>
+          <h3>Key Metrics</h3>
+          <div id="keyMetrics" class="metrics-grid">
+            <div class="metric">
+              <i class="fas fa-users"></i>
+              <h4>Total Users</h4>
+              <span id="totalUsers">Loading...</span>
+            </div>
+            <div class="metric">
+              <i class="fas fa-tint"></i>
+              <h4>Total Donations</h4>
+              <span id="totalDonations">Loading...</span>
+            </div>
+            <div class="metric">
+              <i class="fas fa-clipboard-list"></i>
+              <h4>Pending Requests</h4>
+              <span id="pendingRequests">Loading...</span>
+            </div>
+            <div class="metric">
+              <i class="fas fa-hospital"></i>
+              <h4>Active Institutions</h4>
+              <span id="activeInstitutions">Loading...</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Reports -->
     <div class="section" id="reports">
-      <h2>Reports</h2>
+      <h2>Blood Request Reports</h2>
       <div class="card">
+        <div class="report-controls">
+          <div class="date-range">
+            <label for="startDate">Start Date:</label>
         <input type="date" id="startDate">
+            <label for="endDate">End Date:</label>
         <input type="date" id="endDate">
-        <button onclick="generateReport()">Generate Report</button>
-        <div id="reportResult" style="margin-top: 20px;"></div>
+          </div>
+          <button onclick="generateReport()" class="generate-btn">
+            <i class="fas fa-file-alt"></i> Generate Report
+          </button>
+          <button onclick="exportToPDF()" class="pdf-btn" disabled>
+            <i class="fas fa-file-pdf"></i> Export to PDF
+          </button>
+        </div>
+        <div id="reportSummary" class="report-summary"></div>
+        <div id="reportResult"></div>
       </div>
     </div>
 
@@ -194,7 +181,165 @@
     </div>
   </div>
 
+  <style>
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      padding: 20px;
+    }
+    .metric {
+      text-align: center;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .metric i {
+      font-size: 24px;
+      color: #2196F3;
+      margin-bottom: 10px;
+    }
+    .metric h4 {
+      margin: 10px 0;
+      color: #666;
+      font-size: 14px;
+    }
+    .metric span {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+    }
+    .report-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .report-type, .date-range {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .generate-btn, .export-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .generate-btn {
+      background: #2196F3;
+      color: white;
+    }
+    .export-btn {
+      background: #4CAF50;
+      color: white;
+    }
+    #reportResult {
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+    #reportResult table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #reportResult th, #reportResult td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    #reportResult th {
+      background-color: #f5f5f5;
+    }
+    .report-summary {
+      margin: 20px 0;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 15px;
+    }
+    
+    .summary-item {
+      text-align: center;
+      padding: 15px;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .summary-item h4 {
+      margin: 0 0 10px 0;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .summary-item .value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #2196F3;
+    }
+    
+    .blood-type-distribution {
+      margin-top: 20px;
+    }
+    
+    .blood-type-bar {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+    }
+    
+    .blood-type-label {
+      width: 50px;
+      font-weight: bold;
+    }
+    
+    .blood-type-progress {
+      flex-grow: 1;
+      height: 20px;
+      background: #e9ecef;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 0 10px;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: #2196F3;
+      transition: width 0.3s ease;
+    }
+    
+    .blood-type-value {
+      width: 50px;
+      text-align: right;
+    }
+  </style>
+
+  <!-- Add jsPDF library for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.15/jspdf.plugin.autotable.min.js"></script>
+
   <script>
+    // Base URL for API requests (adjust this based on your backend server)
+    const API_BASE_URL = 'http://localhost:3000'; // Change this to match your backend server
+
    // Helper function to handle API requests and token expiration
    async function makeAuthenticatedRequest(url, options = {}) {
     const token = localStorage.getItem('token');
@@ -217,7 +362,8 @@
       }
     };
 
-    const res = await fetch(url, finalOptions);
+      const fullUrl = `${API_BASE_URL}${url}`;
+      const res = await fetch(fullUrl, finalOptions);
     if (res.status === 403 && (await res.clone().json()).error === 'Invalid token') {
       alert('Session expired. Please log in again.');
       localStorage.removeItem('token');
@@ -231,7 +377,7 @@
       let errorMessage = res.statusText;
       try {
         const errorData = await res.json();
-        errorMessage = errorData.error || res.statusText;
+          errorMessage = errorData.message || res.statusText;
       } catch (e) {
         // Response is not JSON, use statusText
       }
@@ -240,21 +386,21 @@
     return res.json();
   }
 
-    // Fetch users
-    makeAuthenticatedRequest('/admin/users')
+    // Fetch users (Donors, Patients, Healthcare Institutions)
+    makeAuthenticatedRequest('/api/admin/users') // Updated to include /api prefix
       .then(data => {
         const tbody = document.querySelector('#userTable tbody');
+        tbody.innerHTML = ''; // Clear existing rows
         data.forEach(user => {
           const row = `<tr>
             <td>${user.id}</td>
-            <td>${user.name}</td>
-            <td>${user.role}</td>
-            <td>${user.status}</td>
-            <td>${user.last_login || 'N/A'}</td>
-            <td>${user.verified ? 'Yes' : 'No'}</td>
+            <td>${user.name || 'N/A'}</td>
+            <td>${user.email || 'N/A'}</td>
+            <td>${user.phone_number || user.address || 'N/A'}</td>
+            <td>${user.role || 'N/A'}</td>
             <td>
-              ${!user.verified ? `<button class="verify-btn" onclick="verifyUser(${user.id})"><i class="fas fa-check"></i> Verify</button>` : ''}
-              <button class="deactivate-btn" onclick="deactivateUser(${user.id})"><i class="fas fa-ban"></i> Deactivate</button>
+              ${!user.verified ? `<button class="verify-btn" onclick="verifyUser(${user.id}, '${user.user_type}')"><i class="fas fa-check"></i> Verify</button>` : ''}
+              <button class="deactivate-btn" onclick="deactivateUser(${user.id}, '${user.user_type}')"><i class="fas fa-ban"></i> Deactivate</button>
             </td>
           </tr>`;
           tbody.innerHTML += row;
@@ -262,7 +408,8 @@
       })
       .catch(err => {
         console.error('Error fetching users:', err);
-        alert('Error fetching users: ' + err.message);
+        const tbody = document.querySelector('#userTable tbody');
+        tbody.innerHTML = `<tr><td colspan="6" style="color: red;">Error loading users: ${err.message}</td></tr>`;
       });
 
     // Fetch admins
@@ -279,8 +426,8 @@
                 <td>${admin.first_name}</td>
                 <td>${admin.last_name}</td>
                 <td>${admin.email}</td>
-                <td>${admin.phone_number}</td>
-                <td>${admin.date_created}</td>
+                <td>${admin.phone_number || 'N/A'}</td>
+                <td>${admin.date_created || 'N/A'}</td>
                 <td>${admin.is_active ? 'Yes' : 'No'}</td>
                 <td>
                   <button class="edit-btn" onclick="editAdmin(${admin.admin_id})"><i class="fas fa-edit"></i> Edit</button>
@@ -398,58 +545,8 @@
       }
     }
 
-    // Fetch blood requests
-    makeAuthenticatedRequest('/api/blood-requests')
-      .then(response => {
-        const tbody = document.querySelector('#requestTable tbody');
-        response.data.forEach(request => {
-          const row = `
-            <tr>
-              <td>${request.requestId}</td>
-              <td>${request.bloodType}</td>
-              <td>${request.unitsNeeded}</td>
-              <td>${request.urgency}</td>
-              <td>${request.location}</td>
-              <td>${request.status}</td>
-            </tr>`;
-          tbody.innerHTML += row;
-        });
-      })
-      .catch(err => {
-        console.error('Error fetching blood requests:', err);
-        alert('Error fetching blood requests: ' + err.message);
-      });
-
-    function createBloodRequest() {
-      const requestData = {
-        blood_type: document.getElementById('requestBloodType').value,
-        units_needed: parseInt(document.getElementById('requestUnitsNeeded').value),
-        urgency_level: document.getElementById('requestUrgencyLevel').value,
-        required_by_date: document.getElementById('requestRequiredByDate').value,
-        request_notes: document.getElementById('requestNotes').value
-      };
-
-      if (!requestData.blood_type || !requestData.units_needed || !requestData.urgency_level || !requestData.required_by_date) {
-        alert('Please fill in all required fields.');
-        return;
-      }
-
-      makeAuthenticatedRequest('/api/blood-requests', {
-        method: 'POST',
-        body: JSON.stringify(requestData)
-      })
-        .then(() => {
-          // Refresh the request list
-          location.reload();
-        })
-        .catch(err => {
-          console.error('Error creating blood request:', err);
-          alert('Error creating blood request: ' + err.message);
-        });
-    }
-
     // Fetch activity logs
-    makeAuthenticatedRequest('/admin/activity-logs')
+    makeAuthenticatedRequest('/api/admin/activity-logs') // Updated to include /api prefix
       .then(data => {
         const logsDiv = document.getElementById('activityLogs');
         data.forEach(log => {
@@ -461,38 +558,250 @@
         alert('Error fetching activity logs: ' + err.message);
       });
 
-    // Fetch usage stats and render chart
-    makeAuthenticatedRequest('/admin/usage-stats')
-      .then(data => {
-        const ctx = document.getElementById('usageChart').getContext('2d');
-        new Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: ['Total Users', 'Total Requests', 'Total Donations'],
-            datasets: [{
-              data: [
-                data.totalUsers || 0,
-                data.totalRequests || 0,
-                data.totalDonations || 0
-              ],
-              backgroundColor: ['#4CAF50', '#2196F3', '#F44336']
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { position: 'bottom' }
-            }
-          }
-        });
-      })
-      .catch(err => {
-        console.error('Error fetching usage stats:', err);
-        alert('Error fetching usage stats: ' + err.message);
+    // Fetch analytics data with error handling and loading states
+    async function fetchAnalytics() {
+      const metrics = document.querySelectorAll('.metric span');
+      
+      // Show loading state
+      metrics.forEach(metric => {
+        metric.textContent = 'Loading...';
+        metric.style.opacity = '0.5';
       });
 
+      try {
+        const response = await makeAuthenticatedRequest('/api/analytics/metrics');
+        
+        // Update metrics with animation
+        document.getElementById('totalUsers').textContent = response.totalUsers || '0';
+        document.getElementById('totalDonations').textContent = response.totalDonations || '0';
+        document.getElementById('pendingRequests').textContent = response.pendingRequests || '0';
+        document.getElementById('activeInstitutions').textContent = response.activeInstitutions || '0';
+
+        // Reset opacity
+        metrics.forEach(metric => {
+          metric.style.opacity = '1';
+        });
+      } catch (err) {
+        console.error('Error fetching analytics:', err);
+        metrics.forEach(metric => {
+          metric.textContent = 'Error';
+          metric.style.color = '#dc3545';
+        });
+      }
+    }
+
+    // Format date for display
+    function formatDate(dateString) {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    // Generate report based on selected date range
+    async function generateReport() {
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const summaryDiv = document.getElementById('reportSummary');
+      const reportDiv = document.getElementById('reportResult');
+
+      if (!startDate || !endDate) {
+        alert('Please select both start and end dates.');
+        return;
+      }
+
+      // Show loading state
+      summaryDiv.innerHTML = '<div class="loading">Generating report summary...</div>';
+      reportDiv.innerHTML = '<div class="loading">Loading request details...</div>';
+
+      try {
+        const data = await makeAuthenticatedRequest(`/api/reports/requests?startDate=${startDate}&endDate=${endDate}`);
+        
+        if (data.length === 0) {
+          summaryDiv.innerHTML = '<p class="no-data">No blood requests found for the selected date range.</p>';
+          reportDiv.innerHTML = '';
+          return;
+        }
+
+        // Calculate summary statistics
+        const totalRequests = data.length;
+        const pendingRequests = data.filter(r => r.status === 'pending').length;
+        const fulfilledRequests = data.filter(r => r.status === 'fulfilled').length;
+        const urgentRequests = data.filter(r => r.urgency_level === 'high').length;
+
+        // Calculate blood type distribution
+        const bloodTypeCount = data.reduce((acc, req) => {
+          acc[req.blood_type] = (acc[req.blood_type] || 0) + 1;
+          return acc;
+        }, {});
+
+        // Generate summary HTML
+        let summaryHTML = `
+          <h3>Summary for ${formatDate(startDate)} - ${formatDate(endDate)}</h3>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <h4>Total Requests</h4>
+              <div class="value">${totalRequests}</div>
+            </div>
+            <div class="summary-item">
+              <h4>Pending Requests</h4>
+              <div class="value">${pendingRequests}</div>
+            </div>
+            <div class="summary-item">
+              <h4>Fulfilled Requests</h4>
+              <div class="value">${fulfilledRequests}</div>
+            </div>
+            <div class="summary-item">
+              <h4>Urgent Requests</h4>
+              <div class="value">${urgentRequests}</div>
+            </div>
+          </div>
+          <div class="blood-type-distribution">
+            <h4>Blood Type Distribution</h4>`;
+
+        // Add blood type distribution bars
+        Object.entries(bloodTypeCount).forEach(([bloodType, count]) => {
+          const percentage = (count / totalRequests * 100).toFixed(1);
+          summaryHTML += `
+            <div class="blood-type-bar">
+              <span class="blood-type-label">${bloodType}</span>
+              <div class="blood-type-progress">
+                <div class="progress-fill" style="width: ${percentage}%"></div>
+              </div>
+              <span class="blood-type-value">${count}</span>
+            </div>`;
+        });
+
+        summaryHTML += '</div>';
+        summaryDiv.innerHTML = summaryHTML;
+
+        // Generate detailed table
+        let tableHTML = `
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Blood Type</th>
+                <th>Units Needed</th>
+                <th>Urgency Level</th>
+                <th>Status</th>
+                <th>Request Date</th>
+                <th>Requester</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+        data.forEach(request => {
+          tableHTML += `
+            <tr>
+              <td>${request.request_id}</td>
+              <td>${request.blood_type}</td>
+              <td>${request.units_needed}</td>
+              <td>${request.urgency_level}</td>
+              <td>${request.status}</td>
+              <td>${formatDate(request.request_date)}</td>
+              <td>${request.requester_name || 'N/A'}</td>
+            </tr>`;
+        });
+
+        tableHTML += '</tbody></table>';
+        reportDiv.innerHTML = tableHTML;
+
+        // Enable PDF export button
+        document.querySelector('.pdf-btn').disabled = false;
+      } catch (err) {
+        console.error('Error generating report:', err);
+        summaryDiv.innerHTML = `<p class="error">Error generating report summary: ${err.message}</p>`;
+        reportDiv.innerHTML = '';
+      }
+    }
+
+    // Export report to PDF
+    function exportToPDF() {
+      const summaryDiv = document.getElementById('reportSummary');
+      const reportDiv = document.getElementById('reportResult');
+      
+      if (!summaryDiv.querySelector('.summary-grid')) {
+        alert('Please generate a report first.');
+        return;
+      }
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Add title
+        const startDate = formatDate(document.getElementById('startDate').value);
+        const endDate = formatDate(document.getElementById('endDate').value);
+        doc.setFontSize(16);
+        doc.text('Blood Request Report', 14, 15);
+        
+        // Add date range
+        doc.setFontSize(12);
+        doc.text(`Period: ${startDate} - ${endDate}`, 14, 25);
+
+        // Add summary statistics
+        doc.setFontSize(14);
+        doc.text('Summary Statistics', 14, 35);
+        
+        const summaryItems = summaryDiv.querySelectorAll('.summary-item');
+        let y = 45;
+        summaryItems.forEach(item => {
+          const label = item.querySelector('h4').textContent;
+          const value = item.querySelector('.value').textContent;
+          doc.setFontSize(10);
+          doc.text(`${label}: ${value}`, 14, y);
+          y += 7;
+        });
+
+        // Add blood type distribution
+        doc.setFontSize(14);
+        doc.text('Blood Type Distribution', 14, y + 10);
+        
+        const bloodTypeBars = summaryDiv.querySelectorAll('.blood-type-bar');
+        y += 20;
+        bloodTypeBars.forEach(bar => {
+          const bloodType = bar.querySelector('.blood-type-label').textContent;
+          const count = bar.querySelector('.blood-type-value').textContent;
+          doc.setFontSize(10);
+          doc.text(`${bloodType}: ${count} requests`, 14, y);
+          y += 7;
+        });
+
+        // Add detailed table
+        doc.addPage();
+        doc.setFontSize(14);
+        doc.text('Detailed Request List', 14, 15);
+        
+        const table = reportDiv.querySelector('table');
+        doc.autoTable({
+          html: table,
+          startY: 25,
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [33, 150, 243] },
+          alternateRowStyles: { fillColor: [245, 245, 245] }
+        });
+
+        // Add footer with page numbers
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          doc.setFontSize(8);
+          doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 10);
+        }
+
+        // Save the PDF
+        const date = new Date().toISOString().split('T')[0];
+        doc.save(`blood_requests_report_${date}.pdf`);
+      } catch (err) {
+        console.error('Error exporting to PDF:', err);
+        alert('Error exporting to PDF: ' + err.message);
+      }
+    }
+
     // Fetch notifications and update both sections
-    makeAuthenticatedRequest('/api/notifications')
+    makeAuthenticatedRequest('/api/notifications') // Updated to include /api prefix
       .then(data => {
         // Update notification count in the header
         const notificationCount = document.getElementById('notificationCount');
@@ -548,9 +857,14 @@
         });
     }
 
-    function verifyUser(id) {
-      makeAuthenticatedRequest(`/admin/users/${id}/verify`, {
-        method: 'POST'
+    function verifyUser(id, userType) {
+      if (!userType) {
+        alert('User type is required for verification.');
+        return;
+      }
+      makeAuthenticatedRequest(`/api/admin/users/${id}/verify`, { // Updated to include /api prefix
+        method: 'POST',
+        body: JSON.stringify({ user_type: userType })
       })
         .then(() => location.reload())
         .catch(err => {
@@ -559,9 +873,15 @@
         });
     }
 
-    function deactivateUser(id) {
-      makeAuthenticatedRequest(`/admin/users/${id}/deactivate`, {
-        method: 'POST'
+    function deactivateUser(id, userType) {
+      if (!userType) {
+        alert('User type is required for deactivation.');
+        return;
+      }
+      if (confirm('Are you sure you want to deactivate this user?')) {
+        makeAuthenticatedRequest(`/api/admin/users/${id}/deactivate`, { // Updated to include /api prefix
+          method: 'POST',
+          body: JSON.stringify({ user_type: userType })
       })
         .then(() => location.reload())
         .catch(err => {
@@ -569,49 +889,6 @@
           alert('Error deactivating user: ' + err.message);
         });
     }
-
-    function generateReport() {
-      const startDate = document.getElementById('startDate').value;
-      const endDate = document.getElementById('endDate').value;
-      if (!startDate || !endDate) {
-        alert('Please select both start and end dates.');
-        return;
-      }
-
-      makeAuthenticatedRequest(`/admin/generate-report?startDate=${startDate}&endDate=${endDate}`)
-        .then(data => {
-          const reportDiv = document.getElementById('reportResult');
-          if (data.length === 0) {
-            reportDiv.innerHTML = '<p>No donations found for the selected date range.</p>';
-            return;
-          }
-          let table = `
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Donor ID</th>
-                  <th>Units Donated</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>`;
-          data.forEach(donation => {
-            table += `
-              <tr>
-                <td>${donation.donation_id}</td>
-                <td>${donation.donor_id}</td>
-                <td>${donation.units_donated}</td>
-                <td>${donation.date}</td>
-              </tr>`;
-          });
-          table += '</tbody></table>';
-          reportDiv.innerHTML = table;
-        })
-        .catch(err => {
-          console.error('Error generating report:', err);
-          alert('Error generating report: ' + err.message);
-        });
     }
 
     function logout() {
