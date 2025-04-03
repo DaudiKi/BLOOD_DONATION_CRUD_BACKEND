@@ -19,6 +19,7 @@ router.put('/blood-requests/:request_id/reject', verifyToken, requireRole('donor
 // Other donor routes with :id parameter
 router.get('/donors/:id', verifyToken, requireRole('donor'), donorController.getDonorById);
 router.put('/donors/:id', verifyToken, requireRole('donor'), donorController.updateDonor);
+router.put('/donors/:id/availability', verifyToken, requireRole('donor'), donorController.updateAvailability);
 
 // Admin routes
 router.get('/donors', verifyToken, requireRole('donor', 'admin'), donorController.getDonors);

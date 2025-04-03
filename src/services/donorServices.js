@@ -220,22 +220,35 @@ export const getDonorById = async (donorId) => {
 
 export const updateDonor = async (donorId, updateData) => {
   try {
-    const allowedFields = [
-      'phone_number',
-      'address',
-      'city',
-      'last_donation_date',
-      'is_active'
-    ];
+    // Validate the donor ID
+    if (!donorId) {
+      throw new Error('Donor ID is required');
+    }
 
+    // Define allowed fields and their validation rules
+    const validations = {
+      first_name: (value) => typeof value === 'string' && value.trim().length > 0,
+      last_name: (value) => typeof value === 'string' && value.trim().length > 0,
+      blood_type: (value) => ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].includes(value),
+      phone_number: (value) => !value || /^\+?[\d\s-]{10,}$/.test(value),
+      address: (value) => !value || (typeof value === 'string' && value.trim().length > 0),
+      city: (value) => !value || (typeof value === 'string' && value.trim().length > 0),
+      medical_conditions: (value) => !value || (typeof value === 'string')
+    };
+
+    // Filter and validate update data
     const updates = [];
     const values = [];
     let paramCount = 1;
 
-    Object.keys(updateData).forEach(key => {
-      if (allowedFields.includes(key)) {
+    Object.entries(updateData).forEach(([key, value]) => {
+      if (key in validations) {
+        // Validate the value
+        if (!validations[key](value)) {
+          throw new Error(`Invalid value for ${key}`);
+        }
         updates.push(`${key} = $${paramCount}`);
-        values.push(updateData[key]);
+        values.push(value);
         paramCount++;
       }
     });
@@ -244,20 +257,29 @@ export const updateDonor = async (donorId, updateData) => {
       throw new Error('No valid fields to update');
     }
 
+    // Add donor_id as the last parameter
     values.push(donorId);
+
     const updateQuery = `
       UPDATE bloodlink_schema.donor 
-      SET ${updates.join(', ')}, 
-          updated_at = CURRENT_TIMESTAMP 
+      SET ${updates.join(', ')}
       WHERE donor_id = $${paramCount} 
       RETURNING *
     `;
 
+    console.log('Update Query:', updateQuery);
+    console.log('Values:', values);
+
     const { rows } = await query(updateQuery, values);
+    
+    if (rows.length === 0) {
+      throw new Error('Donor not found');
+    }
+
     return rows[0];
   } catch (error) {
     console.error('Error in updateDonor:', error);
-    throw new Error('Failed to update donor');
+    throw new Error(`Failed to update donor: ${error.message}`);
   }
 };
 
@@ -293,5 +315,26 @@ export const getDonorDashboardData = async (donorId) => {
   } catch (error) {
     console.error('Error in getDonorDashboardData:', error);
     throw new Error('Failed to fetch dashboard data');
+  }
+};
+
+export const updateDonorAvailability = async (donorId, isAvailable) => {
+  try {
+    const { rows } = await query(
+      `UPDATE bloodlink_schema.donor 
+       SET is_available = $1
+       WHERE donor_id = $2 
+       RETURNING *`,
+      [isAvailable, donorId]
+    );
+    
+    if (rows.length === 0) {
+      throw new Error('Donor not found');
+    }
+
+    return rows[0];
+  } catch (error) {
+    console.error('Error in updateDonorAvailability:', error);
+    throw new Error(`Failed to update donor availability: ${error.message}`);
   }
 };

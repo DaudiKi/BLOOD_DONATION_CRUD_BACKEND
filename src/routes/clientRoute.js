@@ -14,7 +14,7 @@ router.put('/admin/:id', verifyToken, requireRole('admin'), updateAdmin);
 router.delete('/admin/:id', verifyToken, requireRole('admin'), deleteAdmin);
 
 // Blood request routes
-router.get('/blood-requests', verifyToken, requireRole('admin'), getBloodRequests);
+router.get('/blood-requests', verifyToken, requireRole('donor', 'admin'), getBloodRequests);
 
 // Notification routes
 router.get('/notifications', verifyToken, requireRole('admin'), getNotifications);

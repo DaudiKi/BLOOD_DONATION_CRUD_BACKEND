@@ -351,4 +351,57 @@ export const getRequestsByInstitution = async (institutionId) => {
   }
 };
 
+/**
+ * Retrieves all blood requests matching a specific blood type.
+ * @param {string} bloodType - The blood type to match against.
+ * @returns {Promise<Object[]>} - Array of matching request records.
+ * @throws {Error} - If the query fails.
+ */
+export const getRequestsByBloodType = async (bloodType) => {
+  if (!bloodType) throw new Error('Blood type is required');
+
+  try {
+    const selectQuery = `
+      SELECT 
+        br.request_id,
+        br.blood_type,
+        br.units_needed,
+        br.urgency_level,
+        br.required_by_date,
+        br.request_notes,
+        br.request_status,
+        br.request_date,
+        CASE 
+          WHEN br.institution_id IS NOT NULL THEN hi.name
+          WHEN br.patient_id IS NOT NULL THEN CONCAT(p.first_name, ' ', p.last_name)
+          ELSE 'Anonymous'
+        END as patient_name,
+        CASE
+          WHEN br.institution_id IS NOT NULL THEN hi.city
+          WHEN br.patient_id IS NOT NULL THEN p.city
+          ELSE 'Not specified'
+        END as location
+      FROM bloodlink_schema.blood_request br
+      LEFT JOIN bloodlink_schema.patient p ON br.patient_id = p.patient_id
+      LEFT JOIN bloodlink_schema.healthcare_institution hi ON br.institution_id = hi.institution_id
+      WHERE br.blood_type = $1 
+      AND br.request_status = 'Pending'
+      ORDER BY 
+        CASE br.urgency_level 
+          WHEN 'high' THEN 1
+          WHEN 'medium' THEN 2
+          WHEN 'low' THEN 3
+          ELSE 4
+        END,
+        br.request_date DESC;
+    `;
+    
+    const result = await query(selectQuery, [bloodType]);
+    return result.rows;
+  } catch (error) {
+    logger.error('Error in getRequestsByBloodType:', error);
+    throw new Error(`Failed to fetch requests by blood type: ${error.message}`);
+  }
+};
+
 // TODO: Implement pagination for getAllRequests

@@ -2,6 +2,7 @@
 import * as clientService from '../services/clientServices.js';
 import * as requestService from '../services/requestService.js';
 import * as notificationService from '../services/notificationService.js';
+import * as donorService from '../services/donorServices.js';
 import Joi from 'joi';
 
 // Validation schema for creating an admin
@@ -245,23 +246,47 @@ export const searchAdmins = async (req, res) => {
 
 // Fetch all blood requests (for monitoring)
 export const getBloodRequests = async (req, res) => {
-   try {
-     const bloodRequests = await requestService.getAllBloodRequests(); // Updated to use requestService
-     // Map the data to match the frontend's expected format
-     const formattedRequests = bloodRequests.map(request => ({
-       requestId: request.request_id,
-       bloodType: request.blood_type,
-       unitsNeeded: request.units_needed,
-       urgency: request.urgency_level,
-       location: request.location || (request.institution_id ? 'Institution' : 'Patient'),
-       status: request.request_status
-     }));
-     res.json({ data: formattedRequests });
-   } catch (error) {
-     console.error('Error in getBloodRequests:', error);
-     res.status(500).json({ error: 'Failed to fetch blood requests' });
-   }
- };
+  try {
+    let bloodRequests;
+    
+    if (req.user.role === 'donor') {
+      // For donors, fetch only matching blood type requests
+      const donorData = await donorService.getDonorById(req.user.userId);
+      if (!donorData) {
+        return res.status(404).json({ error: 'Donor not found' });
+      }
+      
+      bloodRequests = await requestService.getRequestsByBloodType(donorData.blood_type);
+    } else {
+      // For admins, fetch all requests
+      bloodRequests = await requestService.getAllBloodRequests();
+    }
+
+    // Map the data to match the frontend's expected format
+    const formattedRequests = bloodRequests.map(request => ({
+      request_id: request.request_id,
+      patient_name: request.patient_name || 'Anonymous',
+      blood_type: request.blood_type,
+      location: request.location || (request.institution_id ? 'Institution' : 'Patient'),
+      urgency_level: request.urgency_level,
+      request_status: request.request_status,
+      required_by_date: request.required_by_date,
+      request_date: request.request_date
+    }));
+
+    res.json({ 
+      success: true,
+      data: formattedRequests,
+      message: 'Blood requests fetched successfully'
+    });
+  } catch (error) {
+    console.error('Error in getBloodRequests:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch blood requests' 
+    });
+  }
+};
 
 // Fetch notifications for the admin
 export const getNotifications = async (req, res) => {
