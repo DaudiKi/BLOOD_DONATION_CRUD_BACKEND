@@ -1,3 +1,4 @@
+// controllers/patientController.js
 import * as patientService from "../services/patientServices.js";
 
 // Get current patient's profile
@@ -19,7 +20,7 @@ export const getCurrentPatient = async (req, res) => {
   }
 };
 
-// Get patient's notifications
+// Other functions remain unchanged...
 export const getNotifications = async (req, res) => {
   try {
     const patientId = req.user.userId;
@@ -31,7 +32,6 @@ export const getNotifications = async (req, res) => {
   }
 };
 
-// Mark notification as read
 export const markNotificationAsRead = async (req, res) => {
   try {
     const patientId = req.user.userId;

@@ -1,6 +1,8 @@
 // donor.js
 // Global variables
 let socket = null;
+let bloodRequestsCount = 0;
+let pendingBloodRequestsCount = 0;
 
 // Session Management
 function checkSession() {
@@ -62,18 +64,18 @@ function initializeSocket() {
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
     reconnectionAttempts: 5,
-    auth: { token: localStorage.getItem('token') }
-  });
+  auth: { token: localStorage.getItem('token') }
+});
 
-  const userId = localStorage.getItem('userId');
-  if (userId) {
-    socket.emit('join', userId);
+const userId = localStorage.getItem('userId');
+if (userId) {
+  socket.emit('join', userId);
   }
 
   socket.on('connect', () => {
     console.log('Connected to server');
     showToast('Connected to server', 'success');
-    socket.emit('fetch_notifications'); // Fetch notifications on connect
+    socket.emit('fetch_notifications');
   });
 
   socket.on('disconnect', () => {
@@ -90,14 +92,22 @@ function initializeSocket() {
     showToast('Unable to reconnect. Please refresh.', 'error');
   });
 
-  socket.on('new_blood_request', (data) => {
-    updateRequestsTable(data);
-    showToast('New blood request available', 'info');
+  socket.on('new_blood_request', (request) => {
+    console.log('New blood request received:', request); // Debug log
+    if (request && request.status && request.status.toLowerCase() === 'pending') {
+      pendingBloodRequestsCount++;
+      updateBloodRequestsCount();
+    }
+    fetchBloodRequests(); // Refresh the entire table
   });
 
   socket.on('request_matched', (data) => {
     updateRequestStatus(data);
     showToast('Request matched successfully', 'success');
+    if (data.status?.toLowerCase() === 'matched') {
+      bloodRequestsCount--;
+      updateBloodRequestsCount();
+    }
   });
 
   socket.on('donation_confirmed', (data) => {
@@ -119,6 +129,11 @@ function initializeSocket() {
   socket.on('notifications_error', (error) => {
     console.error('Error fetching notifications via Socket.IO:', error);
     showToast('Failed to load notifications', 'error');
+  });
+
+  // New event to handle notifications for patients/institutions
+  socket.on('request_response', (data) => {
+    showToast(data.message, data.status === 'accepted' ? 'success' : 'warning');
   });
 }
 
@@ -148,9 +163,9 @@ function getToastIcon(type) {
 const notificationsPanel = document.getElementById('notifications-panel');
 document.getElementById('notifications-icon')?.addEventListener('click', () => {
   if (notificationsPanel) {
-    notificationsPanel.style.display = notificationsPanel.style.display === 'block' ? 'none' : 'block';
+  notificationsPanel.style.display = notificationsPanel.style.display === 'block' ? 'none' : 'block';
     if (notificationsPanel.style.display === 'block') {
-      socket.emit('fetch_notifications'); // Refresh notifications when panel is opened
+      socket.emit('fetch_notifications');
     }
   }
 });
@@ -161,14 +176,27 @@ let notificationsData = [];
 async function fetchNotifications() {
   showLoading('notifications-panel');
   try {
-    const response = await fetch('/api/notifications', {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await fetch('/api/donor/notifications', {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${token}`
       }
     });
-    if (!response.ok) throw new Error('Failed to fetch notifications');
-    notificationsData = await response.json();
+
+    if (response.status === 403) {
+      localStorage.clear();
+      window.location.href = '/login';
+      return;
+    }
+
+    if (!response.ok) throw new Error(`Failed to fetch notifications: ${response.status}`);
+    const data = await response.json();
+    notificationsData = Array.isArray(data) ? data : [];
     populateNotifications();
   } catch (error) {
     console.error('Error fetching notifications:', error);
@@ -178,38 +206,123 @@ async function fetchNotifications() {
   }
 }
 
-function populateNotifications() {
+// Fetch Request Status for a Notification
+async function fetchRequestStatus(requestId) {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return 'unknown';
+
+    const response = await fetch(`/api/donor/blood-requests/${requestId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (response.status === 404 || response.status === 403) {
+      return 'expired';
+    }
+    
+    if (!response.ok) return 'unknown';
+    
+    const request = await response.json();
+    return request.status || request.request_status || 'unknown';
+  } catch (error) {
+    console.error('Error fetching request status:', error);
+    return 'unknown';
+  }
+}
+
+async function populateNotifications() {
   const badge = document.getElementById('notification-badge');
   const notificationsList = document.getElementById('notifications-list');
   
   if (!badge || !notificationsList) return;
 
-  // Update badge with unread count
   const unreadCount = notificationsData.filter(n => !n.is_read).length;
   badge.textContent = unreadCount;
 
-  // Clear existing notifications
   notificationsList.innerHTML = '';
 
-  // Populate notifications
-  notificationsData.forEach(notification => {
-    const li = document.createElement('li');
+  const userType = localStorage.getItem('userType');
+
+  for (const notification of notificationsData) {
+  const li = document.createElement('li');
     li.className = `notification ${notification.is_read ? 'read' : 'unread'}`;
+    
+    let requestStatus = 'unknown';
+    let showButtons = false;
+    
+    if (notification.related_request_id && notification.notification_type === 'blood_request') {
+      requestStatus = await fetchRequestStatus(notification.related_request_id);
+      showButtons = requestStatus.toLowerCase() === 'pending' && userType === 'donor';
+    }
+
     li.innerHTML = `
       <div>
         <strong>${notification.notification_title}</strong>
         <p>${notification.notification_message}</p>
         <small>${new Date(notification.created_at).toLocaleString()}</small>
-        ${notification.related_request_id ? `<a href="/request/${notification.related_request_id}" class="notification-link">View Request</a>` : ''}
+        ${
+          notification.related_request_id && requestStatus !== 'expired'
+            ? `<a href="/request/${notification.related_request_id}" class="notification-link">View Request</a>`
+            : ''
+        }
+        ${
+          showButtons
+            ? `
+              <div class="notification-actions">
+                <button class="btn btn-primary btn-sm" onclick="handleNotificationResponse('${notification.notification_id}', '${notification.related_request_id}', 'accepted')">Approve</button>
+                <button class="btn btn-outline btn-sm" onclick="handleNotificationResponse('${notification.notification_id}', '${notification.related_request_id}', 'rejected')">Reject</button>
+              </div>
+            `
+            : requestStatus !== 'unknown' && requestStatus !== 'expired'
+              ? `<p><small>Status: ${requestStatus}</small></p>`
+              : ''
+        }
       </div>
     `;
-    li.addEventListener('click', () => {
-      if (!notification.is_read) {
-        markNotificationAsRead(notification.notification_id);
+    
+    li.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A' && !notification.is_read) {
+    markNotificationAsRead(notification.notification_id);
+      }
+  });
+  notificationsList.appendChild(li);
+  }
+}
+
+async function handleNotificationResponse(notificationId, requestId, action) {
+  try {
+    await respondToRequest(requestId, action === 'accepted');
+    await markNotificationAsRead(notificationId);
+    await fetchNotifications();
+
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/donor/blood-requests/${requestId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       }
     });
-    notificationsList.appendChild(li);
-  });
+    const request = await response.json();
+    
+    const notificationMessage = action === 'accepted'
+      ? `Your blood request (ID: ${requestId}) has been approved by a donor.`
+      : `Your blood request (ID: ${requestId}) has been rejected by a donor.`;
+    
+    socket.emit('notify_request_response', {
+      requestId: requestId,
+      patientId: request.patient_id,
+      institutionId: request.institution_id,
+      message: notificationMessage,
+      status: action === 'accepted' ? 'accepted' : 'rejected'
+    });
+
+  } catch (error) {
+    console.error('Error handling notification response:', error);
+    showToast('Failed to process request', 'error');
+  }
 }
 
 async function markNotificationAsRead(notificationId) {
@@ -283,70 +396,135 @@ function populateDonorDetails() {
 async function fetchBloodRequests() {
   showLoading('blood-requests');
   try {
-    const response = await fetch('/api/blood-requests', {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await fetch('/api/donor/blood-requests', {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${token}`
       }
     });
+
+    if (response.status === 403) {
+      localStorage.clear();
+      window.location.href = '/login';
+      return;
+    }
+
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`Failed to fetch blood requests: ${response.status} - ${errorText}`);
     }
-    const requests = await response.json();
-    console.log('Blood requests response:', requests);
-    if (!Array.isArray(requests)) {
-      console.warn('Blood requests is not an array:', requests);
-      return;
-    }
-    requests.forEach(updateRequestsTable);
+    
+    const data = await response.json();
+    console.log('Blood requests data:', data); // Debug log
+    
+    // Handle both array and object responses
+    const requests = Array.isArray(data) ? data : (data.requests || []);
+    console.log('Processed requests:', requests); // Debug log
+    
+    // Update pending count
+    pendingBloodRequestsCount = requests.filter(request => 
+      request && request.status && request.status.toLowerCase() === 'pending'
+    ).length;
+    
+    console.log('Pending count:', pendingBloodRequestsCount); // Debug log
+    
+    updateBloodRequestsCount();
+    updateBloodRequestsTable(requests);
   } catch (error) {
     console.error('Error fetching blood requests:', error);
-    showToast('Failed to load blood requests', 'error');
+    showToast(`Failed to load blood requests: ${error.message}`, 'error');
+    pendingBloodRequestsCount = 0;
+    updateBloodRequestsCount();
+    updateBloodRequestsTable([]);
   } finally {
     hideLoading('blood-requests');
   }
 }
 
-// Helper Functions
-function getToastIcon(type) {
-  switch(type) {
-    case 'success': return 'fa-check-circle';
-    case 'error': return 'fa-exclamation-circle';
-    case 'warning': return 'fa-exclamation-triangle';
-    case 'info': return 'fa-info-circle';
-    default: return 'fa-info-circle';
+function updateBloodRequestsCount() {
+  const countElement = document.getElementById('pending-requests-count');
+  if (countElement) {
+    countElement.textContent = pendingBloodRequestsCount;
   }
 }
 
-function updateRequestsTable(data) {
-  const requestsTable = document.getElementById('blood-requests-table');
-  if (!requestsTable) return;
+function updateBloodRequestsTable(requests) {
+  console.log('Updating table with requests:', requests); // Debug log
+  
+  const tableBody = document.querySelector('#blood-requests-table tbody');
+  if (!tableBody) {
+    console.error('Table body not found'); // Debug log
+    return;
+  }
 
-  const row = document.createElement('tr');
-  row.setAttribute('data-request-id', data.request_id || data.requestId);
-  row.innerHTML = `
-    <td>${data.request_id || data.requestId}</td>
-    <td>${data.blood_type || data.bloodType}</td>
-    <td>${data.units_needed || data.unitsNeeded}</td>
-    <td><span class="status-badge status-${getUrgencyClass(data.urgency)}">${data.urgency}</span></td>
-    <td>${data.location}</td>
-    <td><span class="status-badge status-${getStatusClass(data.request_status || data.status)}">${data.request_status || data.status}</span></td>
-    <td>
-      <button class="btn btn-primary" onclick="respondToRequest('${data.request_id || data.requestId}')">
-        Respond
-      </button>
-    </td>
-  `;
-  requestsTable.insertBefore(row, requestsTable.firstChild);
+  tableBody.innerHTML = '';
+  if (!Array.isArray(requests) || requests.length === 0) {
+    tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No blood requests found</td></tr>';
+    return;
+  }
+
+  requests.forEach(request => {
+    if (!request) return;
+    
+    const status = (request.status || request.request_status || '').toLowerCase();
+    console.log(`Processing request ${request.request_id} with status ${status}`); // Debug log
+    
+    const row = document.createElement('tr');
+    row.setAttribute('data-request-id', request.request_id);
+    
+    row.innerHTML = `
+      <td>${request.request_id || 'N/A'}</td>
+      <td>${request.blood_type || 'N/A'}</td>
+      <td>${request.units_needed || '0'}</td>
+      <td>${request.required_by_date ? new Date(request.required_by_date).toLocaleDateString() : 'N/A'}</td>
+      <td><span class="badge badge-${getStatusClass(status)}">${status || 'unknown'}</span></td>
+      <td class="action-buttons">
+        ${status === 'pending' ? `
+          <button class="btn btn-success btn-sm accept-btn" onclick="respondToRequest('${request.request_id}', true)">
+            <i class="fas fa-check"></i> Accept
+          </button>
+          <button class="btn btn-danger btn-sm reject-btn" onclick="respondToRequest('${request.request_id}', false)">
+            <i class="fas fa-times"></i> Reject
+          </button>
+        ` : ''}
+      </td>
+    `;
+    tableBody.appendChild(row);
+  });
 }
 
 function updateRequestStatus(data) {
+  if (!data || !data.requestId) return;
+  
   const requestRow = document.querySelector(`tr[data-request-id="${data.requestId}"]`);
   if (requestRow) {
-    const statusCell = requestRow.cells[5];
+    const statusCell = requestRow.querySelector('td:nth-child(5)');
+    const actionCell = requestRow.querySelector('td:nth-child(6)');
+    
     if (statusCell) {
-      statusCell.innerHTML = `<span class="status-badge status-${getStatusClass(data.status)}">${data.status}</span>`;
+      const status = (data.status || '').toLowerCase();
+      statusCell.innerHTML = `<span class="badge badge-${getStatusClass(status)}">${status}</span>`;
+    }
+    
+    if (actionCell) {
+      actionCell.innerHTML = data.status.toLowerCase() === 'pending' ? `
+        <button class="btn btn-success btn-sm accept-btn" onclick="respondToRequest('${data.requestId}', true)">
+          <i class="fas fa-check"></i> Accept
+        </button>
+        <button class="btn btn-danger btn-sm reject-btn" onclick="respondToRequest('${data.requestId}', false)">
+          <i class="fas fa-times"></i> Reject
+        </button>
+      ` : '';
+    }
+    
+    if (data.status.toLowerCase() !== 'pending') {
+      pendingBloodRequestsCount = Math.max(0, pendingBloodRequestsCount - 1);
+      updateBloodRequestsCount();
     }
   }
 }
@@ -370,20 +548,12 @@ function updateDonationHistory(data) {
   historyTable.insertBefore(row, historyTable.firstChild);
 }
 
-function getUrgencyClass(urgency) {
-  if (!urgency) return 'secondary';
-  switch(urgency.toLowerCase()) {
-    case 'high': return 'danger';
-    case 'medium': return 'warning';
-    case 'low': return 'info';
-    default: return 'secondary';
-  }
-}
-
 function getStatusClass(status) {
   if (!status) return 'secondary';
   switch(status.toLowerCase()) {
     case 'pending': return 'warning';
+    case 'accepted': return 'success';
+    case 'rejected': return 'danger';
     case 'matched': return 'info';
     case 'fulfilled': return 'success';
     case 'cancelled': return 'danger';
@@ -391,48 +561,74 @@ function getStatusClass(status) {
   }
 }
 
-// Edit Details
-function showEditDetails() {
-  document.getElementById('view-details-content').style.display = 'none';
-  document.getElementById('edit-details-form').style.display = 'block';
-  document.getElementById('edit-phone').value = donorData.phone_number || '';
-  document.getElementById('edit-address').value = donorData.address || '';
-  document.getElementById('edit-city').value = donorData.city || '';
-  document.getElementById('edit-medical').value = donorData.medical_conditions || '';
-}
-
-function cancelEditDetails() {
-  document.getElementById('edit-details-form').style.display = 'none';
-  document.getElementById('view-details-content').style.display = 'block';
-}
-
 // Respond to Request
-async function respondToRequest(requestId) {
-  const action = confirm("Do you want to accept this request? Click 'OK' to accept, 'Cancel' to reject.");
+async function respondToRequest(requestId, isAccepted) {
+  if (!requestId) {
+    showToast('Invalid request ID', 'error');
+    return;
+  }
+
   try {
-    showLoading('blood-requests');
-    const response = await fetch(`/api/blood-requests/${requestId}/respond`, {
-      method: 'POST',
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    showLoading('blood-requests-section');
+    const response = await fetch(`/api/donor/blood-requests/${requestId}/${isAccepted ? 'accept' : 'reject'}`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({ 
-        status: action ? 'accepted' : 'rejected',
-        donorId: localStorage.getItem('userId')
-      })
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.status === 403) {
+      localStorage.clear();
+      window.location.href = '/login';
+      return;
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to respond to request: ${errorText}`);
+    }
+    
+    updateRequestStatus({
+      requestId: requestId,
+      status: isAccepted ? 'accepted' : 'rejected'
     });
     
-    if (!response.ok) throw new Error('Failed to respond to request');
+    await fetchBloodRequests();
     
-    const result = await response.json();
-    showToast(`Request ${action ? 'accepted' : 'rejected'} successfully`, 'success');
-    updateRequestStatus({ requestId, status: action ? 'matched' : 'cancelled' });
+    showToast(`Successfully ${isAccepted ? 'accepted' : 'rejected'} the request`, 'success');
+
+    const requestResponse = await fetch(`/api/donor/blood-requests/${requestId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (requestResponse.ok) {
+      const request = await requestResponse.json();
+      const notificationMessage = isAccepted
+        ? `Your blood request (ID: ${requestId}) has been accepted by a donor.`
+        : `Your blood request (ID: ${requestId}) has been rejected by a donor.`;
+      
+      socket.emit('notify_request_response', {
+        requestId: requestId,
+        patientId: request.patient_id,
+        institutionId: request.institution_id,
+        message: notificationMessage,
+        status: isAccepted ? 'accepted' : 'rejected'
+      });
+    }
   } catch (error) {
     console.error('Error responding to request:', error);
-    showToast('Failed to respond to request', 'error');
+    showToast(`Failed to respond to request: ${error.message}`, 'error');
   } finally {
-    hideLoading('blood-requests');
+    hideLoading('blood-requests-section');
   }
 }
 
@@ -511,11 +707,26 @@ function toggleSidebar() {
   nav.classList.toggle('active');
 }
 
+// Edit Details
+function showEditDetails() {
+  document.getElementById('view-details-content').style.display = 'none';
+  document.getElementById('edit-details-form').style.display = 'block';
+  document.getElementById('edit-phone').value = donorData.phone_number || '';
+  document.getElementById('edit-address').value = donorData.address || '';
+  document.getElementById('edit-city').value = donorData.city || '';
+  document.getElementById('edit-medical').value = donorData.medical_conditions || '';
+}
+
+function cancelEditDetails() {
+  document.getElementById('edit-details-form').style.display = 'none';
+  document.getElementById('view-details-content').style.display = 'block';
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
   checkSession();
   initializeSocket();
-  fetchDonorData();
+fetchDonorData();
   fetchNotifications();
   fetchBloodRequests();
 });
@@ -530,3 +741,4 @@ window.addEventListener('unhandledrejection', (event) => {
 window.showEditDetails = showEditDetails;
 window.cancelEditDetails = cancelEditDetails;
 window.toggleSidebar = toggleSidebar;
+window.handleNotificationResponse = handleNotificationResponse;

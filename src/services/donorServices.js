@@ -17,13 +17,10 @@ const donorCreateSchema = Joi.object({
   weight: Joi.number().optional(),
   address: Joi.string().optional(),
   city: Joi.string().optional(),
-  latitude: Joi.number().optional(),
-  longitude: Joi.number().optional(),
   last_donation_date: Joi.date().optional().allow(null),
   is_available: Joi.boolean().optional(),
   medical_conditions: Joi.string().optional().allow(''),
   date_registered: Joi.date().optional(),
-  last_login: Joi.date().optional().allow(null),
   is_active: Joi.boolean().optional(),
   role: Joi.string().default('donor')
 });
@@ -40,13 +37,10 @@ const donorUpdateSchema = Joi.object({
   weight: Joi.number().optional(),
   address: Joi.string().optional(),
   city: Joi.string().optional(),
-  latitude: Joi.number().optional(),
-  longitude: Joi.number().optional(),
   last_donation_date: Joi.date().optional().allow(null),
   is_available: Joi.boolean().optional(),
   medical_conditions: Joi.string().optional().allow(''),
   date_registered: Joi.date().optional(),
-  last_login: Joi.date().optional().allow(null),
   is_active: Joi.boolean().optional()
 });
 
@@ -94,13 +88,10 @@ export const createDonors = async (donorData) => {
     weight,
     address,
     city,
-    latitude,
-    longitude,
     last_donation_date,
     is_available,
     medical_conditions,
     date_registered,
-    last_login,
     is_active,
     role
   } = value;
@@ -110,13 +101,12 @@ export const createDonors = async (donorData) => {
   try {
     const { rows } = await query(
       `INSERT INTO bloodlink_schema.donor 
-        (first_name, last_name, email, password, phone_number, date_of_birth, blood_type, weight, address, city, latitude, longitude, last_donation_date, is_available, medical_conditions, date_registered, last_login, is_active, role)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19) RETURNING *`,
+        (first_name, last_name, email, password, phone_number, date_of_birth, blood_type, weight, address, city, last_donation_date, is_available, medical_conditions, date_registered, is_active, role)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *`,
       [
         first_name, last_name, email, hashedPassword, phone_number,
-        date_of_birth, blood_type, weight, address, city,
-        latitude, longitude, last_donation_date, is_available,
-        medical_conditions, date_registered, last_login, is_active, role
+        date_of_birth, blood_type, weight, address, city, last_donation_date, is_available,
+        medical_conditions, date_registered, is_active, role
       ]
     );
     return rows[0];
@@ -145,13 +135,10 @@ export const updateDonors = async (donorData, donor_id) => {
     weight,
     address,
     city,
-    latitude,
-    longitude,
     last_donation_date,
     is_available,
     medical_conditions,
     date_registered,
-    last_login,
     is_active
   } = value;
 
@@ -160,13 +147,12 @@ export const updateDonors = async (donorData, donor_id) => {
   try {
     const { rows } = await query(
       `UPDATE bloodlink_schema.donor 
-       SET first_name = $1, last_name = $2, email = $3, password = $4, phone_number = $5, date_of_birth = $6, blood_type = $7, weight = $8, address = $9, city = $10, latitude = $11, longitude = $12, last_donation_date = $13, is_available = $14, medical_conditions = $15, date_registered = $16, last_login = $17, is_active = $18
+       SET first_name = $1, last_name = $2, email = $3, password = $4, phone_number = $5, date_of_birth = $6, blood_type = $7, weight = $8, address = $9, city = $10, last_donation_date = $13, is_available = $14, medical_conditions = $15, date_registered = $16, is_active = $18
        WHERE donor_id = $19 RETURNING *`,
       [
         first_name, last_name, email, hashedPassword, phone_number,
-        date_of_birth, blood_type, weight, address, city,
-        latitude, longitude, last_donation_date, is_available,
-        medical_conditions, date_registered, last_login, is_active, donor_id
+        date_of_birth, blood_type, weight, address, city, last_donation_date, is_available,
+        medical_conditions, date_registered, is_active, donor_id
       ]
     );
     return rows[0];

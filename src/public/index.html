@@ -259,23 +259,6 @@
                   </div>
                 </div>
               </div>
-              <!-- Lat & Long -->
-              <div class="input-row">
-                <div class="input-group">
-                  <label for="donor-lat">Latitude</label>
-                  <div class="input-field">
-                    <i class="fas fa-globe"></i>
-                    <input type="number" step="0.00000001" id="donor-lat" name="latitude" />
-                  </div>
-                </div>
-                <div class="input-group">
-                  <label for="donor-lng">Longitude</label>
-                  <div class="input-field">
-                    <i class="fas fa-globe"></i>
-                    <input type="number" step="0.00000001" id="donor-lng" name="longitude" />
-                  </div>
-                </div>
-              </div>
               <!-- Last Donation & Availability -->
               <div class="input-row">
                 <div class="input-group">
@@ -397,23 +380,6 @@
                   </div>
                 </div>
               </div>
-              <!-- Lat & Long -->
-              <div class="input-row">
-                <div class="input-group">
-                  <label for="patient-lat">Latitude</label>
-                  <div class="input-field">
-                    <i class="fas fa-globe"></i>
-                    <input type="number" step="0.00000001" id="patient-lat" name="latitude" />
-                  </div>
-                </div>
-                <div class="input-group">
-                  <label for="patient-lng">Longitude</label>
-                  <div class="input-field">
-                    <i class="fas fa-globe"></i>
-                    <input type="number" step="0.00000001" id="patient-lng" name="longitude" />
-                  </div>
-                </div>
-              </div>
               <!-- Medical & Emergency Contact -->
               <div class="input-group">
                 <label for="patient-medical">Medical Conditions</label>
@@ -484,13 +450,6 @@
               <!-- License Number & Institution Type -->
               <div class="input-row">
                 <div class="input-group">
-                  <label for="inst-license">License Number</label>
-                  <div class="input-field">
-                    <i class="fas fa-id-card"></i>
-                    <input type="text" id="inst-license" name="license_number" required />
-                  </div>
-                </div>
-                <div class="input-group">
                   <label for="inst-type">Institution Type</label>
                   <div class="input-field">
                     <i class="fas fa-building"></i>
@@ -517,23 +476,6 @@
                   <div class="input-field">
                     <i class="fas fa-city"></i>
                     <input type="text" id="inst-city" name="city" required />
-                  </div>
-                </div>
-              </div>
-              <!-- Lat & Long -->
-              <div class="input-row">
-                <div class="input-group">
-                  <label for="inst-lat">Latitude</label>
-                  <div class="input-field">
-                    <i class="fas fa-globe"></i>
-                    <input type="number" step="0.00000001" id="inst-lat" name="latitude" />
-                  </div>
-                </div>
-                <div class="input-group">
-                  <label for="inst-lng">Longitude</label>
-                  <div class="input-field">
-                    <i class="fas fa-globe"></i>
-                    <input type="number" step="0.00000001" id="inst-lng" name="longitude" />
                   </div>
                 </div>
               </div>
@@ -629,70 +571,54 @@
      **********************************************************************/
     
     // LOGIN FORM with redirect logic
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-password').value;
       const userType = document.getElementById('login-user-type').value;
 
-      if (!userType) {
-        document.getElementById('login-error').textContent = 'Please select a user type.';
-        return;
-      }
-
       try {
-        console.log('Attempting login with:', { email, userType }); // Debug: Log the login attempt
         const response = await fetch(`/api/auth/login/${userType}`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
         });
 
         const data = await response.json();
-        
-        console.log('Login response:', data); // Debug: Log the full response
-
         if (!response.ok) {
           throw new Error(data.error || 'Login failed');
         }
 
-        // Store auth data in localStorage
+        // Store authentication data
         localStorage.setItem('token', data.token);
-        localStorage.setItem('userId', data[userType]?.id?.toString() || '');
         localStorage.setItem('userType', userType);
-        localStorage.setItem('email', data[userType]?.email || '');
 
-        // Verify storage
-        console.log('Stored in localStorage:', {
-          token: localStorage.getItem('token'),
-          userId: localStorage.getItem('userId'),
-          userType: localStorage.getItem('userType'),
-          email: localStorage.getItem('email')
-        });
+        // Store user ID based on user type
+        if (userType === 'healthcare_institution') {
+          localStorage.setItem('userId', data.institution.id);
+        } else if (userType === 'patient') {
+          localStorage.setItem('userId', data.patient.id);
+        } else if (userType === 'donor') {
+          localStorage.setItem('userId', data.donor.id);
+        } else if (userType === 'admin') {
+          localStorage.setItem('userId', data.admin.id);
+        }
 
         // Redirect based on user type
-        console.log('Redirecting based on userType:', userType); // Debug: Log the userType before redirect
         switch(userType) {
           case 'donor':
-            console.log('Redirecting to /donor-dashboard');
-            window.location.href = '/donor-dashboard';
+            window.location.href = '/donor-dashboard.html';
             break;
           case 'patient':
-            console.log('Redirecting to /patient-dashboard');
-            window.location.href = '/patient-dashboard';
+            window.location.href = '/patient-dashboard.html';
             break;
           case 'healthcare_institution':
-            console.log('Redirecting to /healthcare-dashboard');
-            window.location.href = '/healthcare-dashboard';
+            window.location.href = '/healthcare-dashboard.html';
             break;
           case 'admin':
-            console.log('Redirecting to /admin-dashboard');
-            window.location.href = '/admin-dashboard';
+            window.location.href = '/admin-dashboard.html';
             break;
           default:
-            console.log('Redirecting to / (default)');
             window.location.href = '/';
         }
       } catch (error) {
@@ -715,8 +641,6 @@
       const weight = document.getElementById('donor-weight').value;
       const address = document.getElementById('donor-address').value;
       const city = document.getElementById('donor-city').value;
-      const latitude = document.getElementById('donor-lat').value;
-      const longitude = document.getElementById('donor-lng').value;
       const last_donation_date = document.getElementById('donor-last-donation').value;
       const is_available = document.getElementById('donor-available').value;
       const medical_conditions = document.getElementById('donor-medical').value;
@@ -737,8 +661,6 @@
             weight,
             address,
             city,
-            latitude,
-            longitude,
             last_donation_date,
             is_available,
             medical_conditions
@@ -771,8 +693,6 @@
       const blood_type = document.getElementById('patient-blood').value;
       const address = document.getElementById('patient-address').value;
       const city = document.getElementById('patient-city').value;
-      const latitude = document.getElementById('patient-lat').value;
-      const longitude = document.getElementById('patient-lng').value;
       const medical_conditions = document.getElementById('patient-medical').value;
       const emergency_contact_name = document.getElementById('patient-emergency-name').value;
       const emergency_contact_phone = document.getElementById('patient-emergency-phone').value;
@@ -792,8 +712,6 @@
             blood_type,
             address,
             city,
-            latitude,
-            longitude,
             medical_conditions,
             emergency_contact_name,
             emergency_contact_phone
@@ -821,12 +739,9 @@
       const email = document.getElementById('inst-email').value;
       const password = document.getElementById('inst-password').value;
       const phone_number = document.getElementById('inst-phone').value;
-      const license_number = document.getElementById('inst-license').value;
       const institution_type = document.getElementById('inst-type').value;
       const address = document.getElementById('inst-address').value;
       const city = document.getElementById('inst-city').value;
-      const latitude = document.getElementById('inst-lat').value;
-      const longitude = document.getElementById('inst-lng').value;
       const contact_person_name = document.getElementById('inst-contact-name').value;
       const contact_person_phone = document.getElementById('inst-contact-phone').value;
     
@@ -840,12 +755,9 @@
             email,
             password,
             phone_number,
-            license_number,
             institution_type,
             address,
             city,
-            latitude,
-            longitude,
             contact_person_name,
             contact_person_phone
           })

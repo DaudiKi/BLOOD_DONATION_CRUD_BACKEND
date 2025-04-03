@@ -56,6 +56,39 @@ router.get(
   }
 );
 
+/**
+ * @route GET /blood-requests/institution/:institutionId
+ * @desc Retrieves all blood requests for a specific institution
+ * @access Private (healthcare_institution)
+ * @middleware verifyToken, requireRole
+ */
+router.get(
+  '/blood-requests/institution/:institutionId',
+  verifyToken,
+  requireRole('healthcare_institution'),
+  async (req, res) => {
+    try {
+      const institutionId = req.params.institutionId;
+      const userId = req.user.userId;
+      
+      console.log('Request institutionId:', institutionId);
+      console.log('Authenticated userId:', userId);
+      
+      if (String(userId) !== String(institutionId)) {
+        return res.status(403).json({ message: "Unauthorized: You can only view your own institution's requests" });
+      }
+      
+      const requests = await requestService.getRequestsByInstitution(institutionId);
+      console.log('Found requests:', requests);
+      
+      res.status(200).json(requests);
+    } catch (error) {
+      console.error("Error fetching institution blood requests:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+
 export default router;
 
 // TODO: Extract GET handler to a controller function in requestController.js

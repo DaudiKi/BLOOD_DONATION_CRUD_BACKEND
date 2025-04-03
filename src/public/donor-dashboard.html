@@ -2,262 +2,152 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Donor Dashboard | BloodLink</title>
-  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
-  <link rel="stylesheet" href="donor-dashboard.css" type="text/css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    .notifications-panel {
-      position: absolute;
-      top: 50px;
-      right: 0;
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      width: 300px;
-      max-height: 400px;
-      overflow-y: auto;
-      z-index: 1000;
-      display: none;
-    }
-    .notifications-panel h3 {
-      padding: 10px;
-      margin: 0;
-      border-bottom: 1px solid #ddd;
-      font-size: 16px;
-    }
-    .notifications-panel ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .notification {
-      padding: 10px;
-      border-bottom: 1px solid #eee;
-      cursor: pointer;
-    }
-    .notification.unread {
-      background-color: #ffe6e6;
-    }
-    .notification.read {
-      background-color: #f0f0f0;
-    }
-    .notification:hover {
-      background-color: #f5f5f5;
-    }
-    .notification p {
-      margin: 5px 0;
-      font-size: 14px;
-    }
-    .notification small {
-      color: #666;
-      font-size: 12px;
-    }
-    .notification-link {
-      color: #007bff;
-      text-decoration: none;
-      font-size: 12px;
-      display: block;
-      margin-top: 5px;
-    }
-    .notification-link:hover {
-      text-decoration: underline;
-    }
+  <title>Donor Dashboard</title><head>
+  <link rel="stylesheet" href="donor-dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+    body { font-family: Arial, sans-serif; margin: 0; }
+    .header { background: #333; color: white; padding: 10px; text-align: center; }
+    .sidebar { width: 200px; background: #f4f4f4; position: fixed; height: 100%; padding-top: 20px; }
+    .sidebar a { display: block; padding: 10px; text-decoration: none; color: #333; }
+    .main { margin-left: 220px; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    table, th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo">
-      <i class="fas fa-heartbeat"></i>
-      <span>BloodLink</span>
+  <div class="header">
+    <h1>Donor Dashboard</h1>
+    <button onclick="logout()">Logout</button>
+  </div>
+  <div class="sidebar">
+    <a href="#profile">Profile</a>
+    <a href="#availability">Availability Status</a>
+    <a href="#requests">Blood Requests</a>
+    <a href="#history">Donation History</a>
+  </div>
+  <div class="main">
+    <h2 id="profile">Profile</h2>
+    <div id="profileInfo"></div>
+    <button onclick="showEditProfileForm()">Edit Profile</button>
+    <div id="editProfileForm" style="display: none;">
+      <input type="text" id="name" placeholder="Name">
+      <input type="text" id="blood_type" placeholder="Blood Type">
+      <input type="text" id="location" placeholder="Location">
+      <input type="text" id="contact" placeholder="Contact">
+      <button onclick="updateProfile()">Update</button>
     </div>
-    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-    <nav>
-      <ul>
-        <li><a href="#overview">Dashboard</a></li>
-        <li>
-          <a href="#" id="notifications-icon">
-            <i class="fas fa-bell"></i>
-            <span id="notification-badge">0</span>
-          </a>
-          <div class="notifications-panel" id="notifications-panel">
-            <h3>Notifications</h3>
-            <ul id="notifications-list"></ul>
-          </div>
-        </li>
-        <li>
-          <a href="#" onclick="handleLogout()" class="logout-btn">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Logout</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </header>
 
-  <aside id="sidebar">
-    <ul>
-      <li><a href="#overview" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-      <li><a href="#view-details"><i class="fas fa-user"></i> View Details</a></li>
-      <li><a href="#availability"><i class="fas fa-calendar-check"></i> Availability</a></li>
-      <li><a href="#blood-requests"><i class="fas fa-list"></i> Blood Requests</a></li>
-      <li><a href="#donation-history"><i class="fas fa-history"></i> Donation History</a></li>
-    </ul>
-  </aside>
+    <h2 id="availability">Availability Status</h2>
+    <label><input type="checkbox" id="availability" onchange="updateAvailability()"> Available to Donate</label>
+    <p id="availabilityStatus"></p>
 
-  <main>
-    <section id="overview" class="donor-profile">
-      <h1>Welcome, <span id="donor-name">Donor</span>! 👋</h1>
-      <div class="profile-header">
-        <div class="profile-avatar">
-          <i class="fas fa-user"></i>
-        </div>
-        <div class="profile-info">
-          <h2 id="donor-name-header">Donor Name</h2>
-          <p>Blood Type: <span class="blood-type-badge" id="blood-type-header">N/A</span></p>
-        </div>
-      </div>
-      <div class="stats">
-        <div class="card">
-          <h3>Total Donations</h3>
-          <p id="total-donations">0</p>
-        </div>
-        <div class="card">
-          <h3>Last Donation</h3>
-          <p id="last-donation">N/A</p>
-        </div>
-        <div class="card">
-          <h3>Blood Type</h3>
-          <p id="blood-type">N/A</p>
-        </div>
-        <div class="card">
-          <h3>Status</h3>
-          <p id="donor-status">Available</p>
-        </div>
-      </div>
-    </section>
+    <h2 id="requests">Blood Requests</h2>
+    <table id="requestTable">
+      <thead>
+        <tr><th>ID</th><th>Patient Name</th><th>Blood Type</th><th>Location</th><th>Urgency</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-    <section id="view-details" class="view-details">
-      <h2>Your Details</h2>
-      <div class="card">
-        <div id="view-details-content">
-          <p><strong>Name:</strong> <span id="view-name">N/A</span></p>
-          <p><strong>Blood Type:</strong> <span id="view-blood-type">N/A</span></p>
-          <p><strong>Contact Info:</strong> <span id="view-contact-info">N/A</span></p>
-          <p><strong>Phone:</strong> <span id="view-phone">N/A</span></p>
-          <p><strong>Address:</strong> <span id="view-address">N/A</span></p>
-          <p><strong>City:</strong> <span id="view-city">N/A</span></p>
-          <p><strong>Last Donation:</strong> <span id="view-last-donation">N/A</span></p>
-          <p><strong>Availability:</strong> <span id="view-availability">N/A</span></p>
-          <p><strong>Medical Conditions:</strong> <span id="view-medical-conditions">None</span></p>
-          <button class="btn btn-primary" onclick="showEditDetails()">Edit Details</button>
-        </div>
-        <div id="edit-details-form" style="display: none;">
-          <form id="update-details-form">
-            <div class="input-group">
-              <label for="edit-phone">Phone Number</label>
-              <input type="tel" id="edit-phone" name="phone_number" required>
-            </div>
-            <div class="input-group">
-              <label for="edit-address">Address</label>
-              <input type="text" id="edit-address" name="address" required>
-            </div>
-            <div class="input-group">
-              <label for="edit-city">City</label>
-              <input type="text" id="edit-city" name="city" required>
-            </div>
-            <div class="input-group">
-              <label for="edit-medical">Medical Conditions</label>
-              <textarea id="edit-medical" name="medical_conditions"></textarea>
-            </div>
-            <div class="button-group">
-              <button type="submit" class="btn btn-primary">Save Changes</button>
-              <button type="button" class="btn btn-outline" onclick="cancelEditDetails()">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
+    <h2 id="history">Donation History</h2>
+    <table id="historyTable">
+      <thead>
+        <tr><th>ID</th><th>Date</th><th>Patient Name</th><th>Blood Type</th><th>Location</th><th>Status</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-    <section id="availability" class="availability">
-      <h2>Manage Availability</h2>
-      <div class="card">
-        <div class="availability-toggle">
-          <label class="switch">
-            <input type="checkbox" id="availability-toggle" onchange="updateAvailability()">
-            <span class="toggle-slider round"></span>
-          </label>
-          <span>I am available for blood donation</span>
-        </div>
-        <div class="availability-details">
-          <p><strong>Last Updated:</strong> <span id="last-availability-update">N/A</span></p>
-          <p><strong>Current Status:</strong> <span id="current-availability-status">N/A</span></p>
-        </div>
-      </div>
-    </section>
-
-    <section id="blood-requests" class="blood-requests">
-      <h2>Blood Requests</h2>
-      <div class="card">
-        <div class="table-container">
-          <table class="donation-table">
-            <thead>
-              <tr>
-                <th>Request ID</th>
-                <th>Blood Type</th>
-                <th>Units Needed</th>
-                <th>Urgency</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="blood-requests-table">
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section id="donation-history" class="donation-history">
-      <h2>Donation History</h2>
-      <div class="card">
-        <div class="table-container">
-          <table class="donation-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Location</th>
-                <th>Units</th>
-                <th>Recipient</th>
-                <th>Certificate</th>
-              </tr>
-            </thead>
-            <tbody id="donation-history-table">
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <div class="toast-container" id="toast-container"></div>
-
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="donor.js"></script>
-  
   <script>
-    function handleLogout() {
-      localStorage.removeItem('token');
-      localStorage.removeItem('userId');
-      window.location.href = '/index.html';
+    // Fetch profile
+    fetch('/donor/profile', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+      .then(res => res.json())
+      .then(data => {
+        const profileDiv = document.getElementById('profileInfo');
+        profileDiv.innerHTML = `
+          <p>Name: ${data.name}</p>
+          <p>Blood Type: ${data.blood_type}</p>
+          <p>Location: ${data.location}</p>
+          <p>Contact: ${data.contact}</p>`;
+        document.getElementById('availability').checked = data.availability;
+        document.getElementById('availabilityStatus').innerText = `Last Updated: ${data.last_updated || 'N/A'}`;
+      });
+
+    function showEditProfileForm() {
+      document.getElementById('editProfileForm').style.display = 'block';
     }
-    window.history.forward();
+
+    function updateProfile() {
+      const name = document.getElementById('name').value;
+      const blood_type = document.getElementById('blood_type').value;
+      const location = document.getElementById('location').value;
+      const contact = document.getElementById('contact').value;
+      fetch('/donor/profile', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token'), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, blood_type, location, contact })
+      }).then(() => location.reload());
+    }
+
+    function updateAvailability() {
+      const available = document.getElementById('availability').checked;
+      fetch('/donor/availability', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token'), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ available })
+      }).then(() => location.reload());
+    }
+
+    // Fetch blood requests
+    fetch('/donor/requests', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector('#requestTable tbody');
+        data.forEach(request => {
+          const row = `<tr>
+            <td>${request.id}</td>
+            <td>${request.patient_name}</td>
+            <td>${request.blood_type}</td>
+            <td>${request.location}</td>
+            <td>${request.urgency}</td>
+            <td>${request.status}</td>
+            <td><button onclick="acceptRequest(${request.id})">Accept</button></td>
+          </tr>`;
+          tbody.innerHTML += row;
+        });
+      });
+
+    function acceptRequest(id) {
+      fetch(`/donor/requests/${id}/accept`, {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+      }).then(() => location.reload());
+    }
+
+    // Fetch donation history
+    fetch('/donor/history', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector('#historyTable tbody');
+        data.forEach(history => {
+          const row = `<tr>
+            <td>${history.id}</td>
+            <td>${history.date}</td>
+            <td>${history.patient_name}</td>
+            <td>${history.blood_type}</td>
+            <td>${history.location}</td>
+            <td>${history.status}</td>
+          </tr>`;
+          tbody.innerHTML += row;
+        });
+      });
+
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
   </script>
 </body>
 </html>

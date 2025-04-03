@@ -2,356 +2,485 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Healthcare Dashboard - BloodLink</title>
-  
-  <!-- CSS Reset and dependencies -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Main dashboard styles -->
-  <link rel="stylesheet" href="healthcare-dashboard.css" type="text/css">
-  
+  <title>Healthcare Institution Dashboard</title>
+  <link rel="stylesheet" href="patient-dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-  <header class="top-nav">
-    <div class="logo">
-      <img src="images/logo.png" alt="BloodLink">
-    </div>
-    <div class="nav-right">
-      <div class="notifications">
-        <button id="notifications-icon" class="icon-button" aria-label="Notifications">
-          <i class="fas fa-bell"></i>
-          <span id="notification-badge" class="badge" aria-label="Notification count">0</span>
-        </button>
-        <div id="notifications-panel" class="notifications-panel" aria-label="Notifications panel">
-          <h3>Notifications</h3>
-          <ul id="notifications-list"></ul>
-        </div>
-      </div>
-      <span>Dashboard</span>
-      <button onclick="handleLogout()" class="logout-btn">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </button>
-    </div>
-  </header>
-
   <div class="container">
-    <aside id="sidebar">
-      <button class="hamburger" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
+    <aside class="sidebar">
+      <div class="logo">
+        <i class="fas fa-hospital"></i>
+      </div>
       <nav>
-        <a href="#overview" class="active">
-          <i class="fas fa-home"></i> Overview
-        </a>
-        <a href="#inventory">
-          <i class="fas fa-warehouse"></i> Blood Inventory
-        </a>
-        <a href="#submit-request">
-          <i class="fas fa-plus-circle"></i> Submit Request
-        </a>
-        <a href="#track-requests">
-          <i class="fas fa-list-alt"></i> Track Requests
-        </a>
-        <a href="#donor-match">
-          <i class="fas fa-users"></i> Donor Matching
-        </a>
-        <a href="#reports">
-          <i class="fas fa-chart-bar"></i> Reports
-        </a>
+        <a href="#" class="active"><i class="fas fa-th-large"></i></a>
+        <a href="#"><i class="fas fa-users"></i></a>
+        <a href="#"><i class="fas fa-image"></i></a>
+        <a href="#"><i class="fas fa-file-alt"></i></a>
+        <a href="#"><i class="fas fa-folder"></i></a>
       </nav>
     </aside>
 
-    <main>
-      <!-- Overview Section -->
-      <section id="overview" class="active">
-        <div class="welcome-header">
-          <h1>Welcome, <span id="institution-name">Healthcare Institution</span>! 👋</h1>
+    <main class="main-content">
+      <header>
+        <div class="back-button">
+          <a href="#"><i class="fas fa-arrow-left"></i> Back to dashboard</a>
         </div>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="card-header">
-              <h3>Active Requests</h3>
-              <i class="fas fa-clipboard-list"></i>
-            </div>
-            <div class="card-value" id="active-requests">0</div>
-            <div class="card-trend trend-up">
-              <i class="fas fa-arrow-up"></i>
-              <span>5% from last week</span>
-            </div>
+        <div class="user-menu">
+          <div class="notifications">
+            <i class="fas fa-bell"></i>
           </div>
-          <div class="stat-card">
-            <div class="card-header">
-              <h3>Matched Donors</h3>
-              <i class="fas fa-user-check"></i>
-            </div>
-            <div class="card-value" id="matched-donors">0</div>
-            <div class="card-trend trend-up">
-              <i class="fas fa-arrow-up"></i>
-              <span>12% from last week</span>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="card-header">
-              <h3>Fulfilled Requests</h3>
-              <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="card-value" id="fulfilled-requests">0</div>
-            <div class="card-subtitle">This month</div>
-          </div>
-          <div class="stat-card">
-            <div class="card-header">
-              <h3>Available Units</h3>
-              <i class="fas fa-tint"></i>
-            </div>
-            <div class="card-value" id="available-units">0</div>
-            <div class="card-subtitle">Total blood units</div>
+          <div class="profile-menu" id="profileInfo">
+            <img src="" alt="Profile" id="profileImage">
+            <span id="profileName"></span>
           </div>
         </div>
-      </section>
+      </header>
 
-      <!-- Blood Inventory Section -->
-      <section id="inventory">
-        <h2>Blood Inventory Management</h2>
-        <div class="blood-inventory-grid">
-          <!-- Blood Type Cards -->
-          <div class="blood-type-card">
-            <h4>A+</h4>
-            <div class="units-available" id="a-pos-units">0</div>
-            <div class="expiry-warning" id="a-pos-expiry"></div>
-          </div>
-          <div class="blood-type-card">
-            <h4>A-</h4>
-            <div class="units-available" id="a-neg-units">0</div>
-            <div class="expiry-warning" id="a-neg-expiry"></div>
-          </div>
-          <div class="blood-type-card">
-            <h4>B+</h4>
-            <div class="units-available" id="b-pos-units">0</div>
-            <div class="expiry-warning" id="b-pos-expiry"></div>
-          </div>
-          <div class="blood-type-card">
-            <h4>B-</h4>
-            <div class="units-available" id="b-neg-units">0</div>
-            <div class="expiry-warning" id="b-neg-expiry"></div>
-          </div>
-          <div class="blood-type-card">
-            <h4>AB+</h4>
-            <div class="units-available" id="ab-pos-units">0</div>
-            <div class="expiry-warning" id="ab-pos-expiry"></div>
-          </div>
-          <div class="blood-type-card">
-            <h4>AB-</h4>
-            <div class="units-available" id="ab-neg-units">0</div>
-            <div class="expiry-warning" id="ab-neg-expiry"></div>
-          </div>
-          <div class="blood-type-card">
-            <h4>O+</h4>
-            <div class="units-available" id="o-pos-units">0</div>
-            <div class="expiry-warning" id="o-pos-expiry"></div>
-          </div>
-          <div class="blood-type-card">
-            <h4>O-</h4>
-            <div class="units-available" id="o-neg-units">0</div>
-            <div class="expiry-warning" id="o-neg-expiry"></div>
-          </div>
+      <section class="main-section">
+        <div class="patient-info">
+          <h2>Institution Information:</h2>
+          <table class="info-table">
+            <tbody>
+              <tr>
+                <td><strong>Institution ID:</strong></td>
+                <td id="institutionId"></td>
+                <td><strong>Type:</strong></td>
+                <td id="institutionType"></td>
+              </tr>
+              <tr>
+                <td><strong>Institution Name:</strong></td>
+                <td id="institutionName"></td>
+                <td><strong>Phone:</strong></td>
+                <td id="phoneNumber"></td>
+              </tr>
+              <tr>
+                <td><strong>Email:</strong></td>
+                <td id="email"></td>
+                <td><strong>Registration Date:</strong></td>
+                <td id="registrationDate"></td>
+              </tr>
+              <tr>
+                <td><strong>Address:</strong></td>
+                <td id="address"></td>
+                <td><strong>City:</strong></td>
+                <td id="city"></td>
+              </tr>
+              <tr>
+                <td><strong>Emergency Contact:</strong></td>
+                <td id="emergencyContact"></td>
+                <td><strong>Emergency Phone:</strong></td>
+                <td id="emergencyPhone"></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        
-        <div class="card">
-          <div class="table-header">
-            <h3>Inventory Details</h3>
-            <div class="table-tools">
-              <button class="btn btn-success" onclick="showAddInventory()">
-                <i class="fas fa-plus"></i> Add Units
-              </button>
-              <button class="btn btn-outline" onclick="showUpdateInventory()">
-                <i class="fas fa-edit"></i> Update
-              </button>
-            </div>
-          </div>
-          <div class="table-container">
-            <table class="request-table">
-              <thead>
-                <tr>
-                  <th>Blood Type</th>
-                  <th>Units</th>
-                  <th>Expiry Date</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="inventory-table"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
 
-      <!-- Submit Request Section -->
-      <section id="submit-request">
-        <h2>Submit Blood Request</h2>
-        <div class="card">
-          <form id="submit-request-form">
-            <div class="input-row">
-              <div class="input-group">
-                <label for="request-blood-type">Blood Type Needed</label>
-                <select id="request-blood-type" required>
-                  <option value="">Select Blood Type</option>
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
-                </select>
-              </div>
-              <div class="input-group">
-                <label for="request-units">Units Needed</label>
-                <input type="number" id="request-units" min="1" required>
-              </div>
-            </div>
-            <div class="input-row">
-              <div class="input-group">
-                <label for="request-urgency">Urgency Level</label>
-                <select id="request-urgency" required>
-                  <option value="">Select Urgency</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-              </div>
-              <div class="input-group">
-                <label for="request-date">Required By Date</label>
-                <input type="date" id="request-date" required>
-              </div>
-            </div>
-            <div class="input-group">
-              <label for="request-notes">Additional Notes</label>
-              <textarea id="request-notes" rows="3"></textarea>
-            </div>
-            <button type="submit" class="btn btn-success">Submit Request</button>
-          </form>
+        <div id="editProfileForm" style="display: none;">
+          <input type="text" id="editInstitutionName" placeholder="Institution Name">
+          <input type="text" id="editAddress" placeholder="Address">
+          <input type="text" id="editCity" placeholder="City">
+          <input type="text" id="editPhone" placeholder="Phone">
+          <input type="text" id="editEmergencyContact" placeholder="Emergency Contact">
+          <input type="text" id="editEmergencyPhone" placeholder="Emergency Phone">
+          <button onclick="updateProfile()">Update</button>
         </div>
-      </section>
 
-      <!-- Track Requests Section -->
-      <section id="track-requests">
-        <h2>Track Blood Requests</h2>
-        <div class="card">
-          <div class="filter-controls">
-            <div class="input-group">
-              <label for="status-filter">Filter by Status</label>
-              <select id="status-filter">
-                <option value="all">All Requests</option>
-                <option value="pending">Pending</option>
-                <option value="matched">Matched</option>
-                <option value="fulfilled">Fulfilled</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </div>
-            <div class="input-group">
-              <label for="date-filter">Filter by Date</label>
-              <input type="date" id="date-filter">
-            </div>
-          </div>
-          <div class="table-container">
-            <table class="request-table">
-              <thead>
-                <tr>
-                  <th>Request ID</th>
-                  <th>Blood Type</th>
-                  <th>Units</th>
-                  <th>Urgency</th>
-                  <th>Required By</th>
-                  <th>Status</th>
-                  <th>Matched Donors</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="requests-table"></tbody>
-            </table>
+        <div class="blood-request-section">
+          <h2>Blood Requests</h2>
+          <div class="request-form">
+            <h3>Make Blood Request</h3>
+            <select id="request_blood_type" required>
+              <option value="" disabled selected>Select Blood Type</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </select>
+            <input type="number" id="units_needed" placeholder="Units Needed" min="1" required>
+            <select id="urgency_level" required>
+              <option value="" disabled selected>Select Urgency Level</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Critical">Critical</option>
+            </select>
+            <input type="date" id="required_by_date" required>
+            <textarea id="request_notes" placeholder="Additional Notes"></textarea>
+            <button onclick="submitBloodRequest()">Submit Request</button>
           </div>
         </div>
-      </section>
 
-      <!-- Donor Matching Section -->
-      <section id="donor-match">
-        <h2>Donor Matching System</h2>
-        <div class="card">
-          <div class="donor-search">
-            <div class="input-group">
-              <label for="search-blood-type">Blood Type</label>
-              <select id="search-blood-type">
-                <option value="">All Types</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-              </select>
-            </div>
-            <div class="input-group">
-              <label for="search-distance">Max Distance (km)</label>
-              <input type="number" id="search-distance" min="1" value="50">
-            </div>
-            <button class="btn btn-success" onclick="searchDonors()">
-              <i class="fas fa-search"></i> Search Donors
-            </button>
-          </div>
-          <div class="table-container">
-            <table class="request-table">
-              <thead>
-                <tr>
-                  <th>Donor ID</th>
-                  <th>Blood Type</th>
-                  <th>Distance</th>
-                  <th>Last Donation</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="donors-table"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- Reports Section -->
-      <section id="reports">
-        <h2>Reports & Analytics</h2>
-        <div class="card-grid">
-          <div class="card">
-            <h3>Blood Type Distribution</h3>
-            <canvas id="blood-type-chart"></canvas>
-          </div>
-          <div class="card">
-            <h3>Request Trends</h3>
-            <canvas id="request-trends-chart"></canvas>
-          </div>
-          <div class="card">
-            <h3>Donor Availability</h3>
-            <canvas id="donor-availability-chart"></canvas>
-          </div>
-          <div class="card">
-            <h3>Success Rate</h3>
-            <canvas id="success-rate-chart"></canvas>
-          </div>
+        <div class="request-status">
+          <h2>Blood Request Status</h2>
+          <table id="requestTable">
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Patient Name</th>
+                <th>Blood Type</th>
+                <th>Units Needed</th>
+                <th>Urgency</th>
+                <th>Status</th>
+                <th>Required By</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </section>
     </main>
   </div>
 
-  <div id="toast-container" class="toast-container"></div>
+  <script>
+    // Base URL for API requests
+    const API_BASE_URL = 'http://localhost:3000/api';
 
-  <!-- Scripts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
-  <script src="healthcare.js"></script>
+    // Utility to decode JWT token
+    function decodeToken(token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log('Decoded JWT payload:', payload);
+        return payload;
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+      }
+    }
+
+    // Fetch healthcare institution data
+    async function fetchInstitutionData() {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      
+      if (!token || !userId) {
+        console.error('No token or userId found in localStorage');
+        window.location.href = '/';
+        return null;
+      }
+
+      try {
+        console.log('Fetching institution data for ID:', userId);
+        const response = await fetch(`${API_BASE_URL}/healthcare-institutions/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          console.error('Server response status:', response.status);
+          if (response.status === 401) {
+            alert('Session expired. Please log in again.');
+            localStorage.removeItem('token');
+            window.location.href = '/';
+            return null;
+          }
+          throw new Error(`Failed to fetch institution data: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Fetched Institution Data:', data);
+        return data;
+      } catch (error) {
+        console.error('Error fetching institution data:', error);
+        alert(`Failed to load institution data: ${error.message}. Please try logging in again.`);
+        localStorage.removeItem('token');
+        window.location.href = '/';
+        return null;
+      }
+    }
+
+    // Display institution information
+    window.onload = async function() {
+      const token = localStorage.getItem('token');
+      const userType = localStorage.getItem('userType');
+      const userId = localStorage.getItem('userId');
+
+      // Check if user is authenticated and is a healthcare institution
+      if (!token || !userId || userType !== 'healthcare_institution') {
+        console.error('Not authenticated as healthcare institution');
+        window.location.href = '/';
+        return;
+      }
+
+      try {
+        const institutionData = await fetchInstitutionData();
+        if (!institutionData) return;
+
+        console.log('Displaying institution data:', institutionData);
+
+        // Update profile section
+        document.getElementById('profileName').textContent = institutionData.name || '';
+        document.getElementById('profileImage').src = institutionData.logo_url || 'https://via.placeholder.com/40';
+
+        // Update institution information
+        document.getElementById('institutionId').textContent = institutionData.institution_id || 'Not specified';
+        document.getElementById('institutionName').textContent = institutionData.name || 'Not specified';
+        document.getElementById('institutionType').textContent = institutionData.institution_type || 'Not specified';
+        document.getElementById('email').textContent = institutionData.email || 'Not specified';
+        document.getElementById('phoneNumber').textContent = institutionData.phone_number || 'Not specified';
+        document.getElementById('registrationDate').textContent = institutionData.date_registered ? new Date(institutionData.date_registered).toLocaleDateString() : 'Not specified';
+        document.getElementById('address').textContent = institutionData.address || 'Not specified';
+        document.getElementById('city').textContent = institutionData.city || 'Not specified';
+        document.getElementById('emergencyContact').textContent = institutionData.contact_person_name || 'Not specified';
+        document.getElementById('emergencyPhone').textContent = institutionData.contact_person_phone || 'Not specified';
+
+        await fetchBloodRequests();
+      } catch (error) {
+        console.error('Error initializing dashboard:', error);
+      }
+    };
+
+    // Show edit profile form
+    function showEditProfileForm() {
+      document.getElementById('editProfileForm').style.display = 'block';
+    }
+
+    // Update profile
+    async function updateProfile() {
+      const token = localStorage.getItem('token');
+      const institutionData = await fetchInstitutionData();
+      const institutionId = institutionData?.institution_id;
+
+      if (!institutionId) {
+        alert('Cannot update profile: Institution ID not found.');
+        return;
+      }
+
+      const updatedData = {
+        institution_name: document.getElementById('editInstitutionName').value,
+        address: document.getElementById('editAddress').value,
+        city: document.getElementById('editCity').value,
+        phone_number: document.getElementById('editPhone').value,
+        emergency_contact: document.getElementById('editEmergencyContact').value,
+        emergency_phone: document.getElementById('editEmergencyPhone').value
+      };
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/healthcare/${institutionId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updatedData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to update profile');
+        }
+
+        alert('Profile updated successfully');
+        window.location.reload();
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        alert(`Failed to update profile: ${error.message}`);
+      }
+    }
+
+    // Fetch blood requests
+    async function fetchBloodRequests() {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+
+      if (!userId) {
+        console.error('No institution ID available');
+        document.querySelector('#requestTable tbody').innerHTML = '<tr><td colspan="8">Error: Institution ID not found</td></tr>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/blood-requests/institution/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          if (response.status === 401) {
+            alert('Session expired. Please log in again.');
+            localStorage.removeItem('token');
+            window.location.href = '/';
+            return;
+          }
+          if (response.status === 403) {
+            console.error('Authorization error:', errorData);
+            alert('You are not authorized to view these requests. Please log in with the correct account.');
+            localStorage.removeItem('token');
+            window.location.href = '/';
+            return;
+          }
+          throw new Error(`Failed to fetch blood requests: ${response.status} - ${errorData.message || 'Unknown error'}`);
+        }
+
+        const requests = await response.json();
+        console.log('Successfully fetched blood requests:', requests);
+        
+        const tbody = document.querySelector('#requestTable tbody');
+        tbody.innerHTML = '';
+
+        if (Array.isArray(requests) && requests.length > 0) {
+          requests.forEach(request => {
+            const row = `<tr>
+              <td>${request.request_id || ''}</td>
+              <td>${request.patient_name || 'N/A'}</td>
+              <td>${request.blood_type || ''}</td>
+              <td>${request.units_needed || ''}</td>
+              <td>${request.urgency_level || ''}</td>
+              <td>${request.request_status || ''}</td>
+              <td>${request.required_by_date ? new Date(request.required_by_date).toLocaleDateString() : 'N/A'}</td>
+              <td>
+                ${request.request_status === 'Pending' ? 
+                  `<button onclick="cancelRequest(${request.request_id})">Cancel</button>` : 
+                  ''}
+              </td>
+            </tr>`;
+            tbody.innerHTML += row;
+          });
+        } else {
+          tbody.innerHTML = '<tr><td colspan="8">No blood requests found</td></tr>';
+        }
+      } catch (error) {
+        console.error('Error fetching blood requests:', error);
+        document.querySelector('#requestTable tbody').innerHTML = `<tr><td colspan="8">Error loading requests: ${error.message}</td></tr>`;
+      }
+    }
+
+    // Submit blood request
+    async function submitBloodRequest() {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      const userType = localStorage.getItem('userType');
+
+      if (!userId || userType !== 'healthcare_institution') {
+        alert('Cannot submit request: Not authorized as a healthcare institution.');
+        return;
+      }
+
+      const blood_type = document.getElementById('request_blood_type').value;
+      const units_needed = parseInt(document.getElementById('units_needed').value);
+      const urgency_level = document.getElementById('urgency_level').value;
+      const required_by_date = document.getElementById('required_by_date').value;
+      const request_notes = document.getElementById('request_notes').value;
+
+      if (!blood_type || !units_needed || !urgency_level || !required_by_date) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      if (units_needed <= 0) {
+        alert('Units needed must be a positive number.');
+        return;
+      }
+
+      const requestData = {
+        blood_type,
+        units_needed,
+        urgency_level,
+        required_by_date,
+        request_notes
+      };
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/blood-requests`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          if (response.status === 401) {
+            alert('Session expired. Please log in again.');
+            localStorage.removeItem('token');
+            window.location.href = '/';
+            return;
+          }
+          throw new Error(errorData.error || 'Failed to submit blood request');
+        }
+
+        const result = await response.json();
+        console.log('Blood request submitted successfully:', result);
+
+        // Clear form
+        document.getElementById('request_blood_type').value = '';
+        document.getElementById('units_needed').value = '';
+        document.getElementById('urgency_level').value = '';
+        document.getElementById('required_by_date').value = '';
+        document.getElementById('request_notes').value = '';
+        
+        alert('Blood request submitted successfully');
+        // Refresh blood requests table
+        await fetchBloodRequests();
+      } catch (error) {
+        console.error('Error submitting blood request:', error);
+        alert(`Failed to submit blood request: ${error.message}`);
+      }
+    }
+
+    // Cancel blood request
+    async function cancelRequest(requestId) {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      const userType = localStorage.getItem('userType');
+
+      if (!userId || userType !== 'healthcare_institution') {
+        alert('Cannot cancel request: Not authorized as a healthcare institution.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/blood-requests/${requestId}/cancel`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ institution_id: userId })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          if (response.status === 401) {
+            alert('Session expired. Please log in again.');
+            localStorage.removeItem('token');
+            window.location.href = '/';
+            return;
+          }
+          if (response.status === 403) {
+            alert('You are not authorized to cancel this request.');
+            return;
+          }
+          throw new Error(errorData.error || errorData.message || 'Failed to cancel request');
+        }
+
+        alert('Blood request cancelled successfully');
+        await fetchBloodRequests();
+      } catch (error) {
+        console.error('Error cancelling request:', error);
+        alert(`Failed to cancel request: ${error.message}`);
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('institutionId');
+      localStorage.removeItem('userType');
+      window.location.href = '/';
+    }
+  </script>
 </body>
 </html>

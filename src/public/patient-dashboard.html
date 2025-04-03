@@ -2,278 +2,498 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Patient Dashboard | BloodLink</title>
-  
-  <!-- CSS Reset for cross-browser consistency -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
-  
-  <!-- Main dashboard styles -->
-  <link rel="stylesheet" href="patient-dashboard.css" type="text/css">
-  
-  <!-- Font Awesome and Google Fonts -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>Patient Dashboard</title>
+    <link rel="stylesheet" href="patient-dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-  <header>
-    <div class="logo">
-      <i class="fas fa-heartbeat"></i>
-      <span>BloodLink</span>
-    </div>
-    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-    <nav>
-      <ul>
-        <li><a href="#overview">Dashboard</a></li>
-        <li>
-          <a href="#" id="notifications-icon">
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo">
+        <i class="fas fa-plus-circle"></i>
+      </div>
+      <nav>
+        <a href="#" class="active"><i class="fas fa-th-large"></i></a>
+        <a href="#"><i class="fas fa-users"></i></a>
+        <a href="#"><i class="fas fa-image"></i></a>
+        <a href="#"><i class="fas fa-file-alt"></i></a>
+        <a href="#"><i class="fas fa-folder"></i></a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header>
+        <div class="back-button">
+          <a href="#"><i class="fas fa-arrow-left"></i> Back to dashboard</a>
+        </div>
+        <div class="user-menu">
+          <div class="notifications">
             <i class="fas fa-bell"></i>
-            <span id="notification-badge">0</span>
-          </a>
-          <!-- Notifications Panel -->
-          <div class="notifications-panel" id="notifications-panel">
-            <h3>Notifications</h3>
-            <ul id="notifications-list"></ul>
           </div>
-        </li>
-        <li>
-          <a href="#" onclick="handleLogout()">
-            <i class="fas fa-sign-out-alt"></i>
-            Logout
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </header>
-
-  <aside id="sidebar">
-    <ul>
-      <li><a href="#overview" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-      <li><a href="#view-details"><i class="fas fa-user"></i> View Details</a></li>
-      <li><a href="#submit-request"><i class="fas fa-plus-circle"></i> Submit Request</a></li>
-      <li><a href="#track-requests"><i class="fas fa-list-alt"></i> Track Requests</a></li>
-      <li><a href="#medical-history"><i class="fas fa-history"></i> Medical History</a></li>
-    </ul>
-  </aside>
-
-  <main>
-    <!-- Overview Section -->
-    <section id="overview" class="patient-profile">
-      <h1>Welcome, <span id="patient-name">Patient</span>! 👋</h1>
-      <div class="profile-header">
-        <div class="profile-avatar">
-          <i class="fas fa-user"></i>
-        </div>
-        <div class="profile-info">
-          <h2 id="patient-name-header">Patient Name</h2>
-          <p>Blood Type: <span class="blood-type-badge" id="blood-type-header">N/A</span></p>
-        </div>
-      </div>
-      <div class="stats">
-        <div class="card">
-          <h3>Active Requests</h3>
-          <p id="active-requests">0</p>
-        </div>
-        <div class="card">
-          <h3>Matched Donors</h3>
-          <p id="matched-donors">0</p>
-        </div>
-        <div class="card">
-          <h3>Blood Type</h3>
-          <p id="blood-type">N/A</p>
-        </div>
-        <div class="card">
-          <h3>Status</h3>
-          <p id="patient-status">N/A</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- View Details Section -->
-    <section id="view-details" class="view-details">
-      <h2>Your Details</h2>
-      <div class="card">
-        <div id="view-details-content">
-          <p><strong>Name:</strong> <span id="view-name">N/A</span></p>
-          <p><strong>Blood Type:</strong> <span id="view-blood-type">N/A</span></p>
-          <p><strong>Contact Info:</strong> <span id="view-contact-info">N/A</span></p>
-          <p><strong>Phone:</strong> <span id="view-phone">N/A</span></p>
-          <p><strong>Address:</strong> <span id="view-address">N/A</span></p>
-          <p><strong>City:</strong> <span id="view-city">N/A</span></p>
-          <p><strong>Medical Conditions:</strong> <span id="view-medical-conditions">None</span></p>
-          <button class="btn btn-primary" onclick="showEditDetails()">Edit Details</button>
-        </div>
-        <!-- Edit Details Form -->
-        <div id="edit-details-form" style="display: none;">
-          <form id="update-details-form">
-            <div class="input-group">
-              <label for="edit-phone">Phone Number</label>
-              <input type="tel" id="edit-phone" name="phone_number" required>
-            </div>
-            <div class="input-group">
-              <label for="edit-address">Address</label>
-              <input type="text" id="edit-address" name="address" required>
-            </div>
-            <div class="input-group">
-              <label for="edit-city">City</label>
-              <input type="text" id="edit-city" name="city" required>
-            </div>
-            <div class="input-group">
-              <label for="edit-medical">Medical Conditions</label>
-              <textarea id="edit-medical" name="medical_conditions"></textarea>
-            </div>
-            <div class="button-group">
-              <button type="submit" class="btn btn-primary">Save Changes</button>
-              <button type="button" class="btn btn-outline" onclick="cancelEdit()">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- Submit Request Section -->
-    <section id="submit-request" class="submit-request">
-      <h2>Submit Blood Request</h2>
-      <div class="card">
-        <form id="submit-request-form">
-          <div class="input-row">
-            <div class="input-group">
-              <label for="request-blood-type">Blood Type Needed</label>
-              <select id="request-blood-type" required>
-                <option value="">Select</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-              </select>
-            </div>
-            <div class="input-group">
-              <label for="request-units">Units Needed</label>
-              <input type="number" id="request-units" min="1" required>
-            </div>
+          <div class="profile-menu" id="profileInfo">
+            <img src="" alt="Profile" id="profileImage">
+            <span id="profileName"></span>
           </div>
-          <div class="input-row">
-            <div class="input-group">
-              <label for="request-urgency">Urgency</label>
-              <select id="request-urgency" required>
-                <option value="">Select</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-              </select>
-            </div>
-            <div class="input-group">
-              <label for="request-date">Required By Date</label>
-              <input type="date" id="request-date" required>
-            </div>
-          </div>
-          <div class="input-group">
-            <label for="request-hospital">Hospital</label>
-            <select id="request-hospital" name="hospital">
-                <option value="">Select a hospital</option>
+        </div>
+      </header>
+
+      <section class="main-section">
+        <div class="patient-info">
+          <h2>Information:</h2>
+          <table class="info-table">
+            <tbody>
+              <tr>
+                <td><strong>Patient ID:</strong></td>
+                <td id="patientId"></td>
+                <td><strong>Blood Type:</strong></td>
+                <td id="bloodType"></td>
+              </tr>
+              <tr>
+                <td><strong>First Name:</strong></td>
+                <td id="firstName"></td>
+                <td><strong>Last Name:</strong></td>
+                <td id="lastName"></td>
+              </tr>
+              <tr>
+                <td><strong>Email:</strong></td>
+                <td id="email"></td>
+                <td><strong>Phone:</strong></td>
+                <td id="phoneNumber"></td>
+              </tr>
+              <tr>
+                <td><strong>Date of Birth:</strong></td>
+                <td id="dateOfBirth"></td>
+                <td><strong>Registration Date:</strong></td>
+                <td id="registrationDate"></td>
+              </tr>
+              <tr>
+                <td><strong>Address:</strong></td>
+                <td id="address"></td>
+                <td><strong>City:</strong></td>
+                <td id="city"></td>
+              </tr>
+              <tr>
+                <td><strong>Medical Conditions:</strong></td>
+                <td id="medicalConditions" colspan="3"></td>
+              </tr>
+              <tr>
+                <td><strong>Emergency Contact:</strong></td>
+                <td id="emergencyContact"></td>
+                <td><strong>Emergency Phone:</strong></td>
+                <td id="emergencyPhone"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="editProfileForm" style="display: none;">
+          <input type="text" id="editFirstName" placeholder="First Name">
+          <input type="text" id="editLastName" placeholder="Last Name">
+          <input type="text" id="editBloodType" placeholder="Blood Type">
+          <input type="text" id="editAddress" placeholder="Address">
+          <input type="text" id="editCity" placeholder="City">
+          <input type="text" id="editPhone" placeholder="Phone">
+          <input type="text" id="editMedicalConditions" placeholder="Medical Conditions">
+          <input type="text" id="editEmergencyContact" placeholder="Emergency Contact">
+          <input type="text" id="editEmergencyPhone" placeholder="Emergency Phone">
+          <button onclick="updateProfile()">Update</button>
+        </div>
+
+        <div class="blood-request-section">
+          <h2>Request Blood</h2>
+          <div class="request-form">
+            <select id="blood_type" required>
+              <option value="" disabled selected>Select Blood Type</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
             </select>
-          </div>
-          <div class="input-group">
-            <label for="request-notes">Additional Notes</label>
-            <textarea id="request-notes" name="notes"></textarea>
-          </div>
-          <button type="submit" class="btn btn-success">Submit Request</button>
-        </form>
-      </div>
-    </section>
-
-    <!-- Track Requests Section -->
-    <section id="track-requests" class="track-requests">
-      <h2>Track Your Requests</h2>
-      <div class="card">
-        <div class="filter-controls">
-          <div class="input-group">
-            <label for="status-filter">Filter by Status</label>
-            <select id="status-filter">
-              <option value="all">All</option>
-              <option value="pending">Pending</option>
-              <option value="matched">Matched</option>
-              <option value="fulfilled">Fulfilled</option>
-              <option value="cancelled">Cancelled</option>
+            <input type="number" id="units_needed" placeholder="Units Needed" min="1" required>
+            <select id="urgency" required>
+              <option value="" disabled selected>Select Urgency</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
             </select>
-          </div>
-          <div class="input-group">
-            <label for="date-filter">Filter by Date</label>
-            <input type="date" id="date-filter">
+            <input type="date" id="required_by_date" required>
+            <textarea id="notes" placeholder="Additional Notes"></textarea>
+            <button onclick="submitRequest()">Submit Request</button>
           </div>
         </div>
-        <div class="table-container">
-          <table class="blood-requests">
+
+        <div class="request-status">
+          <h2>Request Status</h2>
+          <table id="requestTable">
             <thead>
               <tr>
-                <th>Request ID</th>
+                <th>ID</th>
                 <th>Blood Type</th>
                 <th>Units Needed</th>
                 <th>Urgency</th>
-                <th>Hospital</th>
                 <th>Status</th>
+                <th>Required By</th>
+                <th>Notes</th>
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody id="requests-table">
-              <!-- Requests will be populated here -->
-            </tbody>
+            <tbody></tbody>
           </table>
         </div>
-      </div>
-    </section>
+      </section>
+    </main>
+  </div>
 
-    <!-- Medical History Section -->
-    <section id="medical-history" class="medical-history">
-      <h2>Medical History</h2>
-      <div class="card">
-        <div class="table-container">
-          <table class="blood-requests">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Event</th>
-                <th>Details</th>
-                <th>Doctor/Hospital</th>
-                <th>Documents</th>
-              </tr>
-            </thead>
-            <tbody id="medical-history-table">
-              <!-- Medical history will be populated here -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Toast Container for Notifications -->
-  <div class="toast-container" id="toast-container"></div>
-
-  <!-- Socket.io for Real-time Updates -->
-  <script src="/socket.io/socket.io.js"></script>
-  
-  <!-- Main JavaScript -->
-  <script src="patient.js"></script>
-  
-  <!-- Logout Script -->
   <script>
-    function handleLogout() {
-      // Clear local storage
-      localStorage.removeItem('token');
-      localStorage.removeItem('userId');
-      
-      // Redirect to login page
-      window.location.href = '/index.html';
+    // Base URL for API requests
+    const API_BASE_URL = 'http://localhost:3000/api';
+
+    // Utility to decode JWT token
+    function decodeToken(token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log('Decoded JWT payload:', payload);
+        return payload;
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+      }
     }
 
-    // Prevent going back after logout
-    window.history.forward();
+    // Fetch user data from the database
+    async function fetchUserData() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No token found in localStorage');
+        window.location.href = '/'; // Redirect to login if not authenticated
+        return null;
+      }
+
+      // Log the token's userId for debugging
+      const tokenData = decodeToken(token);
+      if (tokenData) {
+        console.log('Token userId:', tokenData.userId);
+      }
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/patients/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          console.error('Server response status:', response.status);
+          const errorData = await response.json();
+          if (response.status === 401) {
+            alert('Session expired. Please log in again.');
+            localStorage.removeItem('token');
+            window.location.href = '/';
+            return null;
+          }
+          throw new Error(`Failed to fetch user data: ${response.status} - ${errorData.message || 'Unknown error'}`);
+        }
+
+        const userData = await response.json();
+        const data = userData.data || userData; // Handle both { success: true, data: {...} } and plain object responses
+        console.log('Fetched User Data:', data);
+        return data;
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        alert(`Failed to load patient data: ${error.message}. Please try logging in again.`);
+        localStorage.removeItem('token');
+        window.location.href = '/';
+        return null;
+      }
+    }
+
+    // Display profile information
+    window.onload = async function() {
+      try {
+        const userData = await fetchUserData();
+        if (!userData) return;
+
+        console.log('Displaying user data:', userData);
+
+        document.getElementById('profileName').textContent = `${userData.first_name || ''} ${userData.last_name || ''}`;
+        document.getElementById('profileImage').src = 'https://via.placeholder.com/40';
+
+        document.getElementById('patientId').textContent = userData.patient_id || 'Not specified';
+        document.getElementById('bloodType').textContent = userData.blood_type || 'Not specified';
+        document.getElementById('firstName').textContent = userData.first_name || 'Not specified';
+        document.getElementById('lastName').textContent = userData.last_name || 'Not specified';
+        document.getElementById('email').textContent = userData.email || 'Not specified';
+        document.getElementById('phoneNumber').textContent = userData.phone_number || 'Not specified';
+        document.getElementById('dateOfBirth').textContent = userData.date_of_birth ? new Date(userData.date_of_birth).toLocaleDateString() : 'Not specified';
+        document.getElementById('registrationDate').textContent = userData.date_registered ? new Date(userData.date_registered).toLocaleDateString() : 'Not specified';
+        document.getElementById('address').textContent = userData.address || 'Not specified';
+        document.getElementById('city').textContent = userData.city || 'Not specified';
+        document.getElementById('medicalConditions').textContent = userData.medical_conditions || 'None';
+        document.getElementById('emergencyContact').textContent = userData.emergency_contact_name || 'Not specified';
+        document.getElementById('emergencyPhone').textContent = userData.emergency_contact_phone || 'Not specified';
+
+        document.getElementById('editFirstName').value = userData.first_name || '';
+        document.getElementById('editLastName').value = userData.last_name || '';
+        document.getElementById('editBloodType').value = userData.blood_type || '';
+        document.getElementById('editAddress').value = userData.address || '';
+        document.getElementById('editCity').value = userData.city || '';
+        document.getElementById('editPhone').value = userData.phone_number || '';
+        document.getElementById('editMedicalConditions').value = userData.medical_conditions || '';
+        document.getElementById('editEmergencyContact').value = userData.emergency_contact_name || '';
+        document.getElementById('editEmergencyPhone').value = userData.emergency_contact_phone || '';
+
+        await fetchBloodRequests();
+      } catch (error) {
+        console.error('Error initializing dashboard:', error);
+      }
+    };
+
+    // Show edit profile form
+    function showEditProfileForm() {
+      document.getElementById('editProfileForm').style.display = 'block';
+    }
+
+    // Update profile
+    async function updateProfile() {
+      const token = localStorage.getItem('token');
+      const userData = await fetchUserData();
+      const patientId = userData?.patient_id;
+
+      if (!patientId) {
+        alert('Cannot update profile: Patient ID not found.');
+        return;
+      }
+
+      const patientData = {
+        first_name: document.getElementById('editFirstName').value,
+        last_name: document.getElementById('editLastName').value,
+        blood_type: document.getElementById('editBloodType').value,
+        address: document.getElementById('editAddress').value,
+        city: document.getElementById('editCity').value,
+        phone_number: document.getElementById('editPhone').value,
+        medical_conditions: document.getElementById('editMedicalConditions').value,
+        emergency_contact_name: document.getElementById('editEmergencyContact').value,
+        emergency_contact_phone: document.getElementById('editEmergencyPhone').value
+      };
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/patient/${patientId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(patientData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to update profile');
+        }
+
+        alert('Profile updated successfully');
+        window.location.reload();
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        alert(`Failed to update profile: ${error.message}`);
+      }
+    }
+
+    // Fetch blood requests
+    async function fetchBloodRequests() {
+      const token = localStorage.getItem('token');
+      const userData = await fetchUserData();
+      const patientId = userData?.patient_id;
+
+      if (!patientId) {
+        console.error('No patient ID available');
+        document.querySelector('#requestTable tbody').innerHTML = '<tr><td colspan="8">Error: Patient ID not found. Please try logging in again.</td></tr>';
+        return;
+      }
+
+      console.log('Attempting to fetch blood requests for patient ID:', patientId);
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/blood-requests/patient/${patientId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Error response:', errorData);
+          
+          if (response.status === 401) {
+            console.error('Authentication error:', errorData);
+            alert('Session expired. Please log in again.');
+            localStorage.removeItem('token');
+            window.location.href = '/';
+            return;
+          }
+          if (response.status === 403) {
+            console.error('Authorization error:', errorData);
+            alert('You are not authorized to view these requests. Please log in with the correct account.');
+            localStorage.removeItem('token');
+            window.location.href = '/';
+            return;
+          }
+          throw new Error(`Failed to fetch blood requests: ${response.status} - ${errorData.message || 'Unknown error'}`);
+        }
+
+        const requests = await response.json();
+        console.log('Successfully fetched blood requests:', requests);
+        
+        const tbody = document.querySelector('#requestTable tbody');
+        tbody.innerHTML = '';
+
+        if (Array.isArray(requests) && requests.length > 0) {
+          requests.forEach(request => {
+          const row = `<tr>
+              <td>${request.request_id || ''}</td>
+              <td>${request.blood_type || ''}</td>
+              <td>${request.units_needed || ''}</td>
+              <td>${request.urgency_level || ''}</td>
+              <td>${request.request_status || ''}</td>
+              <td>${request.required_by_date ? new Date(request.required_by_date).toLocaleDateString() : 'N/A'}</td>
+              <td>${request.request_notes || 'None'}</td>
+              <td>${request.request_status === 'Pending' ? `<button onclick="cancelRequest(${request.request_id})">Cancel</button>` : ''}</td>
+          </tr>`;
+          tbody.innerHTML += row;
+        });
+        } else {
+          tbody.innerHTML = '<tr><td colspan="8">No blood requests found for your account</td></tr>';
+        }
+      } catch (error) {
+        console.error('Error fetching blood requests:', error);
+        document.querySelector('#requestTable tbody').innerHTML = `<tr><td colspan="8">Error loading requests: ${error.message}</td></tr>`;
+      }
+    }
+
+    // Submit blood request
+    async function submitRequest() {
+      const token = localStorage.getItem('token');
+      const userData = await fetchUserData();
+      const patientId = userData?.patient_id;
+      const blood_type = document.getElementById('blood_type').value;
+      const units_needed = parseInt(document.getElementById('units_needed').value);
+      const urgency_level = document.getElementById('urgency').value;
+      const required_by_date = document.getElementById('required_by_date').value;
+      const request_notes = document.getElementById('notes').value;
+
+      if (!patientId) {
+        alert('Cannot submit request: Patient ID not found.');
+        return;
+      }
+
+      if (!blood_type || !units_needed || !urgency_level || !required_by_date) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+      if (units_needed <= 0) {
+        alert('Units needed must be a positive number.');
+        return;
+      }
+
+      const requestData = {
+        blood_type,
+        units_needed,
+        urgency_level,
+        required_by_date,
+        request_notes
+      };
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/blood-requests`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          if (response.status === 401) {
+            alert('Session expired. Please log in again.');
+            localStorage.removeItem('token');
+            window.location.href = '/';
+            return;
+          }
+          throw new Error(errorData.error || 'Failed to submit blood request');
+        }
+
+        const result = await response.json();
+        console.log('Blood request submitted:', result);
+
+        document.getElementById('blood_type').value = '';
+        document.getElementById('units_needed').value = '';
+        document.getElementById('urgency').value = '';
+        document.getElementById('required_by_date').value = '';
+        document.getElementById('notes').value = '';
+
+        await fetchBloodRequests();
+        alert('Blood request submitted successfully');
+      } catch (error) {
+        console.error('Error submitting request:', error);
+        alert(`Failed to submit blood request: ${error.message}`);
+      }
+    }
+
+    // Cancel blood request
+    async function cancelRequest(requestId) {
+      const token = localStorage.getItem('token');
+      const userData = await fetchUserData();
+      const patientId = userData?.patient_id;
+
+      if (!patientId) {
+        alert('Cannot cancel request: Patient ID not found.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/blood-requests/${requestId}/cancel`, {
+        method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ patient_id: patientId })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          if (response.status === 401) {
+            alert('Session expired. Please log in again.');
+            localStorage.removeItem('token');
+            window.location.href = '/';
+            return;
+          }
+          throw new Error(errorData.error || 'Failed to cancel request');
+        }
+
+        await fetchBloodRequests();
+        alert('Blood request cancelled successfully');
+      } catch (error) {
+        console.error('Error canceling request:', error);
+        alert(`Failed to cancel request: ${error.message}`);
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userType');
+      window.location.href = '/';
+    }
   </script>
 </body>
 </html>

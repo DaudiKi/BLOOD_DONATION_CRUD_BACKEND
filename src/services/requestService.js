@@ -1,8 +1,24 @@
+// services/requestService.js
 import { query } from '../db.js';
 import dotenv from 'dotenv';
 import * as notificationService from './notificationService.js';
+import winston from 'winston';
 
 dotenv.config();
+
+// Set up Winston logger
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'logs/combined.log' }),
+    new winston.transports.Console()
+  ]
+});
 
 /**
  * Creates a new blood request record in the database and notifies compatible donors and admins.
@@ -29,6 +45,11 @@ export const createRequest = async (requestData, io) => {
   }
 
   try {
+    // Validate that either patient_id or institution_id is provided
+    if (!requestData.patient_id && !requestData.institution_id) {
+      throw new Error('Either patient_id or institution_id must be provided');
+    }
+
     const insertQuery = `
       INSERT INTO bloodlink_schema.blood_request (
         patient_id,
@@ -39,10 +60,8 @@ export const createRequest = async (requestData, io) => {
         required_by_date,
         request_notes,
         request_status,
-        request_date,
-        location_latitude,
-        location_longitude
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP, $9, $10)
+        request_date
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP)
       RETURNING *;
     `;
 
@@ -54,16 +73,14 @@ export const createRequest = async (requestData, io) => {
       requestData.urgency_level,
       requestData.required_by_date,
       requestData.request_notes || '',
-      'Pending',
-      requestData.location_latitude || null,
-      requestData.location_longitude || null
+      'Pending'
     ];
 
-    console.log('Creating blood request with values:', values); // Replace with logger in production
+    logger.info('Creating blood request with values:', { values });
 
     const result = await query(insertQuery, values);
     const newRequest = result.rows[0];
-    console.log('Blood request created successfully:', newRequest);
+    logger.info('Blood request created successfully:', { requestId: newRequest.request_id });
 
     // Find compatible donors
     const compatibleDonorsQuery = `
@@ -80,49 +97,53 @@ export const createRequest = async (requestData, io) => {
     `;
     
     const compatibleDonors = await query(compatibleDonorsQuery, [requestData.blood_type]);
-    console.log(`Found ${compatibleDonors.rows.length} compatible donors for blood type ${requestData.blood_type}`);
+    logger.info(`Found ${compatibleDonors.rows.length} compatible donors for blood type ${requestData.blood_type}`);
+
+    // Prepare notification message based on request type
+    const requestSource = requestData.institution_id ? 'healthcare institution' : 'patient';
+    const notificationMessage = `Urgent blood request for ${requestData.blood_type}. ${requestData.units_needed} units needed by ${new Date(requestData.required_by_date).toLocaleDateString()} from a ${requestSource}`;
 
     // Notify compatible donors
     const donorNotifications = compatibleDonors.rows.map(donor => {
-      console.log(`Creating notification for donor ${donor.donor_id}`);
+      logger.info(`Creating notification for donor ${donor.donor_id}`);
       return notificationService.createNotification({
-        recipient_id: donor.donor_id,
+        recipient_id: donor.donor_id.toString(),
         recipient_type: 'donor',
         notification_type: 'blood_request',
         notification_title: 'New Blood Request',
-        notification_message: `Urgent blood request for ${requestData.blood_type}. ${requestData.units_needed} units needed by ${new Date(requestData.required_by_date).toLocaleDateString()}`,
+        notification_message: notificationMessage,
         related_request_id: newRequest.request_id
       }, io);
     });
 
     // Notify admins
     const adminQuery = `
-      SELECT institution_id 
-      FROM bloodlink_schema.healthcare_institution 
+      SELECT admin_id 
+      FROM bloodlink_schema.admin 
       WHERE role = 'admin'
     `;
     
     const adminResult = await query(adminQuery);
     const adminNotifications = adminResult.rows.map(admin => {
-      console.log(`Creating notification for admin ${admin.institution_id}`);
+      logger.info(`Creating notification for admin ${admin.admin_id}`);
       return notificationService.createNotification({
-        recipient_id: admin.institution_id,
+        recipient_id: admin.admin_id.toString(),
         recipient_type: 'admin',
         notification_type: 'blood_request',
         notification_title: 'New Blood Request Created',
-        notification_message: `New ${requestData.blood_type} request: ${requestData.units_needed} units needed.`,
+        notification_message: `New ${requestData.blood_type} request: ${requestData.units_needed} units needed from ${requestSource}.`,
         related_request_id: newRequest.request_id
       }, io);
     });
 
-    // Execute notifications concurrently but don't fail request if they fail
+    // Execute notifications concurrently
     await Promise.all([...donorNotifications, ...adminNotifications]).catch(error => {
-      console.error('Failed to send some notifications:', error);
+      logger.error('Failed to send some notifications:', error);
     });
 
     return newRequest;
   } catch (error) {
-    console.error('Error in createRequest:', error);
+    logger.error('Error in createRequest:', error);
     throw new Error(`Failed to create blood request: ${error.message}`);
   }
 };
@@ -159,7 +180,7 @@ export const getRequestsByPatient = async (patientId) => {
     const result = await query(selectQuery, [patientId]);
     return result.rows;
   } catch (error) {
-    console.error('Error in getRequestsByPatient:', error);
+    logger.error('Error in getRequestsByPatient:', error);
     throw new Error(`Failed to fetch patient requests: ${error.message}`);
   }
 };
@@ -186,7 +207,7 @@ export const updateRequestStatus = async (requestId, status) => {
     if (result.rows.length === 0) throw new Error('Request not found');
     return result.rows[0];
   } catch (error) {
-    console.error('Error in updateRequestStatus:', error);
+    logger.error('Error in updateRequestStatus:', error);
     throw new Error(`Failed to update request status: ${error.message}`);
   }
 };
@@ -209,7 +230,7 @@ export const getRequestById = async (requestId) => {
     if (result.rows.length === 0) throw new Error('Request not found');
     return result.rows[0];
   } catch (error) {
-    console.error('Error in getRequestById:', error);
+    logger.error('Error in getRequestById:', error);
     throw new Error(`Failed to fetch request: ${error.message}`);
   }
 };
@@ -245,10 +266,89 @@ export const getAllRequests = async () => {
       status: row.status
     }));
   } catch (error) {
-    console.error('Error in getAllRequests:', error);
+    logger.error('Error in getAllRequests:', error);
     throw new Error(`Failed to fetch requests: ${error.message}`);
   }
 };
 
+/**
+ * Retrieves all blood requests for admins to monitor.
+ * @returns {Promise<Object[]>} - Array of all request records.
+ * @throws {Error} - If the query fails.
+ */
+export const getAllBloodRequests = async () => {
+  try {
+    const selectQuery = `
+      SELECT 
+        br.request_id,
+        br.blood_type,
+        br.units_needed,
+        br.urgency_level,
+        br.required_by_date,
+        br.request_notes,
+        br.request_status,
+        br.request_date,
+        p.first_name AS patient_first_name,
+        p.last_name AS patient_last_name,
+        hi.name AS institution_name
+      FROM bloodlink_schema.blood_request br
+      LEFT JOIN bloodlink_schema.patient p ON br.patient_id = p.patient_id
+      LEFT JOIN bloodlink_schema.healthcare_institution hi ON br.institution_id = hi.institution_id
+      ORDER BY br.request_date DESC
+    `;
+    const result = await query(selectQuery);
+    return result.rows.map(row => ({
+      request_id: row.request_id,
+      blood_type: row.blood_type,
+      units_needed: row.units_needed,
+      urgency_level: row.urgency_level,
+      required_by_date: row.required_by_date,
+      request_notes: row.request_notes,
+      request_status: row.request_status,
+      request_date: row.request_date,
+      location: row.institution_name || `${row.patient_first_name} ${row.patient_last_name}`,
+      patient_id: row.patient_id,
+      institution_id: row.institution_id
+    }));
+  } catch (error) {
+    logger.error('Error in getAllBloodRequests:', error);
+    throw new Error(`Failed to fetch blood requests: ${error.message}`);
+  }
+};
+
+/**
+ * Retrieves all blood requests for a specific institution.
+ * @param {string|number} institutionId - The ID of the institution.
+ * @returns {Promise<Object[]>} - Array of request records with patient details.
+ * @throws {Error} - If the query fails.
+ */
+export const getRequestsByInstitution = async (institutionId) => {
+  if (!institutionId) throw new Error('Institution ID is required');
+
+  try {
+    const selectQuery = `
+      SELECT 
+        br.request_id,
+        br.blood_type,
+        br.units_needed,
+        br.urgency_level,
+        br.required_by_date,
+        br.request_notes,
+        br.request_status,
+        br.request_date,
+        CONCAT(p.first_name, ' ', p.last_name) AS patient_name
+      FROM bloodlink_schema.blood_request br
+      LEFT JOIN bloodlink_schema.patient p 
+        ON br.patient_id = p.patient_id
+      WHERE br.institution_id = $1 
+      ORDER BY br.request_date DESC;
+    `;
+    const result = await query(selectQuery, [institutionId]);
+    return result.rows;
+  } catch (error) {
+    logger.error('Error in getRequestsByInstitution:', error);
+    throw new Error(`Failed to fetch institution requests: ${error.message}`);
+  }
+};
+
 // TODO: Implement pagination for getAllRequests
-// TODO: Replace console.log with a logging library like Winston for production

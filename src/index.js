@@ -131,10 +131,10 @@ app.use("/api/auth", authRoutes);
 // Mount other API routes
 app.use("/api", clientRoutes);
 app.use("/api", donorRoutes);
+app.use("/api", requestRoutes);
 app.use("/api", patientRoutes);
 app.use("/api", healthcareInstituteRoutes);
 app.use("/api", notificationRoutes);
-app.use("/api", requestRoutes);
 
 // Authentication middleware for HTTP routes
 const authenticateToken = (req, res, next) => {

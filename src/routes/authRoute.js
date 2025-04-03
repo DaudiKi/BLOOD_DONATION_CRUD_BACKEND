@@ -73,12 +73,6 @@ const handleLogin = async (req, res, table, idField, roleValue) => {
         console.log('Error: Admin account inactive');
         return res.status(401).json({ error: 'Account is inactive.' });
       }
-      
-      console.log('Updating admin last login...');
-      await pool.query(
-        `UPDATE ${schema}.${table} SET last_login = CURRENT_TIMESTAMP WHERE ${idField} = $1`,
-        [user[idField]]
-      );
     }
 
     console.log('Generating token...');

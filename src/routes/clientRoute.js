@@ -1,16 +1,23 @@
-// routes/clientRoute.js
+// routes/adminRoute.js
 import express from 'express';
-import * as clientController from '../controllers/clientController.js';
+import { getAdmins, getAdminById, updateAdmin, deleteAdmin, searchAdmins, getBloodRequests, getNotifications, markNotificationAsRead } from '../controllers/clientController.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 import { requireRole } from '../middleware/requireRole.js';
 
 const router = express.Router();
 
-// Only 'admin' can access these client routes.
-router.get('/admin', verifyToken, requireRole('admin'), clientController.getClients);
-router.post('/admin', verifyToken, requireRole('admin'), clientController.createClients);
-router.put('/admin/:admin_id', verifyToken, requireRole('admin'), clientController.updateClients);
-router.delete('/admin/:admin_id', verifyToken, requireRole('admin'), clientController.deleteClients);
-router.get('/admin/:admin_id', verifyToken, requireRole('admin'), clientController.searchClients);
+// Admin routes (protected)
+router.get('/admin', verifyToken, requireRole('admin'), getAdmins);
+router.get('/admin/search', verifyToken, requireRole('admin'), searchAdmins);
+router.get('/admin/:id', verifyToken, requireRole('admin'), getAdminById);
+router.put('/admin/:id', verifyToken, requireRole('admin'), updateAdmin);
+router.delete('/admin/:id', verifyToken, requireRole('admin'), deleteAdmin);
+
+// Blood request routes
+router.get('/blood-requests', verifyToken, requireRole('admin'), getBloodRequests);
+
+// Notification routes
+router.get('/notifications', verifyToken, requireRole('admin'), getNotifications);
+router.post('/notifications/:id/read', verifyToken, requireRole('admin'), markNotificationAsRead);
 
 export default router;

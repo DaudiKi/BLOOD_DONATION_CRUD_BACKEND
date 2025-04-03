@@ -35,32 +35,31 @@ export const createInstitution = async (instituteData) => {
     const {
       name,
       email,
-      password, // Expects a pre-hashed password
+      password,
       phone_number,
-      license_number,
       address,
       city,
-      latitude,
-      longitude,
       institution_type,
       contact_person_name,
       contact_person_phone,
-      date_registered = new Date(), // Default to current timestamp
-      last_login = null, // Default to null
-      is_active = true, // Default to true
+      date_registered = new Date(),
+      is_active = true,
       role = 'healthcare_institution'
     } = instituteData;
 
     // Validate required fields
-    if (!name || !email || !password || !license_number || !address || !city || !institution_type) {
+    if (!name || !email || !password || !address || !city || !institution_type) {
       throw new Error('Missing required fields for creating healthcare institution');
     }
 
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     const { rows } = await query(
       `INSERT INTO bloodlink_schema.healthcare_institution 
-        (name, email, password, phone_number, license_number, address, city, latitude, longitude, institution_type, contact_person_name, contact_person_phone, date_registered, last_login, is_active, role)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *`,
-      [name, email, password, phone_number, license_number, address, city, latitude, longitude, institution_type, contact_person_name, contact_person_phone, date_registered, last_login, is_active, role]
+        (name, email, password, phone_number, address, city, institution_type, contact_person_name, contact_person_phone, date_registered, is_active, role)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+      [name, email, hashedPassword, phone_number, address, city, institution_type, contact_person_name, contact_person_phone, date_registered, is_active, role]
     );
     return rows[0];
   } catch (error) {
@@ -76,26 +75,28 @@ export const updateInstitution = async (instituteData, institution_id) => {
     const {
       name,
       email,
-      password, // Expects a pre-hashed password
+      password,
       phone_number,
-      license_number,
       address,
       city,
-      latitude,
-      longitude,
       institution_type,
       contact_person_name,
       contact_person_phone,
       date_registered,
-      last_login,
       is_active
     } = instituteData;
 
+    // Hash the password if it's provided
+    let hashedPassword = password;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, saltRounds);
+    }
+
     const { rows } = await query(
       `UPDATE bloodlink_schema.healthcare_institution 
-       SET name = $1, email = $2, password = $3, phone_number = $4, license_number = $5, address = $6, city = $7, latitude = $8, longitude = $9, institution_type = $10, contact_person_name = $11, contact_person_phone = $12, date_registered = $13, last_login = $14, is_active = $15
-       WHERE institution_id = $16 RETURNING *`,
-      [name, email, password, phone_number, license_number, address, city, latitude, longitude, institution_type, contact_person_name, contact_person_phone, date_registered, last_login, is_active, institution_id]
+       SET name = $1, email = $2, password = $3, phone_number = $4, address = $5, city = $6, institution_type = $7, contact_person_name = $8, contact_person_phone = $9, date_registered = $10, is_active = $11
+       WHERE institution_id = $12 RETURNING *`,
+      [name, email, hashedPassword, phone_number, address, city, institution_type, contact_person_name, contact_person_phone, date_registered, is_active, institution_id]
     );
     return rows[0];
   } catch (error) {

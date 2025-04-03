@@ -1,485 +1,624 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Admin Dashboard | BloodLink</title>
-    
-    <!-- CSS Reset -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
-    
-    <!-- Main dashboard styles -->
-    <link rel="stylesheet" href="admin-dashboard.css" type="text/css">
-    
-    <!-- Font Awesome and Google Fonts -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Socket.IO Client -->
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="admin-dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <header>
-    <div class="logo">
-      <i class="fas fa-shield-alt"></i>
-      <span>BloodLink Admin</span>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>Blood Donation Admin</h2>
+    </div>
+    <div class="user-profile">
+      <img src="https://via.placeholder.com/40" alt="Admin Avatar" class="avatar">
+      <span>Admin User</span>
     </div>
     <nav>
-      <ul>
-        <li><a href="#overview">Dashboard</a></li>
-        <li>
-          <a href="#" id="notifications-icon">
-            <i class="fas fa-bell"></i>
-            <span id="notification-badge">0</span>
-          </a>
-          <!-- Notifications Panel -->
-          <div class="notifications-panel" id="notifications-panel">
-            <h3>Notifications</h3>
-            <ul id="notifications-list"></ul>
-          </div>
-        </li>
-        <li><a href="#" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-      </ul>
+      <a href="#users" class="active"><i class="fas fa-users"></i> User Management</a>
+      <a href="#admin-management"><i class="fas fa-user-shield"></i> Admin Management</a>
+      <a href="#blood-requests"><i class="fas fa-tint"></i> Blood Requests</a>
+      <a href="#logs"><i class="fas fa-history"></i> Activity Logs</a>
+      <a href="#stats"><i class="fas fa-chart-pie"></i> System Analytics</a>
+      <a href="#reports"><i class="fas fa-file-alt"></i> Reports</a>
+      <a href="#notifications"><i class="fas fa-bell"></i> Notifications</a>
     </nav>
-  </header>
+    <div class="sidebar-footer">
+      <button class="add-files-btn"><i class="fas fa-plus"></i> Add New User</button>
+    </div>
+  </div>
 
-  <aside id="sidebar">
-    <ul>
-      <li><a href="#overview" class="active"><i class="fas fa-tachometer-alt"></i> Overview</a></li>
-      <li><a href="#manage-users"><i class="fas fa-users"></i> Manage Users</a></li>
-      <li><a href="#blood-requests"><i class="fas fa-tint"></i> Blood Requests</a></li>
-      <li><a href="#reports"><i class="fas fa-chart-bar"></i> Reports</a></li>
-      <li><a href="#user-logs"><i class="fas fa-history"></i> User Logs</a></li>
-      <li><a href="#system-settings"><i class="fas fa-cog"></i> System Settings</a></li>
-    </ul>
-  </aside>
-
-  <main>
-    <!-- Overview Section -->
-    <section id="overview">
-      <h1>Welcome, <span id="admin-name">Admin</span>! 👋</h1>
-      <p>Monitor system activity and manage the platform.</p>
-      
-      <div class="system-metrics dashboard-grid">
-        <div class="metric-card card">
-          <div class="card-header">
-            <h3>Total Users</h3>
-            <i class="fas fa-users"></i>
-          </div>
-          <div class="metric-value card-value" id="total-users">0</div>
-          <div class="card-details">
-            <span class="badge user-role-pill role-donor" id="donor-count">0 Donors</span>
-            <span class="badge user-role-pill role-patient" id="patient-count">0 Patients</span>
-            <span class="badge user-role-pill role-institution" id="institution-count">0 Institutions</span>
-          </div>
+  <!-- Main Content -->
+  <div class="main">
+    <!-- Header -->
+    <div class="header">
+      <h1>Overview</h1>
+      <div class="header-right">
+        <div class="search-bar">
+          <input type="text" placeholder="Search something...">
+          <i class="fas fa-search"></i>
         </div>
-        <div class="metric-card card">
-          <div class="card-header">
-            <h3>Active Users</h3>
-            <i class="fas fa-user-check"></i>
-          </div>
-          <div class="metric-value card-value" id="active-users">0</div>
-          <div class="card-trend trend-up">
-            <i class="fas fa-arrow-up"></i>
-            <span id="active-percentage">0% from last week</span>
-          </div>
-        </div>
-        <div class="metric-card card">
-          <div class="card-header">
-            <h3>Blood Requests</h3>
-            <i class="fas fa-clipboard-list"></i>
-          </div>
-          <div class="metric-value card-value" id="total-requests">0</div>
-          <div class="card-details">
-            <span class="badge user-role-pill role-patient badge-warning" id="pending-requests">0 Pending</span>
-            <span class="badge user-role-pill role-donor badge-success" id="fulfilled-requests">0 Fulfilled</span>
-          </div>
-        </div>
-        <div class="metric-card card">
-          <div class="card-header">
-            <h3>System Health</h3>
-            <i class="fas fa-heartbeat"></i>
-          </div>
-          <div class="metric-value card-value" id="system-health">Good</div>
-          <div class="card-details system-health">
-            <span class="badge user-role-pill role-institution badge-info" id="system-uptime">Uptime: 100%</span>
-            <span class="badge user-role-pill role-institution badge-info" id="response-time">Response: 120ms</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- System Analytics -->
-      <div class="charts-grid">
-        <div class="chart-card">
-          <div class="chart-header card-header">
-            <h3 class="chart-title">User Registration Trends</h3>
-            <div class="chart-filters card-tools">
-              <select id="registration-period">
-                <option value="week">Last Week</option>
-                <option value="month">Last Month</option>
-                <option value="year">Last Year</option>
-              </select>
+        <div class="notification-bell" onclick="toggleNotifications()">
+          <i class="fas fa-bell"></i>
+          <span class="badge" id="notificationCount">0</span>
+          <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-header">
+              <h3>Notifications</h3>
             </div>
+            <div class="notification-list" id="notificationListHeader"></div>
           </div>
-          <canvas id="registration-chart"></canvas>
         </div>
-        <div class="chart-card">
-          <div class="chart-header card-header">
-            <h3 class="chart-title">Blood Request Statistics</h3>
-            <div class="chart-filters card-tools">
-              <select id="request-period">
-                <option value="week">Last Week</option>
-                <option value="month">Last Month</option>
-                <option value="year">Last Year</option>
-              </select>
-            </div>
-          </div>
-          <canvas id="requests-chart"></canvas>
-        </div>
+        <button onclick="logout()">Logout</button>
       </div>
-    </section>
+    </div>
 
-    <!-- Manage Users Section -->
-    <section id="manage-users" class="user-management">
-      <div class="section-header">
-        <h2>Manage Users</h2>
-        <div class="section-tools">
-          <button class="btn btn-primary" onclick="openAddUserModal()">
-            <i class="fas fa-user-plus"></i> Add User
-          </button>
-        </div>
-      </div>
-
+    <!-- User Management -->
+    <div class="section" id="users">
+      <h2>User Management</h2>
       <div class="card">
-        <div class="card-header">
-          <div class="user-filters search-filter">
-            <div class="search-box input-group">
-              <i class="fas fa-search"></i>
-              <input type="text" id="user-search" placeholder="Search users...">
-            </div>
-            <div class="filter-group">
-              <select id="role-filter" class="form-select">
-                <option value="all">All Roles</option>
-                <option value="donor">Donors</option>
-                <option value="patient">Patients</option>
-                <option value="institution">Healthcare Institutions</option>
-                <option value="admin">Administrators</option>
-              </select>
-              <select id="status-filter" class="form-select">
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="suspended">Suspended</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="table-container">
-          <table class="user-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Last Active</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="users-table">
-              <!-- Users will be populated here -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- Blood Requests Section -->
-    <section id="blood-requests" class="blood-requests">
-      <h2>Blood Requests Management</h2>
-      <div class="section-controls">
-        <div class="search-filter">
-          <input type="text" id="request-search" placeholder="Search requests...">
-          <select id="status-filter">
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="matched">Matched</option>
-            <option value="fulfilled">Fulfilled</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-          <select id="urgency-filter">
-            <option value="all">All Urgency</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="table-container">
-        <table class="user-table">
+        <table id="userTable">
           <thead>
             <tr>
-              <th>Request ID</th>
-              <th>Patient</th>
-              <th>Institution</th>
-              <th>Blood Type</th>
-              <th>Units</th>
-              <th>Urgency</th>
-              <th>Request Date</th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Role</th>
               <th>Status</th>
+              <th>Last Login</th>
+              <th>Verified</th>
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody id="blood-requests-table">
-            <!-- Requests will be populated here -->
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
-    </section>
+    </div>
 
-    <!-- Reports Section -->
-    <section id="reports" class="reports">
-      <h2>System Reports</h2>
-      <div class="report-controls">
-        <div class="date-range">
-          <label for="date-from">From:</label>
-          <input type="date" id="date-from">
-          <label for="date-to">To:</label>
-          <input type="date" id="date-to">
-          <button class="btn btn-primary" onclick="generateReport()">Generate Report</button>
+    <!-- Admin Management -->
+    <div class="section" id="admin-management">
+      <h2>Admin Management</h2>
+      <div class="card">
+        <div class="admin-form">
+          <h3>Add New Admin</h3>
+          <input type="text" id="adminFirstName" placeholder="First Name">
+          <input type="text" id="adminLastName" placeholder="Last Name">
+          <input type="email" id="adminEmail" placeholder="Email">
+          <input type="password" id="adminPassword" placeholder="Password">
+          <input type="text" id="adminPhone" placeholder="Phone Number">
+          <input type="date" id="adminDateCreated">
+          <label><input type="checkbox" id="adminIsActive"> Is Active</label>
+          <button onclick="addAdmin()">Add Admin</button>
         </div>
-      </div>
-      
-      <div class="charts-grid">
-        <div class="chart-card">
-          <h3 class="chart-title">User Registration Trends</h3>
-          <canvas id="registration-chart"></canvas>
+        <div class="search-bar" style="margin: 20px 0;">
+          <input type="text" id="searchAdmin" placeholder="Search admins...">
+          <i class="fas fa-search"></i>
         </div>
-        <div class="chart-card">
-          <h3 class="chart-title">Blood Request Statistics</h3>
-          <canvas id="requests-chart"></canvas>
-        </div>
-        <div class="chart-card">
-          <h3 class="chart-title">Blood Type Distribution</h3>
-          <canvas id="blood-type-chart"></canvas>
-        </div>
-        <div class="chart-card">
-          <h3 class="chart-title">System Performance</h3>
-          <canvas id="performance-chart"></canvas>
-        </div>
-      </div>
-    </section>
-
-    <!-- User Logs Section -->
-    <section id="user-logs" class="user-logs activity-log">
-      <h2>User Activity Logs</h2>
-      <div class="section-controls">
-        <div class="search-filter">
-          <input type="text" id="log-search" placeholder="Search logs...">
-          <select id="log-type-filter">
-            <option value="all">All Activities</option>
-            <option value="login">Login</option>
-            <option value="registration">Registration</option>
-            <option value="request">Blood Request</option>
-            <option value="donation">Donation</option>
-            <option value="update">Profile Update</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="table-container">
-        <table class="user-table">
+        <table id="adminTable">
           <thead>
             <tr>
-              <th>Timestamp</th>
-              <th>User</th>
-              <th>Action</th>
-              <th>Details</th>
-              <th>IP Address</th>
+              <th>ID</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Date Created</th>
+              <th>Active</th>
+              <th>Actions</th>
             </tr>
           </thead>
-          <tbody id="activity-logs">
-            <!-- Logs will be populated here -->
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
-    </section>
+    </ 🙂
 
-    <!-- System Settings Section -->
-    <section id="system-settings" class="system-settings">
-      <h2>System Settings</h2>
-      <div class="settings-grid">
-        <div class="settings-card">
-          <h3>Email Settings</h3>
-          <form id="email-settings-form">
-            <div class="input-group">
-              <label for="smtp-host">SMTP Host</label>
-              <input type="text" id="smtp-host" name="smtp_host">
-            </div>
-            <div class="input-group">
-              <label for="smtp-port">SMTP Port</label>
-              <input type="number" id="smtp-port" name="smtp_port">
-            </div>
-            <div class="input-group">
-              <label for="smtp-user">SMTP Username</label>
-              <input type="text" id="smtp-user" name="smtp_username">
-            </div>
-            <div class="input-group">
-              <label for="smtp-pass">SMTP Password</label>
-              <input type="password" id="smtp-pass" name="smtp_password">
-            </div>
-            <button type="submit" class="btn btn-primary">Save Email Settings</button>
-          </form>
-        </div>
-        
-        <div class="settings-card">
-          <h3>Notification Settings</h3>
-          <form id="notification-settings-form">
-            <div class="checkbox-group">
-              <label>
-                <input type="checkbox" name="notify_new_user" checked>
-                Notify on new user registration
-              </label>
-              <label>
-                <input type="checkbox" name="notify_blood_request" checked>
-                Notify on new blood request
-              </label>
-              <label>
-                <input type="checkbox" name="notify_donation" checked>
-                Notify on successful donation
-              </label>
-              <label>
-                <input type="checkbox" name="notify_system_error" checked>
-                Notify on system errors
-              </label>
-            </div>
-            <button type="submit" class="btn btn-primary">Save Notification Settings</button>
-          </form>
-        </div>
-        
-        <div class="settings-card">
-          <h3>Security Settings</h3>
-          <form id="security-settings-form">
-            <div class="input-group">
-              <label for="session-timeout">Session Timeout (minutes)</label>
-              <input type="number" id="session-timeout" name="session_timeout" min="5">
-            </div>
-            <div class="input-group">
-              <label for="max-login-attempts">Max Login Attempts</label>
-              <input type="number" id="max-login-attempts" name="max_login_attempts" min="3">
-            </div>
-            <div class="checkbox-group">
-              <label>
-                <input type="checkbox" name="require_2fa" checked>
-                Require 2FA for admins
-              </label>
-              <label>
-                <input type="checkbox" name="strong_password" checked>
-                Enforce strong password policy
-              </label>
-            </div>
-            <button type="submit" class="btn btn-primary">Save Security Settings</button>
-          </form>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Add User Modal -->
-  <div id="add-user-modal" class="modal">
-    <div class="modal-content">
-      <h2>Add New User</h2>
-      <form id="add-user-form">
-        <div class="input-group">
-          <label for="new-user-name">Name</label>
-          <input type="text" id="new-user-name" required>
-        </div>
-        <div class="input-group">
-          <label for="new-user-email">Email</label>
-          <input type="email" id="new-user-email" required>
-        </div>
-        <div class="input-group">
-          <label for="new-user-role">Role</label>
-          <select id="new-user-role" required>
-            <option value="">Select Role</option>
-            <option value="donor">Donor</option>
-            <option value="patient">Patient</option>
-            <option value="institution">Healthcare Institution</option>
-            <option value="admin">Administrator</option>
+    <!-- Blood Requests -->
+    <div class="section" id="blood-requests">
+      <h2>Blood Requests</h2>
+      <div class="card">
+        <div class="request-form">
+          <h3>Create New Blood Request</h3>
+          <select id="requestBloodType">
+            <option value="">Select Blood Type</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
           </select>
+          <input type="number" id="requestUnitsNeeded" placeholder="Units Needed">
+          <select id="requestUrgencyLevel">
+            <option value="">Select Urgency Level</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+          <input type="date" id="requestRequiredByDate">
+          <textarea id="requestNotes" placeholder="Request Notes"></textarea>
+          <button onclick="createBloodRequest()">Create Request</button>
         </div>
-        <div class="button-group">
-          <button type="submit" class="btn btn-primary primary-btn">Add User</button>
-          <button type="button" class="btn btn-outline secondary-btn" onclick="closeAddUserModal()">Cancel</button>
-        </div>
-      </form>
+        <table id="requestTable">
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Blood Type</th>
+              <th>Units Needed</th>
+              <th>Urgency</th>
+              <th>Location</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Activity Logs -->
+    <div class="section" id="logs">
+      <h2>Activity Logs</h2>
+      <div class="card">
+        <div id="activityLogs"></div>
+      </div>
+    </div>
+
+    <!-- System Analytics -->
+    <div class="section" id="stats">
+      <h2>System Analytics</h2>
+      <div class="card">
+        <canvas id="usageChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Reports -->
+    <div class="section" id="reports">
+      <h2>Reports</h2>
+      <div class="card">
+        <input type="date" id="startDate">
+        <input type="date" id="endDate">
+        <button onclick="generateReport()">Generate Report</button>
+        <div id="reportResult" style="margin-top: 20px;"></div>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="section" id="notifications">
+      <h2>Notifications</h2>
+      <div class="card">
+        <div id="notificationList"></div>
+      </div>
     </div>
   </div>
 
-  <!-- Toast Container for Notifications -->
-  <div class="toast-container" id="toast-container"></div>
-
-  <!-- Loading Spinner -->
-  <div id="loading-spinner" class="loading-spinner" style="display: none;">
-    <i class="fas fa-spinner fa-spin"></i>
-  </div>
-
-  <!-- Scripts -->
   <script>
-    // Check authentication on page load
-    function checkAuth() {
-      const token = localStorage.getItem('token');
-      const userType = localStorage.getItem('userType');
-      
-      if (!token || userType !== 'admin') {
-        // Clear any stale data
-        localStorage.removeItem('token');
-        localStorage.removeItem('userType');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('firstName');
-        localStorage.removeItem('lastName');
-        
-        window.location.replace('/');
-        return false;
+   // Helper function to handle API requests and token expiration
+   async function makeAuthenticatedRequest(url, options = {}) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Session expired. Please log in again.');
+      window.location.href = '/login';
+      throw new Error('No token found');
+    }
+
+    const defaultHeaders = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+
+    const finalOptions = {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...options.headers
       }
-      return true;
+    };
+
+    const res = await fetch(url, finalOptions);
+    if (res.status === 403 && (await res.clone().json()).error === 'Invalid token') {
+      alert('Session expired. Please log in again.');
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userType');
+      localStorage.removeItem('email');
+      window.location.href = '/login';
+      throw new Error('Invalid token');
+    }
+    if (!res.ok) {
+      let errorMessage = res.statusText;
+      try {
+        const errorData = await res.json();
+        errorMessage = errorData.error || res.statusText;
+      } catch (e) {
+        // Response is not JSON, use statusText
+      }
+      throw new Error(`Request failed: ${errorMessage}`);
+    }
+    return res.json();
+  }
+
+    // Fetch users
+    makeAuthenticatedRequest('/admin/users')
+      .then(data => {
+        const tbody = document.querySelector('#userTable tbody');
+        data.forEach(user => {
+          const row = `<tr>
+            <td>${user.id}</td>
+            <td>${user.name}</td>
+            <td>${user.role}</td>
+            <td>${user.status}</td>
+            <td>${user.last_login || 'N/A'}</td>
+            <td>${user.verified ? 'Yes' : 'No'}</td>
+            <td>
+              ${!user.verified ? `<button class="verify-btn" onclick="verifyUser(${user.id})"><i class="fas fa-check"></i> Verify</button>` : ''}
+              <button class="deactivate-btn" onclick="deactivateUser(${user.id})"><i class="fas fa-ban"></i> Deactivate</button>
+            </td>
+          </tr>`;
+          tbody.innerHTML += row;
+        });
+      })
+      .catch(err => {
+        console.error('Error fetching users:', err);
+        alert('Error fetching users: ' + err.message);
+      });
+
+    // Fetch admins
+    function fetchAdmins(searchTerm = '') {
+      const url = searchTerm ? `/api/admin/search?q=${encodeURIComponent(searchTerm)}` : '/api/admin';
+      makeAuthenticatedRequest(url)
+        .then(data => {
+          const tbody = document.querySelector('#adminTable tbody');
+          tbody.innerHTML = '';
+          data.forEach(admin => {
+            const row = `
+              <tr>
+                <td>${admin.admin_id}</td>
+                <td>${admin.first_name}</td>
+                <td>${admin.last_name}</td>
+                <td>${admin.email}</td>
+                <td>${admin.phone_number}</td>
+                <td>${admin.date_created}</td>
+                <td>${admin.is_active ? 'Yes' : 'No'}</td>
+                <td>
+                  <button class="edit-btn" onclick="editAdmin(${admin.admin_id})"><i class="fas fa-edit"></i> Edit</button>
+                  <button class="delete-btn" onclick="deleteAdmin(${admin.admin_id})"><i class="fas fa-trash"></i> Delete</button>
+                </td>
+              </tr>`;
+            tbody.innerHTML += row;
+          });
+        })
+        .catch(err => {
+          console.error('Error fetching admins:', err);
+          alert('Error fetching admins: ' + err.message);
+        });
     }
 
-    // Initial auth check
-    if (!checkAuth()) {
-      console.log('Authentication check failed, redirecting to login');
-    } else {
-      console.log('Authentication successful, loading dashboard');
-      // Set admin name in dashboard
-      const firstName = localStorage.getItem('firstName');
-      const lastName = localStorage.getItem('lastName');
-      if (firstName && lastName) {
-        document.getElementById('admin-name').textContent = `${firstName} ${lastName}`;
+    // Initial fetch of admins
+    fetchAdmins();
+
+    // Search admins
+    document.getElementById('searchAdmin').addEventListener('input', (e) => {
+      fetchAdmins(e.target.value);
+    });
+
+    function addAdmin() {
+      const adminData = {
+        first_name: document.getElementById('adminFirstName').value,
+        last_name: document.getElementById('adminLastName').value,
+        email: document.getElementById('adminEmail').value,
+        password: document.getElementById('adminPassword').value,
+        phone_number: document.getElementById('adminPhone').value,
+        userType: 'admin'
+      };
+    
+      if (!adminData.first_name || !adminData.last_name || !adminData.email || !adminData.password) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+          
+      makeAuthenticatedRequest('/api/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify(adminData)
+      })
+        .then(() => {
+          fetchAdmins();
+          // Clear form
+          document.getElementById('adminFirstName').value = '';
+          document.getElementById('adminLastName').value = '';
+          document.getElementById('adminEmail').value = '';
+          document.getElementById('adminPassword').value = '';
+          document.getElementById('adminPhone').value = '';
+        })
+        .catch(err => {
+          console.error('Error adding admin:', err);
+          alert('Error adding admin: ' + err.message);
+        });
+    }
+
+    function editAdmin(adminId) {
+      makeAuthenticatedRequest(`/api/admin/${adminId}`)
+        .then(admin => {
+          const newFirstName = prompt('Enter new first name:', admin.first_name);
+          const newLastName = prompt('Enter new last name:', admin.last_name);
+          const newEmail = prompt('Enter new email:', admin.email);
+          const newPhone = prompt('Enter new phone number:', admin.phone_number);
+          const newDateCreated = prompt('Enter new date created (YYYY-MM-DD):', admin.date_created);
+          const newIsActive = confirm('Is this admin active?');
+
+          // Client-side validation for required fields
+          if (!newFirstName || !newLastName || !newEmail) {
+            alert('First name, last name, and email are required.');
+            throw new Error('Validation failed: Required fields missing');
+          }
+
+          // Basic email format validation
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(newEmail)) {
+            alert('Please enter a valid email address.');
+            throw new Error('Validation failed: Invalid email format');
+          }
+
+          const updatedAdmin = {
+            first_name: newFirstName,
+            last_name: newLastName,
+            email: newEmail,
+            phone_number: newPhone || admin.phone_number,
+            date_created: newDateCreated || admin.date_created,
+            is_active: newIsActive
+          };
+
+          return makeAuthenticatedRequest(`/api/admin/${adminId}`, {
+            method: 'PUT',
+            body: JSON.stringify(updatedAdmin)
+          });
+        })
+        .then(() => {
+          alert('Admin updated successfully!');
+          fetchAdmins();
+        })
+        .catch(err => {
+          console.error('Error updating admin:', err);
+          alert('Error updating admin: ' + err.message);
+        });
+    }
+
+    function deleteAdmin(adminId) {
+      if (confirm('Are you sure you want to delete this admin?')) {
+        makeAuthenticatedRequest(`/api/admin/${adminId}`, {
+          method: 'DELETE'
+        })
+          .then(() => fetchAdmins())
+          .catch(err => {
+            console.error('Error deleting admin:', err);
+            alert('Error deleting admin: ' + err.message);
+          });
       }
     }
 
-    // Prevent going back after logout
-    window.history.forward();
-  </script>
-  <script src="admin.js"></script>
+    // Fetch blood requests
+    makeAuthenticatedRequest('/api/blood-requests')
+      .then(response => {
+        const tbody = document.querySelector('#requestTable tbody');
+        response.data.forEach(request => {
+          const row = `
+            <tr>
+              <td>${request.requestId}</td>
+              <td>${request.bloodType}</td>
+              <td>${request.unitsNeeded}</td>
+              <td>${request.urgency}</td>
+              <td>${request.location}</td>
+              <td>${request.status}</td>
+            </tr>`;
+          tbody.innerHTML += row;
+        });
+      })
+      .catch(err => {
+        console.error('Error fetching blood requests:', err);
+        alert('Error fetching blood requests: ' + err.message);
+      });
 
-  <!-- Logout Script -->
-  <script>
-    function handleLogout() {
-      // Clear all storage
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // Redirect to login page
-      window.location.replace('/');
+    function createBloodRequest() {
+      const requestData = {
+        blood_type: document.getElementById('requestBloodType').value,
+        units_needed: parseInt(document.getElementById('requestUnitsNeeded').value),
+        urgency_level: document.getElementById('requestUrgencyLevel').value,
+        required_by_date: document.getElementById('requestRequiredByDate').value,
+        request_notes: document.getElementById('requestNotes').value
+      };
+
+      if (!requestData.blood_type || !requestData.units_needed || !requestData.urgency_level || !requestData.required_by_date) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      makeAuthenticatedRequest('/api/blood-requests', {
+        method: 'POST',
+        body: JSON.stringify(requestData)
+      })
+        .then(() => {
+          // Refresh the request list
+          location.reload();
+        })
+        .catch(err => {
+          console.error('Error creating blood request:', err);
+          alert('Error creating blood request: ' + err.message);
+        });
+    }
+
+    // Fetch activity logs
+    makeAuthenticatedRequest('/admin/activity-logs')
+      .then(data => {
+        const logsDiv = document.getElementById('activityLogs');
+        data.forEach(log => {
+          logsDiv.innerHTML += `<p>${log.timestamp}: ${log.action}</p>`;
+        });
+      })
+      .catch(err => {
+        console.error('Error fetching activity logs:', err);
+        alert('Error fetching activity logs: ' + err.message);
+      });
+
+    // Fetch usage stats and render chart
+    makeAuthenticatedRequest('/admin/usage-stats')
+      .then(data => {
+        const ctx = document.getElementById('usageChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: ['Total Users', 'Total Requests', 'Total Donations'],
+            datasets: [{
+              data: [
+                data.totalUsers || 0,
+                data.totalRequests || 0,
+                data.totalDonations || 0
+              ],
+              backgroundColor: ['#4CAF50', '#2196F3', '#F44336']
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: 'bottom' }
+            }
+          }
+        });
+      })
+      .catch(err => {
+        console.error('Error fetching usage stats:', err);
+        alert('Error fetching usage stats: ' + err.message);
+      });
+
+    // Fetch notifications and update both sections
+    makeAuthenticatedRequest('/api/notifications')
+      .then(data => {
+        // Update notification count in the header
+        const notificationCount = document.getElementById('notificationCount');
+        const unreadCount = data.filter(n => !n.is_read).length;
+        notificationCount.textContent = unreadCount;
+
+        // Update notification list in the dropdown
+        const notificationListHeader = document.getElementById('notificationListHeader');
+        data.forEach(notification => {
+          const isReadClass = notification.is_read ? 'read' : '';
+          notificationListHeader.innerHTML += `
+            <p class="${isReadClass}" onclick="markNotificationAsRead(${notification.notification_id}, this)">
+              ${notification.created_at}: ${notification.notification_message}
+            </p>`;
+        });
+
+        // Update notification list in the Notifications section
+        const notificationList = document.getElementById('notificationList');
+        data.forEach(notification => {
+          const isReadClass = notification.is_read ? 'read' : '';
+          notificationList.innerHTML += `
+            <p class="${isReadClass}" onclick="markNotificationAsRead(${notification.notification_id}, this)">
+              ${notification.created_at}: ${notification.notification_message}
+            </p>`;
+        });
+      })
+      .catch(err => {
+        console.error('Error fetching notifications:', err);
+        alert('Error fetching notifications: ' + err.message);
+      });
+
+    function toggleNotifications() {
+      const dropdown = document.getElementById('notificationDropdown');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function markNotificationAsRead(notificationId, element) {
+      makeAuthenticatedRequest(`/api/notifications/${notificationId}/read`, {
+        method: 'POST'
+      })
+        .then(() => {
+          element.classList.add('read');
+          // Update notification count
+          const notificationCount = document.getElementById('notificationCount');
+          const currentCount = parseInt(notificationCount.textContent);
+          if (currentCount > 0) {
+            notificationCount.textContent = currentCount - 1;
+          }
+        })
+        .catch(err => {
+          console.error('Error marking notification as read:', err);
+          alert('Error marking notification as read: ' + err.message);
+        });
+    }
+
+    function verifyUser(id) {
+      makeAuthenticatedRequest(`/admin/users/${id}/verify`, {
+        method: 'POST'
+      })
+        .then(() => location.reload())
+        .catch(err => {
+          console.error('Error verifying user:', err);
+          alert('Error verifying user: ' + err.message);
+        });
+    }
+
+    function deactivateUser(id) {
+      makeAuthenticatedRequest(`/admin/users/${id}/deactivate`, {
+        method: 'POST'
+      })
+        .then(() => location.reload())
+        .catch(err => {
+          console.error('Error deactivating user:', err);
+          alert('Error deactivating user: ' + err.message);
+        });
+    }
+
+    function generateReport() {
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      if (!startDate || !endDate) {
+        alert('Please select both start and end dates.');
+        return;
+      }
+
+      makeAuthenticatedRequest(`/admin/generate-report?startDate=${startDate}&endDate=${endDate}`)
+        .then(data => {
+          const reportDiv = document.getElementById('reportResult');
+          if (data.length === 0) {
+            reportDiv.innerHTML = '<p>No donations found for the selected date range.</p>';
+            return;
+          }
+          let table = `
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Donor ID</th>
+                  <th>Units Donated</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>`;
+          data.forEach(donation => {
+            table += `
+              <tr>
+                <td>${donation.donation_id}</td>
+                <td>${donation.donor_id}</td>
+                <td>${donation.units_donated}</td>
+                <td>${donation.date}</td>
+              </tr>`;
+          });
+          table += '</tbody></table>';
+          reportDiv.innerHTML = table;
+        })
+        .catch(err => {
+          console.error('Error generating report:', err);
+          alert('Error generating report: ' + err.message);
+        });
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     }
   </script>
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'929a941fff9253bb',t:'MTc0MzUzNjY0MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
