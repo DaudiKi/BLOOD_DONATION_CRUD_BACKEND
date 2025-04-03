@@ -253,6 +253,69 @@
     .blood-requests .reject-btn:hover {
       background: #c82333;
     }
+
+    /* Donation History Table Styles */
+    .donation-history {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 24px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .donation-history h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .donation-history table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 15px;
+    }
+
+    .donation-history th {
+      background: #f8f9fa;
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #e9ecef;
+      font-size: 0.95rem;
+    }
+
+    .donation-history td {
+      padding: 16px;
+      border-bottom: 1px solid #e9ecef;
+      color: #495057;
+      font-size: 0.95rem;
+    }
+
+    .donation-history tr:last-child td {
+      border-bottom: none;
+    }
+
+    .donation-history tbody tr:hover {
+      background-color: #f8f9fa;
+      transition: background-color 0.2s ease;
+    }
+
+    .donation-history .no-data {
+      text-align: center;
+      color: #6c757d;
+      padding: 24px;
+      font-style: italic;
+    }
+
+    .donation-history .error-message {
+      text-align: center;
+      color: #dc3545;
+      padding: 24px;
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
@@ -391,12 +454,9 @@
           <table id="historyTable">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Date</th>
-                <th>Patient Name</th>
+                <th>Donor ID</th>
+                <th>Last Donation Date</th>
                 <th>Blood Type</th>
-                <th>Location</th>
-                <th>Status</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -948,41 +1008,37 @@
 
     // Fetch donation history
     async function fetchDonationHistory() {
-      const token = localStorage.getItem('token');
+      const donorData = await fetchDonorData();
+      
+      if (!donorData) {
+        console.error('No donor data available');
+        return;
+      }
+
       try {
-        const response = await fetch(`${API_BASE_URL}/donations/history`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch donation history: ${response.status}`);
-        }
-
-        const history = await response.json();
         const tbody = document.querySelector('#historyTable tbody');
         tbody.innerHTML = '';
 
-        if (history.length > 0) {
-          history.forEach(donation => {
-            const row = `<tr>
-              <td>${donation.donation_id || ''}</td>
-              <td>${donation.donation_date ? new Date(donation.donation_date).toLocaleDateString() : ''}</td>
-              <td>${donation.patient_name || ''}</td>
-              <td>${donation.blood_type || ''}</td>
-              <td>${donation.location || ''}</td>
-              <td>${donation.status || ''}</td>
-            </tr>`;
-            tbody.innerHTML += row;
-          });
-        } else {
-          tbody.innerHTML = '<tr><td colspan="6">No donation history available</td></tr>';
-        }
+        // Format the last donation date
+        const lastDonationDate = donorData.last_donation_date ? 
+          new Date(donorData.last_donation_date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          }) : 'Never';
+
+        // Create a single row with the donor's information
+        const row = `<tr>
+          <td>${donorData.donor_id || 'N/A'}</td>
+          <td>${lastDonationDate}</td>
+          <td>${donorData.blood_type || 'N/A'}</td>
+        </tr>`;
+        tbody.innerHTML = row;
+
       } catch (error) {
-        console.error('Error fetching donation history:', error);
-        document.querySelector('#historyTable tbody').innerHTML = `<tr><td colspan="6">Error loading history: ${error.message}</td></tr>`;
+        console.error('Error displaying donation history:', error);
+        document.querySelector('#historyTable tbody').innerHTML = 
+          `<tr><td colspan="3" class="error-message">Error loading history: ${error.message}</td></tr>`;
       }
     }
 
