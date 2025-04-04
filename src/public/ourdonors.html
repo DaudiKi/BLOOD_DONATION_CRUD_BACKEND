@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodLink</title>
+    <link rel="icon" href="logo2.png">
+    <link rel="stylesheet" href="styles1.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        .cont {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .cont h1 {
+            color: #e74c3c;
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .intro p {
+            margin: 10px 0;
+            color: #666;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .cont2 {
+            width: 100%;
+            padding: 40px 20px;
+            text-align: center;
+            background: #f9f9f9;
+        }
+
+        .cont2 h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+        }
+
+        .cont2 h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 3px;
+            background: linear-gradient(to right, #e74c3c, #f39c12);
+            border-radius: 2px;
+        }
+
+        .donor-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            flex-wrap: wrap;
+        }
+
+        .donor-circle {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .donor-circle:hover {
+            transform: scale(1.1);
+        }
+
+        .donor-row:hover .donor-circle:not(:hover) {
+            opacity: 0.95;
+        }
+
+        .donor-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #e74c3c;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+            display: block;
+        }
+
+        .donor-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(231, 76, 60, 0.8);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .donor-circle:hover .donor-overlay {
+            opacity: 1;
+        }
+
+        .donor-overlay h3 {
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .donor-overlay p {
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        /* Added Animation Styles */
+        .hidden {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="home.html" class="logo">
+                <span class="icon">
+                    <img src="logo2.png">
+                </span>
+                BloodLink
+            </a>
+            <div class="nav-links">
+                <a href="home.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="ourdonors.html">Our Donors</a>
+                <a href="faq.html">FAQ</a>
+                <a href="index.html">Login</a>
+                <a href="index.html">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="cont hidden">
+        <h1>OUR DONOR STORIES</h1>
+        <div class="intro hidden">
+            <p>Our donors are the heart of our mission. Every contribution they make helps save lives, support families, and fund critical research. We’re proud to share their stories in the hope that they’ll inspire others to join our cause and make a difference.</p>
+            <p>We like to honor them wherever we can and tell their stories to encourage others to follow their example by becoming donors and regularly contributing.</p>
+        </div>
+    </div>
+
+    <div class="cont2 hidden">
+        <h2>MEET SOME OF OUR INSPIRING DONORS:</h2>
+        <div class="donor-row hidden">
+            <div class="donor-circle hidden">
+                <img src="donor1.jpg" alt="Donor 1" class="donor-image">
+                <div class="donor-overlay">
+                    <h3>Daudi Makumbi</h3>
+                    <p> Daudi, A consistent donor who has participated in multiple emergency donation drives, ensuring critical supplies reach those in urgent need.</p>
+                </div>
+            </div>
+            <div class="donor-circle hidden">
+                <img src="donor2.jpg" alt="Donor 2" class="donor-image">
+                <div class="donor-overlay">
+                    <h3>Aman Simwogerere</h3>
+                    <p>Aman, A passionate about health and wellness, Aman has organized awareness campaigns to encourage more students to donate blood.</p>
+                </div>
+            </div>
+            <div class="donor-circle hidden">
+                <img src="donor3.jpg" alt="Donor 3" class="donor-image">
+                <div class="donor-overlay">
+                    <h3>Jayshil Nakeshri</h3>
+                    <p>Jayshil, Known for his initiative in rallying students to donate during critical shortages, helping boost participation rates.</p>
+                </div>
+            </div>
+            <div class="donor-circle hidden">
+                <img src="donor4.jpg" alt="Donor 4" class="donor-image">
+                <div class="donor-overlay">
+                    <h3>Warren Maina</h3>
+                    <p>Wareen, A volunteer and donor who has actively participated in logistics and coordination of donation events at Strathmore University.</p>
+                </div>
+            </div>
+            <div class="donor-circle hidden">
+                <img src="donor5.jpg" alt="Donor 4" class="donor-image">
+                <div class="donor-overlay">
+                    <h3>Soniah Makhapila</h3>
+                    <p>Soniah, A strong voice in blood donation awareness, spreading the importance of donations through social media campaigns and events.</p>
+                </div>
+            </div>
+            <div class="donor-circle hidden">
+                <img src="donor6.jpg" alt="Donor 4" class="donor-image">
+                <div class="donor-overlay">
+                    <h3>Fatuma Mohammed</h3>
+                    <p>Fatuma, Known for contributing to rare blood type donations, making an invaluable impact on patients requiring special blood matches.</p>
+                </div>
+            </div>
+            <div class="donor-circle hidden">
+                <img src="donor7.jpg" alt="Donor 4" class="donor-image">
+                <div class="donor-overlay">
+                    <h3>Aditya More</h3>
+                    <p>Aditya, A regular donor and advocate for emergency blood donation, ensuring rapid response during urgent cases.</p>
+                </div>
+            </div>
+            <div class="donor-circle hidden">
+                <img src="donor8.jpg" alt="Donor 4" class="donor-image">
+                <div class="donor-overlay">
+                    <h3>Aisha Dahir</h3>
+                    <p>Aisha, A dedicated first-time donor who has pledged to continue supporting the cause by advocating for blood donation among her peers.</p>
+                </div>
+            </div>
+            <div class="donor-circle hidden">
+                <img src="donor10.jpg" alt="Donor 4" class="donor-image">
+                <div class="donor-overlay">
+                    <h3>Nicholas Makana</h3>
+                    <p>Nicholas, A committed donor who has gone the extra mile in assisting hospitals and blood banks by connecting donors with patients in need</p>
+                </div>
+            </div>
+            <div class="donor-circle hidden">
+                <img src="donor11.jpg" alt="Donor 4" class="donor-image">
+                <div class="donor-overlay">
+                    <h3>Roy Kimani</h3>
+                    <p>Roy, Known for playing a key role in donor recruitment, helping expand the network of volunteers willing to donate blood in times of crisis.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer hidden">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p><strong>Phone:</strong> +254795280808</p>
+               <p>Email 
+    <a href="https://mail.google.com/mail/?view=cm&to=bloodlink24@gmail.com&subject=BloodLink%20Website%20Inquiry&body=Hello%20BloodLink%20Team%2C%0D%0AI%20am%20interested%20in%20learning%20more%20about%20your%20services." target="_blank">
+      bloodlink24@gmail.com
+    </a>
+  </p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="aboutus.html">About Us</a></li>
+                    <li><a href="ourdonors.html">Our Donors</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Latest Updates</h3>
+                <ul>
+                    <li><em>April 4, 2025:</em> Successfully launched BloodLink.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 BloodLink. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'926ecd20e9e4b030',t:'MTc0MzA3NzYwMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
+
+        // Added Scroll Animation Trigger
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.hidden').forEach(element => {
+            observer.observe(element);
+        });
+    </script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script>
+        (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'92ae6a860f12bfac',t:'MTc0Mzc0NDY1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
+    </script>
+</body>
+</html>

@@ -1,11 +1,38 @@
-// controllers/clientController.js
+/**
+ * Client/Admin Controller Module
+ * 
+ * This module handles all admin-related operations including:
+ * - Admin CRUD operations
+ * - Blood request management
+ * - Notification handling
+ * - Input validation
+ * 
+ * @module clientController
+ */
+
 import * as clientService from '../services/clientServices.js';
 import * as requestService from '../services/requestService.js';
 import * as notificationService from '../services/notificationService.js';
 import * as donorService from '../services/donorServices.js';
 import Joi from 'joi';
 
-// Validation schema for creating an admin
+/**
+ * Validation Schemas
+ * Define Joi validation schemas for admin operations
+ */
+
+/**
+ * Admin Creation Validation Schema
+ * Validates required fields for creating a new admin user
+ * 
+ * @constant {Object} createAdminSchema
+ * @property {string} first_name - Required, admin's first name
+ * @property {string} last_name - Required, admin's last name
+ * @property {string} email - Required, must be valid email format
+ * @property {string} password - Required, minimum 8 characters
+ * @property {string} phone_number - Required, must be valid international format
+ * @property {string} role - Required, must be 'admin'
+ */
 const createAdminSchema = Joi.object({
   first_name: Joi.string().trim().required().messages({
     'string.empty': 'First name is required',
@@ -37,7 +64,17 @@ const createAdminSchema = Joi.object({
   })
 });
 
-// Validation schema for updating an admin
+/**
+ * Admin Update Validation Schema
+ * Validates required fields for updating an existing admin user
+ * 
+ * @constant {Object} updateAdminSchema
+ * @property {string} first_name - Required, admin's first name
+ * @property {string} last_name - Required, admin's last name
+ * @property {string} email - Required, must be valid email format
+ * @property {string} phone_number - Required, must be valid international format
+ * @property {boolean} [is_active] - Optional, admin's active status
+ */
 const updateAdminSchema = Joi.object({
   first_name: Joi.string().trim().required().messages({
     'string.empty': 'First name is required',
@@ -63,7 +100,18 @@ const updateAdminSchema = Joi.object({
   })
 });
 
-// Create a new admin
+/**
+ * Create New Admin
+ * Creates a new admin user with the provided details
+ * 
+ * @async
+ * @function createAdmin
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - Request body containing admin details
+ * @param {Object} res - Express response object
+ * @returns {Promise<Object>} Created admin details
+ * @throws {Error} If validation fails or database error occurs
+ */
 export const createAdmin = async (req, res) => {
   try {
     // Validate the request body
@@ -109,7 +157,17 @@ export const createAdmin = async (req, res) => {
   }
 };
 
-// Fetch all admins
+/**
+ * Get All Admins
+ * Retrieves a list of all admin users in the system
+ * 
+ * @async
+ * @function getAdmins
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Promise<Array>} List of admin users
+ * @throws {Error} If database error occurs
+ */
 export const getAdmins = async (req, res) => {
   try {
     const admins = await clientService.getAllAdmins();
@@ -120,7 +178,18 @@ export const getAdmins = async (req, res) => {
   }
 };
 
-// Fetch a single admin by ID
+/**
+ * Get Admin by ID
+ * Retrieves details of a specific admin user
+ * 
+ * @async
+ * @function getAdminById
+ * @param {Object} req - Express request object
+ * @param {string} req.params.admin_id - Admin ID to retrieve
+ * @param {Object} res - Express response object
+ * @returns {Promise<Object>} Admin user details
+ * @throws {Error} If admin not found or database error occurs
+ */
 export const getAdminById = async (req, res) => {
   try {
     const { admin_id } = req.params;
@@ -140,7 +209,18 @@ export const getAdminById = async (req, res) => {
   }
 };
 
-// Fetch a single admin by email
+/**
+ * Get Admin by Email
+ * Retrieves admin details using their email address
+ * 
+ * @async
+ * @function getAdminByEmail
+ * @param {Object} req - Express request object
+ * @param {string} req.query.email - Email address to search for
+ * @param {Object} res - Express response object
+ * @returns {Promise<Object>} Admin user details
+ * @throws {Error} If admin not found or database error occurs
+ */
 export const getAdminByEmail = async (req, res) => {
   try {
     const { email } = req.query;
@@ -158,7 +238,19 @@ export const getAdminByEmail = async (req, res) => {
   }
 };
 
-// Update an admin
+/**
+ * Update Admin
+ * Updates details of an existing admin user
+ * 
+ * @async
+ * @function updateAdmin
+ * @param {Object} req - Express request object
+ * @param {string} req.params.admin_id - Admin ID to update
+ * @param {Object} req.body - Updated admin details
+ * @param {Object} res - Express response object
+ * @returns {Promise<Object>} Updated admin details
+ * @throws {Error} If validation fails or database error occurs
+ */
 export const updateAdmin = async (req, res) => {
   try {
     // Validate the request body
@@ -205,7 +297,18 @@ export const updateAdmin = async (req, res) => {
   }
 };
 
-// Delete an admin
+/**
+ * Delete Admin
+ * Removes an admin user from the system
+ * 
+ * @async
+ * @function deleteAdmin
+ * @param {Object} req - Express request object
+ * @param {string} req.params.admin_id - Admin ID to delete
+ * @param {Object} res - Express response object
+ * @returns {Promise<Object>} Deletion confirmation
+ * @throws {Error} If admin not found or database error occurs
+ */
 export const deleteAdmin = async (req, res) => {
   try {
     const { admin_id } = req.params;
@@ -226,7 +329,18 @@ export const deleteAdmin = async (req, res) => {
   }
 };
 
-// Search admins
+/**
+ * Search Admins
+ * Searches for admin users based on provided criteria
+ * 
+ * @async
+ * @function searchAdmins
+ * @param {Object} req - Express request object
+ * @param {Object} req.query - Search criteria
+ * @param {Object} res - Express response object
+ * @returns {Promise<Array>} List of matching admin users
+ * @throws {Error} If database error occurs
+ */
 export const searchAdmins = async (req, res) => {
   try {
     const { q } = req.query;
@@ -244,7 +358,17 @@ export const searchAdmins = async (req, res) => {
   }
 };
 
-// Fetch all blood requests (for monitoring)
+/**
+ * Get Blood Requests
+ * Retrieves all blood requests in the system
+ * 
+ * @async
+ * @function getBloodRequests
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Promise<Array>} List of blood requests
+ * @throws {Error} If database error occurs
+ */
 export const getBloodRequests = async (req, res) => {
   try {
     let bloodRequests;
@@ -288,7 +412,17 @@ export const getBloodRequests = async (req, res) => {
   }
 };
 
-// Fetch notifications for the admin
+/**
+ * Get Admin Notifications
+ * Retrieves notifications for admin users
+ * 
+ * @async
+ * @function getNotifications
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Promise<Array>} List of notifications
+ * @throws {Error} If database error occurs
+ */
 export const getNotifications = async (req, res) => {
   try {
     if (!req.user) {
@@ -312,7 +446,18 @@ export const getNotifications = async (req, res) => {
   }
 };
 
-// Mark a notification as read
+/**
+ * Mark Notification as Read
+ * Updates a notification's status to read
+ * 
+ * @async
+ * @function markNotificationAsRead
+ * @param {Object} req - Express request object
+ * @param {string} req.params.notification_id - Notification ID to mark as read
+ * @param {Object} res - Express response object
+ * @returns {Promise<Object>} Updated notification status
+ * @throws {Error} If notification not found or database error occurs
+ */
 export const markNotificationAsRead = async (req, res) => {
   try {
     const { id } = req.params;

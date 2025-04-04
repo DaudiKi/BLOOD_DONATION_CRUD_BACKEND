@@ -1,0 +1,1224 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap');
+
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    position: relative;
+}
+
+body {
+    background: #ffffff;
+    color: #333;
+    line-height: 1.6;
+    /* Subtle premium texture */
+    background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+}
+
+/* Video Background */
+.video-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    min-width: 100vw;
+    max-height: 100vh;
+    object-fit: cover;
+    z-index: -1;
+    margin-bottom: 0;
+    /* Add a slight tint for premium feel without red */
+    filter: brightness(1.1) contrast(1.05);
+}
+
+/* Navigation Bar */
+nav {
+    background: rgba(255, 255, 255, 0.95); /* Glass-like white */
+    padding: 15px 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(8px); /* Subtle glass effect */
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border: 1px solid rgba(0, 0, 0, 0.05); /* Soft border for premium look */
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between; /* Maintains space between logo and links */
+    align-items: center;
+    padding: 0 20px;
+    gap: 60px; /* Adds 40px space between nav-container and nav-links */
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    color: #EE4540; /* Bright red for premium brand color */
+    font-size: 1.8rem;
+    text-decoration: none;
+    font-family: 'Merriweather', serif;
+    font-weight: 700;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.logo .icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    position: relative;
+}
+
+.logo .icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 5px #C72C41); /* Deep coral red glow */
+    transition: filter 0.3s ease;
+}
+
+.logo:hover {
+    color: #C72C41; /* Deep coral red on hover */
+}
+
+.logo:hover .icon img {
+    filter: drop-shadow(0 0 10px #C72C41);
+}
+
+.nav-links {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.nav-links a {
+    color: #EE4540;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-family: 'Merriweather', serif;
+    padding: 8px 15px;
+    border-radius: 8px;
+    transition: color 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-links a:hover {
+    color: #C72C41; /* Deep coral red on hover */
+}
+
+.nav-links a:hover::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(238, 69, 64, 0.2); /* Semi-transparent ripple */
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: ripple 0.6s ease-out forwards;
+    z-index: -1;
+}
+
+@keyframes ripple {
+    to {
+        width: 200px;
+        height: 200px;
+        opacity: 0;
+    }
+}
+
+/* Login and Register as Buttons */
+.nav-links a:last-child,
+.nav-links a:nth-last-child(2) {
+    background: linear-gradient(45deg, #EE4540, #C72C41); /* Bright red to deep coral */
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    color: #ffffff; /* White text for contrast */
+    gap: 10px;
+}
+
+.nav-links a:last-child:hover,
+.nav-links a:nth-last-child(2):hover {
+    background: linear-gradient(45deg, #D73A36, #A62538); /* Slightly darker shades */
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+.nav-links a:last-child:active,
+.nav-links a:nth-last-child(2):active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Hero Section */
+.hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+/* Overlay for better text readability */
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3); /* Neutral overlay */
+    z-index: 2;
+}
+
+.hero-content {
+    text-align: center;
+    color: #fff;
+    z-index: 3;
+}
+
+.hero-content h1 {
+    font-size: 4.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+
+    .nav-links a {
+        padding: 6px 12px;
+    }
+
+    .nav-links a:last-child,
+    .nav-links a:nth-last-child(2) {
+        padding: 8px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+    }
+
+    .logo .icon {
+        width: 50px;
+        height: 50px;
+    }
+
+    .nav-links a {
+        font-size: 1rem;
+    }
+}
+
+/* Donation Section Styles */
+.donation-section {
+    position: relative;
+    padding: 50px 20px;
+    background: white;
+    z-index: 1;
+}
+
+.hero, .donation-section {
+    margin-top: -40px;
+}
+
+.donation-wrapper {
+    background-color: #ffe5d9;
+    padding: 20px;
+    border-radius: 35px;
+    width: 90%;
+    margin: 0 auto;
+    box-shadow: 0px 16px 40px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.donation-section {
+    background-color: white;
+}
+
+.donation-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.donation-info {
+    flex: 1;
+    min-width: 300px;
+    text-align: center;
+}
+
+.donation-info h2 {
+    font-size: 2.6rem;
+    font-weight: 600;
+    color: #b30000;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: 20px;
+    display: inline-block;
+    transition: transform 0.3s ease-in-out, letter-spacing 0.3s ease-in-out;
+}
+
+/* Smooth Hover Effect */
+.donation-info h2:hover {
+    transform: scale(1.05);
+    letter-spacing: 3px;
+    color: red;
+}
+
+.donation-impact {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.donation-impact img {
+    width: 900px;
+    height: auto;
+    margin-bottom: 5px;
+    border-radius: 20px;
+}
+
+.donation-benefit p {
+    color: indianred;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.donation-message p {
+    font-size: 40px;
+    font-weight: 700;
+    color: black;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.donation-message p strong {
+    color: red;
+    font-size: 50px;
+    font-weight: 700;
+}
+
+.donate-btn {
+    background: linear-gradient(135deg, #ff3d00, #d00000);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 30px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+/* Hover Effect */
+.donate-btn:hover {
+    background: linear-gradient(135deg, #ff1a1a, #b30000);
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.6);
+}
+
+/* Button Click Effect */
+.donate-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 10px rgba(255, 0, 0, 0.4);
+}
+
+.blood-type-chart {
+    width: 90%;
+    max-width: 650px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+.blood-type-chart h3 {
+    font-size: 2rem;
+    color: #d50000;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.blood-type-chart table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.blood-type-chart td {
+    padding: 14px;
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(255, 0, 0, 0.3);
+}
+
+.blood-type-chart th {
+    background: linear-gradient(135deg, #ff3d00, #b30000);
+    color: white;
+    padding: 14px;
+    font-size: 16px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* Alternating Row Colors */
+.blood-type-chart tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Hover Effect */
+.blood-type-chart tr:hover {
+    background: rgba(255, 0, 0, 0.1);
+    transform: scale(1.01);
+    transition: 0.3s ease-in-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .blood-type-chart {
+        width: 100%;
+    }
+
+    .blood-type-chart h3 {
+        font-size: 1.8rem;
+    }
+
+    .blood-type-chart th,
+    .blood-type-chart td {
+        padding: 10px;
+        font-size: 14px;
+    }
+}
+
+.donation-types {
+    max-width: 1200px;
+    margin: 50px auto 0;
+    color: #fff;
+    text-align: center;
+}
+
+.donation-types h2 {
+    font-size: 2.5rem;
+    color: #e63946;
+    margin-bottom: 20px;
+}
+
+.donation-types > p {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin-bottom: 30px;
+}
+
+.donation-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.detail-box {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 5px;
+    flex: 1;
+    min-width: 250px;
+    max-width: 300px;
+    text-align: left;
+}
+
+.detail-box h3,
+.detail-box h4 {
+    color: #e63946;
+    margin-bottom: 10px;
+}
+
+.detail-box h3 {
+    font-size: 1.5rem;
+}
+
+.detail-box h4 {
+    font-size: 1.2rem;
+}
+
+.detail-box p {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .donation-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .donation-info h2,
+    .donation-types h2 {
+        font-size: 2rem;
+    }
+
+    .donation-impact p {
+        font-size: 1.2rem;
+    }
+
+    .blood-type-chart h3 {
+        font-size: 1.5rem;
+    }
+
+    .detail-box h3 {
+        font-size: 1.3rem;
+    }
+
+    .detail-box h4 {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .donation-info h2,
+    .donation-types h2 {
+        font-size: 1.8rem;
+    }
+
+    .donation-impact img {
+        width: 80px;
+    }
+
+    .donation-impact p {
+        font-size: 1rem;
+    }
+
+    .blood-type-chart h3 {
+        font-size: 1.3rem;
+    }
+
+    .detail-box {
+        min-width: 100%;
+    }
+}
+
+.blood-section-wrapper {
+    width: 90%;
+    margin: 60px auto;
+    background: linear-gradient(135deg, #8B0000 0%, #DC143C 100%);
+    padding: 40px;
+    border-radius: 35px;
+    box-shadow: 0px 16px 40px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.blood-section-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(167, 0, 0, 0.1) 0%, transparent 70%);
+    animation: pulse 15s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.3;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+}
+
+.blood-header {
+    text-align: center;
+    font-size: 32px;
+    color: #FFF8DC;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.blood-intro-text {
+    text-align: center;
+    font-size: 18px;
+    color: #e0e0e0;
+    margin-bottom: 40px;
+    line-height: 1.6;
+    font-style: italic;
+}
+
+/* Tab Container */
+.blood-tab-container {
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    z-index: 1;
+    gap: 40px;
+}
+
+/* Hide the radio inputs */
+input[name="blood-tabs"] {
+    display: none;
+}
+
+/* Tab Menu (Left Side) */
+.blood-tab-menu {
+    flex: 1;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.blood-tab-item {
+    position: relative;
+}
+
+.blood-tab-title {
+    padding: 15px 25px;
+    font-size: 18px;
+    background: linear-gradient(45deg, #530332);
+    color: #fff;
+    cursor: pointer;
+    text-align: left;
+    border-radius: 25px;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
+    display: block;
+}
+
+.blood-tab-title::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 77, 77, 0.3), transparent);
+    transition: all 0.6s ease;
+}
+
+.blood-tab-title:hover::after {
+    left: 100%;
+}
+
+.blood-tab-title:hover {
+    background: linear-gradient(45deg, #2E122D, #530332);
+    transform: translateX(5px);
+}
+
+/* Style the label when its associated input is checked */
+#blood-tab1:checked ~ .blood-tab-menu .blood-tab-item label[for="blood-tab1"],
+#blood-tab2:checked ~ .blood-tab-menu .blood-tab-item label[for="blood-tab2"],
+#blood-tab3:checked ~ .blood-tab-menu .blood-tab-item label[for="blood-tab3"] {
+    background: linear-gradient(45deg, #a70000, #ff4d4d);
+    color: #fff;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(167, 0, 0, 0.5);
+    transform: scale(1.05);
+}
+
+/* Tab Content (Right Side) */
+.blood-tab-content {
+    display: none;
+    flex: 2;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 30px;
+    border-radius: 15px;
+    color: #e0e0e0;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transform: scale(0.9);
+    transform-origin: center;
+    transition: all 0.5s ease;
+}
+
+.blood-tab-content h3 {
+    color: #530332;
+    font-size: 22px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #2E122D;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+.blood-tab-content p {
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+input#blood-tab1:checked ~ #blood-content1,
+input#blood-tab2:checked ~ #blood-content2,
+input#blood-tab3:checked ~ #blood-content3 {
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+    animation: magnifyIn 0.5s ease forwards;
+}
+
+@keyframes magnifyIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9) rotate(2deg);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.05) rotate(-1deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .blood-section-wrapper {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .blood-header {
+        font-size: 26px;
+    }
+
+    .blood-tab-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .blood-tab-menu {
+        max-width: 100%;
+    }
+
+    .blood-tab-title {
+        font-size: 16px;
+        padding: 12px 20px;
+    }
+
+    .blood-tab-content {
+        font-size: 14px;
+        padding: 20px;
+    }
+}
+
+/* FAQ Section */
+.faq-section {
+    padding: 50px 20px;
+    background: white;
+    z-index: 1;
+    margin-top: 60px; /* Ensure spacing from the previous section */
+}
+
+.faq-wrapper {
+    background-color: #ffe5d9;
+    padding: 20px;
+    border-radius: 35px;
+    width: 90%;
+    margin: 0 auto;
+    box-shadow: 0px 16px 40px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.faq-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.faq-info {
+    flex: 1;
+    min-width: 300px;
+    text-align: center;
+}
+
+.faq-info h2 {
+    font-size: 2.6rem;
+    font-weight: 600;
+    color: #b30000;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: 20px;
+    display: inline-block;
+    transition: transform 0.3s ease-in-out, letter-spacing 0.3s ease-in-out;
+}
+
+.faq-info h2:hover {
+    transform: scale(1.05);
+    letter-spacing: 3px;
+    color: red;
+}
+
+.faq-items {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.faq-item {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: left;
+}
+
+.faq-item h3 {
+    font-size: 1.8rem;
+    color: #EE4540;
+    margin-bottom: 10px;
+}
+
+.faq-item p {
+    font-size: 1.2rem;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Responsive Design for FAQ */
+@media (max-width: 768px) {
+    .faq-info h2 {
+        font-size: 2rem;
+    }
+
+    .faq-item h3 {
+        font-size: 1.5rem;
+    }
+
+    .faq-item p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .faq-info h2 {
+        font-size: 1.8rem;
+    }
+
+    .faq-item h3 {
+        font-size: 1.3rem;
+    }
+
+    .faq-item p {
+        font-size: 0.9rem;
+    }
+}
+
+/* Footer */
+.footer {
+    background: #2E122D; /* Dark purple background to match the premium theme */
+    color: #fff;
+    padding: 40px 20px;
+    margin-top: 60px;
+    border-top: 2px solid #EE4540; /* Red border for branding */
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.footer-section {
+    flex: 1;
+    min-width: 200px;
+}
+
+.footer-section h3 {
+    font-size: 1.8rem;
+    color: #EE4540;
+    margin-bottom: 15px;
+    font-family: 'Merriweather', serif;
+}
+
+.footer-section p,
+.footer-section ul {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin-bottom: 10px;
+}
+
+.footer-section ul li a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-section ul li a:hover {
+    color: #C72C41; /* Deep coral red on hover */
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #e0e0e0;
+}
+
+/* Responsive Design for Footer */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-section h3 {
+        font-size: 1.5rem;
+    }
+
+    .footer-section p,
+    .footer-section ul,
+    .social-links a {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-section h3 {
+        font-size: 1.3rem;
+    }
+
+    .footer-section p,
+    .footer-section ul,
+    .social-links a {
+        font-size: 0.9rem;
+    }
+}
+
+
+/* FAQ Header Section */
+.faq-header {
+    position: relative;
+    height: 30vh; /* Matches the proportions in your image */
+    background: url('faq.jpg') no-repeat center center/cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+/* Overlay for better text readability */
+.faq-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* Darker overlay to ensure text readability */
+    z-index: 2;
+}
+
+.faq-header-content {
+    text-align: center;
+    color: #fff;
+    z-index: 3;
+}
+
+.faq-header-content h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* FAQ Content Section */
+.faq-content {
+    padding: 50px 20px;
+    background: white;
+    z-index: 1;
+    margin-top: -50px; /* Overlap with header to match "About BloodLink" style */
+}
+
+.faq-content-wrapper {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 35px;
+    width: 90%;
+    margin: 0 auto;
+    box-shadow: 0px 16px 40px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.faq-content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.faq-info {
+    flex: 1;
+    min-width: 300px;
+    text-align: center;
+}
+
+/* FAQ Search Bar */
+.faq-search {
+    margin-bottom: 30px;
+}
+
+.faq-search input {
+    padding: 10px 20px;
+    width: 100%;
+    max-width: 500px;
+    border: 2px solid #EE4540;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.faq-search input:focus {
+    border-color: #C72C41;
+}
+
+/* FAQ Categories */
+.faq-category {
+    margin-bottom: 30px;
+}
+
+.faq-category h3 {
+    font-size: 2rem;
+    color: #EE4540;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #2E122D;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+/* FAQ Items */
+.faq-item {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: left;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.faq-item input[type="checkbox"] {
+    display: none;
+}
+
+.faq-question {
+    font-size: 1.8rem;
+    color: #EE4540;
+    margin-bottom: 10px;
+    cursor: pointer;
+    display: block;
+    position: relative;
+    padding-right: 30px;
+}
+
+.faq-question::after {
+    content: '+';
+    position: absolute;
+    right: 10px;
+    font-size: 1.5rem;
+    color: #EE4540;
+    transition: transform 0.3s ease;
+}
+
+.faq-item input[type="checkbox"]:checked + .faq-question::after {
+    content: '−';
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.faq-answer p {
+    font-size: 1.2rem;
+    color: #333;
+    line-height: 1.6;
+}
+
+.faq-contact {
+    margin-top: 30px;
+    font-size: 1.1rem;
+}
+
+.faq-contact a {
+    color: #EE4540;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.faq-contact a:hover {
+    color: #C72C41;
+}
+
+/* FAQ More Button */
+.faq-more-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff3d00, #d00000);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 30px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+    margin-top: 20px;
+    text-align: center;
+}
+
+.faq-more-btn:hover {
+    background: linear-gradient(135deg, #ff1a1a, #b30000);
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.6);
+}
+
+.faq-more-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 10px rgba(255, 0, 0, 0.4);
+}
+
+/* Responsive Design for FAQ More Button */
+@media (max-width: 768px) {
+    .faq-more-btn {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .faq-more-btn {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+    }
+}
+
+/* Responsive Design for FAQ */
+@media (max-width: 768px) {
+    .faq-header-content h1 {
+        font-size: 2.5rem;
+    }
+
+    .faq-category h3 {
+        font-size: 1.8rem;
+    }
+
+    .faq-question {
+        font-size: 1.5rem;
+    }
+
+    .faq-answer p {
+        font-size: 1rem;
+    }
+
+    .faq-search input {
+        font-size: 1rem;
+        padding: 8px 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .faq-header-content h1 {
+        font-size: 2rem;
+    }
+
+    .faq-category h3 {
+        font-size: 1.5rem;
+    }
+
+    .faq-question {
+        font-size: 1.3rem;
+    }
+
+    .faq-answer p {
+        font-size: 0.9rem;
+    }
+}

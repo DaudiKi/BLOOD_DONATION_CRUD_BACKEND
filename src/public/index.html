@@ -29,7 +29,6 @@
         </p>
         <ul class="features">
           <li><i class="fas fa-bolt"></i><span>Real-time matching</span></li>
-          <li><i class="fas fa-map-marker-alt"></i><span>Location-based connection</span></li>
           <li><i class="fas fa-lock"></i><span>Secure data handling</span></li>
         </ul>
         <div class="overlay"></div>
@@ -507,24 +506,7 @@
   
   <!-- JavaScript for interactivity -->
   <script>
-    const card3D = document.querySelector('.card-3d');
-    const scene = document.querySelector('.scene');
-    let requestId = null;
-    
-    scene.addEventListener('mousemove', (e) => {
-      if (requestId) {
-        cancelAnimationFrame(requestId);
-      }
-      requestId = requestAnimationFrame(() => {
-        const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
-        const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
-        card3D.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-      });
-    });
-    
-    scene.addEventListener('mouseleave', () => {
-      card3D.style.transform = `rotateY(0deg) rotateX(0deg)`;
-    });
+
     
     // Toggle password visibility
     document.querySelectorAll('.toggle-password').forEach(icon => {

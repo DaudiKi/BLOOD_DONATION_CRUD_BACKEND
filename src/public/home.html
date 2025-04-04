@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodLink</title>
+    <link rel="stylesheet" href="styles1.css">
+    <link rel="icon" href="logo2.png">
+    <style>
+        /* Added Animation Styles */
+        .hidden {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <video class="video-background" autoplay muted loop playsinline>
+        <source src="background.mp4" type="video/mp4">
+    </video>
+
+    <nav>
+        <div class="nav-container">
+            <a href="home.html" class="logo">
+                <span class="icon">
+                    <img src="logo2.png">
+                </span>
+                BloodLink
+            </a>
+            <div class="nav-links">
+                <a href="home.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="ourdonors.html">Our Donors</a>
+                <a href="faq.html">FAQ</a>
+                <a href="index.html">Login</a>
+                <a href="index.html">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero hidden">
+        <div class="hero-content">
+            <h1>Welcome, to BloodLink</h1><br>
+            <h1>Connecting Lives, Saving Futures</h1>
+        </div>
+    </section>
+
+    <section class="donation-section">
+        <div class="donation-wrapper hidden">
+            <div class="donation-container">
+                <div class="donation-info hidden">
+                    <h2>Learn About Donation</h2>
+                    <div class="donation-impact">
+                        <img src="donation.png" alt="Blood Donation Image">
+                    </div>
+                    <div class="donation-message">
+                        <p class="donimg">One Blood Donation can save up to <strong>Three Lives</strong></p>
+                    </div>
+                    <div class="donation-benefit">
+                        <p>After donating blood, the body works to replenish the blood loss. <br>This stimulates the production of new blood cells and in turn, helps in maintaining good health.</p>
+                        <a href="index.html"><button class="donate-btn">Donate Now</button></a>
+                    </div>
+                </div>
+
+                <div class="blood-type-chart hidden">
+                    <h3>Compatible Blood Type Donors</h3>
+                    <table>
+                        <tr>
+                            <th>Blood Type</th>
+                            <th>Donate Blood To</th>
+                            <th>Receive Blood From</th>
+                        </tr>
+                        <tr>
+                            <td>A+</td>
+                            <td>A+ AB+</td>
+                            <td>A+ A- O+ O-</td>
+                        </tr>
+                        <tr>
+                            <td>O+</td>
+                            <td>O+ A+ B+ AB+</td>
+                            <td>O+ O-</td>
+                        </tr>
+                        <tr>
+                            <td>B+</td>
+                            <td>B+ AB+</td>
+                            <td>B+ B- O+ O-</td>
+                        </tr>
+                        <tr>
+                            <td>AB+</td>
+                            <td>AB+</td>
+                            <td>Everyone</td>
+                        </tr>
+                        <tr>
+                            <td>A-</td>
+                            <td>A+ A- AB+ AB-</td>
+                            <td>A- O-</td>
+                        </tr>
+                        <tr>
+                            <td>O-</td>
+                            <td>Everyone</td>
+                            <td>O-</td>
+                        </tr>
+                        <tr>
+                            <td>B-</td>
+                            <td>B+ B- AB+ AB-</td>
+                            <td>B- O-</td>
+                        </tr>
+                        <tr>
+                            <td>AB-</td>
+                            <td>AB+ AB-</td>
+                            <td>AB- A- B- O-</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="blood-section-wrapper hidden">
+        <h2 class="blood-header">Types of Donation</h2>
+        <p class="blood-intro-text hidden">
+            The human body holds approximately five liters of blood, a vital elixir composed of <strong>Red Blood Cells</strong>, 
+            <strong>Plasma</strong>, and <strong>Platelets</strong>. Each component plays a distinct role, offering the power to save countless lives.
+        </p>
+
+        <div class="blood-tab-container hidden">
+            <input type="radio" id="blood-tab1" name="blood-tabs" checked>
+            <input type="radio" id="blood-tab2" name="blood-tabs">
+            <input type="radio" id="blood-tab3" name="blood-tabs">
+
+            <div class="blood-tab-menu">
+                <div class="blood-tab-item">
+                    <label for="blood-tab1" class="blood-tab-title">Packed Red Blood Cells</label>
+                </div>
+                <div class="blood-tab-item">
+                    <label for="blood-tab2" class="blood-tab-title">Plasma</label>
+                </div>
+                <div class="blood-tab-item">
+                    <label for="blood-tab3" class="blood-tab-title">Platelet</label>
+                </div>
+            </div>
+
+            <div class="blood-tab-content" id="blood-content1">
+                <h3>What is it?</h3>
+                <p>Blood drawn from a donor is blended with an anticoagulant, then spun in a centrifuge to isolate red cells, platelets, and plasma. Preserved red cells become packed red blood cells.</p>
+                <h3>Who can donate?</h3>
+                <p>Healthy individuals aged 18-65, weighing 45kg or more.</p>
+                <h3>Used For?</h3>
+                <p>Treats severe anemia, blood loss from childbirth, surgery, or trauma.</p>
+                <h3>How long does it take?</h3>
+                <p>15-30 minutes, including pre-donation screening.</p>
+                <h3>Storage Duration</h3>
+                <p>42 days at 2-6°C.</p>
+            </div>
+
+            <div class="blood-tab-content" id="blood-content2">
+                <h3>What is it?</h3>
+                <p>A golden liquid cradling blood cells, rich with nutrients vital for medical therapies.</p>
+                <h3>Who can donate?</h3>
+                <p>Similar to red cell donation, but apheresis requires a minimum weight of 50kg.</p>
+                <h3>Used For?</h3>
+                <p>Addresses bleeding disorders like hemophilia and von Willebrand disease.</p>
+                <h3>How long does it take?</h3>
+                <p>15-30 minutes, including pre-donation screening.</p>
+                <h3>Storage Duration</h3>
+                <p>Frozen at -30°C, viable for up to one year.</p>
+            </div>
+
+            <div class="blood-tab-content" id="blood-content3">
+                <h3>What is it?</h3>
+                <p>Platelets, the guardians of clotting, are essential for those with low counts.</p>
+                <h3>Who can donate?</h3>
+                <p>Like whole blood donors, with a platelet count above 150,000 per microliter.</p>
+                <h3>Used For?</h3>
+                <p>Supports cancer patients, blood disorder cases, and trauma recovery.</p>
+                <h3>How long does it take?</h3>
+                <p>45-60 minutes for donation, 2-3 hours including screening.</p>
+                <h3>Storage Duration</h3>
+                <p>5 days at 20-24°C.</p>
+            </div>
+        </div>
+    </section>
+
+<section class="faq-section">
+    <div class="faq-wrapper hidden">
+        <div class="faq-container">
+            <div class="faq-info hidden">
+                <h2>Frequently Asked Questions</h2>
+                <div class="faq-items hidden">
+                    <div class="faq-item hidden">
+                        <h3>Who can donate blood?</h3>
+                        <p>Healthy individuals aged 18-65, weighing at least 45kg, with no recent illnesses, tattoos, or piercings, and no high-risk behaviors, can donate. A hemoglobin test is required to ensure eligibility.</p>
+                    </div>
+                    <div class="faq-item hidden">
+                        <h3>How often can I donate blood?</h3>
+                        <p>Whole blood can be donated every 56 days (8 weeks). Platelet or plasma donations may allow more frequent donations (every 7-14 days) depending on your health and donation type, as advised by a doctor.</p>
+                    </div>
+                    <div class="faq-item hidden">
+                        <h3>Does donating blood hurt?</h3>
+                        <p>The process involves a small needle prick, which may cause mild discomfort. The donation itself is painless, and any soreness usually subsides within a day. Rest and hydration help recovery.</p>
+                    </div>
+                    <div class="faq-item hidden">
+                        <h3>What should I do after donating blood?</h3>
+                        <p>Rest for 10-15 minutes, drink plenty of water, eat a snack, and avoid heavy lifting for the rest of the day. Contact a healthcare provider if you feel dizzy or unwell.</p>
+                    </div>
+                    <div class="faq-item hidden">
+                        <h3>Can I donate if I have a chronic condition?</h3>
+                        <p>It depends on the condition. Conditions like controlled hypertension or diabetes may be acceptable, but diseases like cancer, heart disease, or hepatitis disqualify you. Consult your doctor and the donation center.</p>
+                    </div>
+                </div>
+                <a href="faq.html" class="faq-more-btn">Click here to see more of our Frequently Asked Questions</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <footer class="footer hidden">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p><strong>Phone:</strong> +254795280808</p>
+                <p>Email 
+    <a href="https://mail.google.com/mail/?view=cm&to=bloodlink24@gmail.com&subject=BloodLink%20Website%20Inquiry&body=Hello%20BloodLink%20Team%2C%0D%0AI%20am%20interested%20in%20learning%20more%20about%20your%20services." target="_blank">
+      bloodlink24@gmail.com
+    </a>
+  </p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="aboutus.html">About Us</a></li>
+                    <li><a href="ourdonors.html">Our Donors</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Latest Updates</h3>
+                <ul>
+                    <li><em>April 4, 2025:</em> Successfully launched the .</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 BloodLink. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script>
+        (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'92ac352eccdc4583',t:'MTc0MzcyMTQ5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
+        (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'92ae6a861f8bb0d6',t:'MTc0Mzc0NDY1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
+
+        // Added Scroll Animation Trigger
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.hidden').forEach(element => {
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>

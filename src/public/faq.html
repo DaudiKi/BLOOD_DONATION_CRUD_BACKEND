@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - BloodLink</title>
+    <link rel="stylesheet" href="styles1.css">
+    <link rel="icon" href="logo2.png">
+    <style>
+        /* Added Animation Styles */
+        .hidden {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="home.html" class="logo">
+                <span class="icon">
+                    <img src="logo2.png">
+                </span>
+                BloodLink
+            </a>
+            <div class="nav-links">
+                <a href="home.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="ourdonors.html">Our Donors</a>
+                <a href="faq.html">FAQ</a>
+                <a href="index.html">Login</a>
+                <a href="index.html">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="faq-header hidden">
+        <div class="faq-header-content">
+            <h1>FREQUENTLY ASKED QUESTIONS</h1>
+        </div>
+    </section>
+
+    <section class="faq-content">
+        <div class="faq-content-wrapper hidden">
+            <div class="faq-content-container">
+                <div class="faq-info">
+                    <div class="faq-search hidden">
+                        <input type="text" id="faq-search-bar" placeholder="Search FAQs..." onkeyup="searchFAQs()">
+                    </div>
+                    <div class="faq-category hidden">
+                        <h3>Eligibility</h3>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq1">
+                            <label for="faq1" class="faq-question">Who can donate blood?</label>
+                            <div class="faq-answer">
+                                <p>Healthy individuals aged 18-65, weighing at least 45kg, with no recent illnesses, tattoos, or piercings, and no high-risk behaviors, can donate. A hemoglobin test is required to ensure eligibility.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq2">
+                            <label for="faq2" class="faq-question">Can I donate if I have a chronic condition?</label>
+                            <div class="faq-answer">
+                                <p>It depends on the condition. Conditions like controlled hypertension or diabetes may be acceptable, but diseases like cancer, heart disease, or hepatitis disqualify you. Consult your doctor and the donation center.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq3">
+                            <label for="faq3" class="faq-question">Can I donate if I’ve had a recent tattoo or piercing?</label>
+                            <div class="faq-answer">
+                                <p>No, you must wait at least 6 months after getting a tattoo or piercing to donate blood, due to the risk of infections like hepatitis.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq10">
+                            <label for="faq10" class="faq-question">Can I donate if I’m on medication?</label>
+                            <div class="faq-answer">
+                                <p>It depends on the medication. Some medications, like antibiotics, may require a waiting period. Others, like blood thinners, may disqualify you. Always inform the donation center about any medications you’re taking.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq11">
+                            <label for="faq11" class="faq-question">Can I donate if I’ve recently traveled?</label>
+                            <div class="faq-answer">
+                                <p>Travel to certain areas with high rates of diseases like malaria may require a waiting period (usually 12 months). Check with the donation center about your travel history.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-category hidden">
+                        <h3>Donation Process</h3>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq4">
+                            <label for="faq4" class="faq-question">How often can I donate blood?</label>
+                            <div class="faq-answer">
+                                <p>Whole blood can be donated every 56 days (8 weeks). Platelet or plasma donations may allow more frequent donations (every 7-14 days) depending on your health and donation type, as advised by a doctor.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq5">
+                            <label for="faq5" class="faq-question">How long does the donation process take?</label>
+                            <div class="faq-answer">
+                                <p>Whole blood donation takes about 15-30 minutes, including pre-donation screening. Platelet donation can take 45-60 minutes, or up to 2-3 hours including screening.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq6">
+                            <label for="faq6" class="faq-question">What happens to my blood after I donate?</label>
+                            <div class="faq-answer">
+                                <p>Your blood is tested for infectious diseases, separated into components (red cells, plasma, platelets), and stored under specific conditions. It’s then distributed to hospitals for patients in need.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq12">
+                            <label for="faq12" class="faq-question">Do I need to bring anything to the donation center?</label>
+                            <div class="faq-answer">
+                                <p>Yes, bring a valid ID (e.g., national ID, passport) for registration. It’s also helpful to have your medical history ready if you have any conditions or medications.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq13">
+                            <label for="faq13" class="faq-question">Can I eat before donating blood?</label>
+                            <div class="faq-answer">
+                                <p>Yes, you should eat a healthy meal 2-3 hours before donating to maintain your energy levels. Avoid fatty foods, as they can affect the quality of your blood sample.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-category hidden">
+                        <h3>Health and Safety</h3>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq7">
+                            <label for="faq7" class="faq-question">Does donating blood hurt?</label>
+                            <div class="faq-answer">
+                                <p>The process involves a small needle prick, which may cause mild discomfort. The donation itself is painless, and any soreness usually subsides within a day. Rest and hydration help recovery.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq8">
+                            <label for="faq8" class="faq-question">What should I do after donating blood?</label>
+                            <div class="faq-answer">
+                                <p>Rest for 10-15 minutes, drink plenty of water, eat a snack, and avoid heavy lifting for the rest of the day. Contact a healthcare provider if you feel dizzy or unwell.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq9">
+                            <label for="faq9" class="faq-question">Is it safe to donate blood?</label>
+                            <div class="faq-answer">
+                                <p>Yes, donating blood is safe. We use sterile, single-use equipment, and our staff are trained to ensure your safety. A health screening is done beforehand to confirm eligibility.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq14">
+                            <label for="faq14" class="faq-question">Can donating blood affect my health?</label>
+                            <div class="faq-answer">
+                                <p>Donating blood is generally safe and can even stimulate new blood cell production. However, some people may feel lightheaded. Following post-donation care instructions helps minimize any effects.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq15">
+                            <label for="faq15" class="faq-question">What if I feel faint during or after donation?</label>
+                            <div class="faq-answer">
+                                <p>Inform the staff immediately if you feel faint. They’ll have you lie down and provide care. After donation, rest, hydrate, and avoid strenuous activity to prevent fainting.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-category hidden">
+                        <h3>General Information</h3>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq16">
+                            <label for="faq16" class="faq-question">Why is blood donation important?</label>
+                            <div class="faq-answer">
+                                <p>Blood donation saves lives by providing blood for surgeries, trauma care, cancer treatment, and chronic illnesses. One donation can save up to three lives.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq17">
+                            <label for="faq17" class="faq-question">How can I find a donation center near me?</label>
+                            <div class="faq-answer">
+                                <p>Contact us at +254795280808 or email <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="15262025253a27211537393a3a31393c3b3e7b3a2732">[email&#160;protected]</a> to find the nearest donation center. We also host mobile blood drives, which are announced in our Latest Updates.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item hidden">
+                            <input type="checkbox" id="faq18">
+                            <label for="faq18" class="faq-question">Can I donate blood for a specific person?</label>
+                            <div class="faq-answer">
+                                <p>In some cases, yes, through directed donations. However, this depends on compatibility and medical approval. Contact the donation center for more details.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-contact hidden">
+                        <p>Still have questions? Contact us for more information. Our Contact Details are found below of our page.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer hidden">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p>Phone: +254795280808</p>
+                <p>Email 
+    <a href="https://mail.google.com/mail/?view=cm&to=bloodlink24@gmail.com&subject=BloodLink%20Website%20Inquiry&body=Hello%20BloodLink%20Team%2C%0D%0AI%20am%20interested%20in%20learning%20more%20about%20your%20services." target="_blank">
+      bloodlink24@gmail.com
+    </a>
+  </p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="aboutus.html">About Us</a></li>
+                    <li><a href="ourdonors.html">Our Donors</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Latest Updates</h3>
+                <ul>
+                    <li><em>April 4, 2025:</em> Successfully launched BloodLink.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 BloodLink. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script>
+        document.querySelectorAll('.faq-item input[type="checkbox"]').forEach(item => {
+            item.addEventListener('change', function() {
+                const answer = this.nextElementSibling.nextElementSibling;
+                if (this.checked) {
+                    answer.style.maxHeight = answer.scrollHeight + 'px';
+                } else {
+                    answer.style.maxHeight = '0';
+                }
+            });
+        });
+
+        function searchFAQs() {
+            const input = document.getElementById('faq-search-bar').value.toLowerCase();
+            const faqItems = document.querySelectorAll('.faq-item');
+            let found = false;
+
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question').textContent.toLowerCase();
+                const answer = item.querySelector('.faq-answer p').textContent.toLowerCase();
+                if (question.includes(input) || answer.includes(input)) {
+                    item.style.display = 'block';
+                    found = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            if (input === '') {
+                faqItems.forEach(item => {
+                    item.style.display = 'block';
+                });
+            }
+        }
+
+        (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'92ae6a860932676c',t:'MTc0Mzc0NDY1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
+
+        // Added Scroll Animation Trigger
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.hidden').forEach(element => {
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>

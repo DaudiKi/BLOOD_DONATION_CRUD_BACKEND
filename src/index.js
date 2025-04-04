@@ -1,3 +1,13 @@
+/**
+ * Blood Donation System Main Application
+ * 
+ * This is the main entry point for the Blood Donation System application.
+ * It sets up the Express server, database connection, Socket.IO for real-time communication,
+ * and configures all necessary middleware and routes.
+ * 
+ * @module index
+ */
+
 import express from "express";
 import cors from "cors";
 import path from "path";
@@ -12,11 +22,17 @@ import * as notificationService from './services/notificationService.js';
 // Import the two analytics routers from analyticsRoute.js
 import { analyticsRouter, reportsRouter } from "./routes/analyticsRoute.js";
 
-// Define __dirname for ESM
+/**
+ * ESM Configuration
+ * Define __dirname equivalent for ES modules
+ */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables with debug logging
+/**
+ * Environment Configuration
+ * Load and validate environment variables
+ */
 const envPath = path.resolve(__dirname, '../.env');
 console.log('Looking for .env file at:', envPath);
 const result = dotenv.config({ path: envPath });
@@ -27,7 +43,7 @@ if (result.error) {
 }
 console.log('DATABASE_URL:', process.env.DATABASE_URL);
 
-// Validate environment variables
+// Environment variable validation
 if (!process.env.DATABASE_URL) {
   console.error('Error: DATABASE_URL environment variable is not set');
   process.exit(1);
@@ -40,29 +56,37 @@ if (!process.env.PORT) {
   console.warn('PORT environment variable not set, defaulting to 3000');
 }
 
-// PostgreSQL connection setup using Pool (unchanged)
+/**
+ * Database Configuration
+ * Set up PostgreSQL connection pool and error handling
+ */
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL
 });
 
-// Add error handler for the pool
 pool.on('error', (err, client) => {
   console.error('Unexpected error on idle client:', err.message);
 });
 
-// Test database connection
+/**
+ * Database Connection Test
+ * Verify database connectivity on startup
+ */
 const testDatabaseConnection = async () => {
   try {
     const client = await pool.connect();
     console.log('Connected to PostgreSQL');
-    client.release(); // Release the client back to the pool
+    client.release();
   } catch (err) {
     console.error('Failed to connect to PostgreSQL:', err.message);
     process.exit(1);
   }
 };
 
-// Import routes
+/**
+ * Route Imports
+ * Import all route modules for different parts of the application
+ */
 import clientRoutes from "./routes/clientRoute.js";
 import donorRoutes from "./routes/donorRoute.js";
 import patientRoutes from "./routes/patientRoute.js";
@@ -72,10 +96,17 @@ import notificationRoutes from "./routes/notificationRoute.js";
 import requestRoutes from "./routes/requestRoute.js";
 import userRoutes from "./routes/userRoute.js";
 
+/**
+ * Express Application Setup
+ * Initialize Express and configure the HTTP server
+ */
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Create HTTP server and attach Socket.IO
+/**
+ * Socket.IO Configuration
+ * Set up WebSocket server with CORS and authentication
+ */
 const server = http.createServer(app);
 const io = new Server(server, { 
   cors: { 
@@ -84,7 +115,10 @@ const io = new Server(server, {
   } 
 });
 
-// Socket.IO authentication middleware
+/**
+ * Socket.IO Authentication Middleware
+ * Verify JWT tokens for WebSocket connections
+ */
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
   if (!token) {
@@ -101,13 +135,17 @@ io.use((socket, next) => {
   }
 });
 
+// Make io instance available to routes
 app.set("io", io);
 
-// Essential Middlewares
+/**
+ * Middleware Configuration
+ * Set up essential middleware for the application
+ */
 app.use(cors());
 app.use(express.json());
 
-// Debug middleware for request logging
+// Request logging middleware
 app.use((req, res, next) => {
   console.log('Incoming request:', {
     method: req.method,
@@ -118,7 +156,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Debug middleware for auth requests
+// Authentication request logging
 app.use((req, res, next) => {
   if (req.path.includes('/api/auth/login')) {
     console.log('Auth request body:', req.body);
@@ -126,10 +164,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Mount auth routes first
+/**
+ * Route Configuration
+ * Mount all API routes with their respective paths
+ */
 app.use("/api/auth", authRoutes);
-
-// Mount other API routes
 app.use("/api", clientRoutes);
 app.use("/api", donorRoutes);
 app.use("/api", requestRoutes);
@@ -137,12 +176,17 @@ app.use("/api", patientRoutes);
 app.use("/api", healthcareInstituteRoutes);
 app.use("/api", notificationRoutes);
 app.use("/api", userRoutes);
-
-// Mount the analytics and reports routers at separate base paths
 app.use("/api/analytics", analyticsRouter);
 app.use("/api/reports", reportsRouter);
 
-// Authentication middleware for HTTP routes
+/**
+ * JWT Authentication Middleware
+ * Verify JWT tokens for protected routes
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Next middleware function
+ */
 const authenticateToken = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'No token provided' });
@@ -153,7 +197,10 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// New route for updating donor availability
+/**
+ * Donor Availability Update Route
+ * Update a donor's availability status
+ */
 app.put('/api/donors/:id/availability', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { is_available } = req.body;
@@ -173,12 +220,15 @@ app.put('/api/donors/:id/availability', authenticateToken, async (req, res) => {
   }
 });
 
-// Example: Create a blood request and notify donors
+/**
+ * Blood Request Creation Route
+ * Create a new blood request and notify relevant donors
+ */
 app.post('/api/blood-requests', authenticateToken, async (req, res) => {
   const { blood_type, units_needed, needed_by, location } = req.body;
   const patientId = req.user.userId;
   try {
-    // Insert blood request
+    // Create blood request
     const requestResult = await pool.query(
       `INSERT INTO bloodlink_schema.blood_request (patient_id, blood_type, units_needed, needed_by, location, request_status)
        VALUES ($1, $2, $3, $4, $5, 'Pending')
@@ -187,7 +237,7 @@ app.post('/api/blood-requests', authenticateToken, async (req, res) => {
     );
     const newRequest = requestResult.rows[0];
 
-    // Notify donors with matching blood type
+    // Notify matching donors
     const donors = await pool.query(
       `SELECT donor_id FROM bloodlink_schema.donor WHERE blood_type = $1 AND is_available = TRUE`,
       [blood_type]
@@ -207,7 +257,7 @@ app.post('/api/blood-requests', authenticateToken, async (req, res) => {
 
     // Notify admin
     const adminNotification = {
-      recipient_id: 1, // Assuming admin ID is 1; adjust as needed
+      recipient_id: 1,
       recipient_type: 'admin',
       notification_type: 'blood_request',
       notification_title: 'New Blood Request Created',
@@ -224,7 +274,10 @@ app.post('/api/blood-requests', authenticateToken, async (req, res) => {
   }
 });
 
-// Static file serving AFTER API routes
+/**
+ * Static File Serving Configuration
+ * Serve static files with appropriate headers and caching
+ */
 app.use(express.static(path.join(__dirname, "public"), {
   setHeaders: (res, filepath) => {
     const ext = path.extname(filepath);
@@ -242,7 +295,10 @@ app.use(express.static(path.join(__dirname, "public"), {
   }
 }));
 
-// Default route and dashboard routes
+/**
+ * Default Routes
+ * Configure routes for the main application pages
+ */
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

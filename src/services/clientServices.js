@@ -1,11 +1,43 @@
+/**
+ * Client Services Module
+ * 
+ * This module provides comprehensive services for managing admin users in the BloodLink system.
+ * It handles admin profile management, authentication, and search functionality.
+ * The module includes secure password handling, data validation, and logging.
+ * 
+ * Features:
+ * - Admin profile CRUD operations
+ * - Secure password hashing with bcrypt
+ * - Email validation and duplicate checking
+ * - Role-based access control
+ * - Search functionality
+ * - Comprehensive error handling and logging
+ */
+
 // services/clientServices.js
 import { pool } from '../index.js'; // Import pool for database queries
 import bcrypt from 'bcrypt'; // Import bcrypt for password hashing
 
+/**
+ * Database schema name from environment variables
+ * @constant {string}
+ */
 const schema = process.env.PG_SCHEMA || 'bloodlink_schema'; // Define schema
 const saltRounds = 10; // Define salt rounds for bcrypt
 
-// Fetch all admins
+/**
+ * Retrieves all admin users from the system.
+ * Returns admin records ordered by admin_id.
+ * 
+ * @returns {Promise<Array>} Array of admin records
+ * @property {number} admin_id - Unique identifier
+ * @property {string} first_name - Admin's first name
+ * @property {string} last_name - Admin's last name
+ * @property {string} email - Admin's email address
+ * @property {string} phone_number - Contact phone number
+ * @property {boolean} is_active - Account active status
+ * @throws {Error} If database query fails
+ */
 export const getAllAdmins = async () => {
   try {
     const queryText = `SELECT * FROM ${schema}.admin ORDER BY admin_id`;
@@ -17,7 +49,14 @@ export const getAllAdmins = async () => {
   }
 };
 
-// Fetch a single admin by ID
+/**
+ * Retrieves a specific admin's profile by their ID.
+ * Includes validation of the admin ID parameter.
+ * 
+ * @param {string|number} admin_id - Unique identifier of the admin
+ * @returns {Promise<Object>} Admin profile data
+ * @throws {Error} If admin ID is invalid or admin not found
+ */
 export const getAdminById = async (admin_id) => {
   try {
     // Validate admin_id
@@ -37,7 +76,14 @@ export const getAdminById = async (admin_id) => {
   }
 };
 
-// Fetch a single admin by email
+/**
+ * Retrieves an admin's profile by their email address.
+ * Used primarily for authentication and duplicate checking.
+ * 
+ * @param {string} email - Email address to search for
+ * @returns {Promise<Object|null>} Admin profile data or null if not found
+ * @throws {Error} If email format is invalid or database query fails
+ */
 export const getAdminByEmail = async (email) => {
   try {
     // Validate email
@@ -54,7 +100,22 @@ export const getAdminByEmail = async (email) => {
   }
 };
 
-// Create a new admin
+/**
+ * Creates a new admin profile in the system.
+ * Includes comprehensive validation and secure password handling.
+ * 
+ * @param {Object} adminData - Admin profile information
+ * @param {string} adminData.first_name - Admin's first name
+ * @param {string} adminData.last_name - Admin's last name
+ * @param {string} adminData.email - Admin's email address
+ * @param {string} adminData.password - Password (will be hashed)
+ * @param {string} adminData.phone_number - Contact phone number
+ * @param {Date} [adminData.date_created] - Account creation date
+ * @param {boolean} [adminData.is_active] - Account active status
+ * @param {string} adminData.role - Must be 'admin'
+ * @returns {Promise<Object>} Created admin profile
+ * @throws {Error} If validation fails, email exists, or database operation fails
+ */
 export const createAdmin = async (adminData) => {
   try {
     const {
@@ -123,7 +184,20 @@ export const createAdmin = async (adminData) => {
   }
 };
 
-// Update an admin
+/**
+ * Updates an existing admin's profile information.
+ * Includes validation of all fields and duplicate email checking.
+ * 
+ * @param {string|number} admin_id - Unique identifier of the admin
+ * @param {Object} adminData - Updated admin information
+ * @param {string} adminData.first_name - Updated first name
+ * @param {string} adminData.last_name - Updated last name
+ * @param {string} adminData.email - Updated email address
+ * @param {string} adminData.phone_number - Updated phone number
+ * @param {boolean} adminData.is_active - Updated active status
+ * @returns {Promise<Object>} Updated admin profile
+ * @throws {Error} If validation fails, admin not found, or email exists
+ */
 export const updateAdmin = async (admin_id, adminData) => {
   try {
     const { first_name, last_name, email, phone_number, is_active } = adminData;
@@ -164,7 +238,14 @@ export const updateAdmin = async (admin_id, adminData) => {
   }
 };
 
-// Delete an admin
+/**
+ * Deletes an admin's profile from the system.
+ * This is a permanent operation and cannot be undone.
+ * 
+ * @param {string|number} admin_id - Unique identifier of the admin to delete
+ * @returns {Promise<Object>} Deleted admin's ID
+ * @throws {Error} If admin ID is invalid or admin not found
+ */
 export const deleteAdmin = async (admin_id) => {
   try {
     // Validate admin_id
@@ -185,7 +266,14 @@ export const deleteAdmin = async (admin_id) => {
   }
 };
 
-// Search admins by name or email
+/**
+ * Searches for admin users based on name or email.
+ * Performs a case-insensitive search on first name, last name, and email.
+ * 
+ * @param {string} query - Search term to match against admin records
+ * @returns {Promise<Array>} Array of matching admin records
+ * @throws {Error} If search query is invalid or database operation fails
+ */
 export const searchAdmins = async (query) => {
   try {
     // Validate query

@@ -7,31 +7,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    /* Add sidebar styles at the top */
-    .sidebar {
-      width: 80px;
-      height: 100vh;
-      background: #dc3545;
-      position: fixed;
-      left: 0;
-      top: 0;
-      padding: 20px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .sidebar .logo {
-      color: white;
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-
-    .sidebar .logo i {
-      color: white;
-    }
-
     .main-section > div {
       background: #ffffff;
       border-radius: 12px;
@@ -48,7 +23,7 @@
     .edit-btn {
       float: right;
       padding: 8px 16px;
-      background: #dc3545;
+      background: #4CAF50;
       color: white;
       border: none;
       border-radius: 6px;
@@ -63,7 +38,7 @@
     }
 
     .edit-btn:hover {
-      background: #c82333;
+      background: #45a049;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
@@ -93,9 +68,8 @@
 
     .form-header h3 {
       margin: 0;
-      color: #dc3545 !important;
+      color: #333;
       font-size: 18px;
-      font-weight: 600;
     }
 
     .close-btn {
@@ -122,14 +96,14 @@
     }
 
     #editProfileForm input:focus {
-      border-color: #dc3545;
+      border-color: #4CAF50;
       outline: none;
     }
 
     #editProfileForm button {
       grid-column: span 2;
       padding: 14px;
-      background: #dc3545;
+      background: #4CAF50;
       color: white;
       border: none;
       border-radius: 6px;
@@ -142,7 +116,7 @@
     }
 
     #editProfileForm button:hover {
-      background: #c82333;
+      background: #45a049;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       transform: translateY(-1px);
     }
@@ -179,7 +153,7 @@
     }
 
     .status-indicator.available {
-      background: #dc3545;
+      background: #4CAF50;
     }
 
     .toggle-switch {
@@ -222,7 +196,7 @@
     }
 
     input:checked + .slider {
-      background-color: #dc3545;
+      background-color: #4CAF50;
     }
 
     input:checked + .slider:before {
@@ -246,7 +220,7 @@
       padding: 12px;
       text-align: left;
       font-weight: 600;
-      color: #dc3545 !important;
+      color: #333;
       border-bottom: 2px solid #ddd;
     }
 
@@ -265,11 +239,11 @@
     }
 
     .blood-requests .accept-btn {
-      background: #28a745;
+      background: #4CAF50;
     }
 
     .blood-requests .accept-btn:hover {
-      background: #218838;
+      background: #45a049;
     }
 
     .blood-requests .reject-btn {
@@ -290,7 +264,7 @@
     }
 
     .donation-history h2 {
-      color: #dc3545 !important;
+      color: #333;
       margin-bottom: 20px;
       font-size: 1.5rem;
       font-weight: 600;
@@ -308,7 +282,7 @@
       padding: 16px;
       text-align: left;
       font-weight: 600;
-      color: #dc3545 !important;
+      color: #333;
       border-bottom: 2px solid #e9ecef;
       font-size: 0.95rem;
     }
@@ -342,219 +316,36 @@
       padding: 24px;
       font-weight: 500;
     }
-
-    .status-pending { color: #ffc107; }
-    .status-accepted { color: #dc3545; }
-    .status-completed { color: #17a2b8; }
-    .status-cancelled { color: #dc3545; }
-
-    .accept-btn {
-      background: #28a745;
-      color: white;
-    }
-    
-    .accept-btn:hover {
-      background: #218838;
-      transform: translateY(-1px);
-    }
-
-    /* Add logout button styles */
-    .logout-btn {
-      background: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 16px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s;
-      margin-left: 16px;
-    }
-
-    .logout-btn:hover {
-      background: #c82333;
-      transform: translateY(-1px);
-    }
-
-    .user-menu {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    /* Add text color styles */
-    h1, h2, h3 {
-      color: #dc3545 !important;
-      font-weight: 600;
-    }
-
-    .donor-info strong {
-      color: #dc3545;
-      font-weight: 600;
-    }
-
-    .blood-requests th, .donation-history th {
-      color: #dc3545 !important;
-      font-weight: 600;
-    }
-
-    #profileName {
-      color: #dc3545;
-      font-weight: 600;
-    }
-
-    .page-title h1 {
-      color: #dc3545 !important;
-      font-weight: 600;
-    }
-
-    .availability-section span {
-      color: #dc3545;
-      font-weight: 500;
-    }
-
-    #currentStatus {
-      color: #dc3545;
-      font-weight: 600;
-    }
-
-    /* Add notification styles */
-    .notifications {
-      position: relative;
-      cursor: pointer;
-    }
-
-    .notifications i {
-      color: #dc3545;
-      font-size: 20px;
-    }
-
-    .notification-badge {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: #dc3545;
-      color: white;
-      border-radius: 50%;
-      padding: 2px 6px;
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .notification-dropdown {
-      display: none;
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background: white;
-      min-width: 300px;
-      max-width: 400px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-      margin-top: 10px;
-      z-index: 1000;
-    }
-
-    .notification-dropdown.show {
-      display: block;
-    }
-
-    .notification-header {
-      padding: 12px 16px;
-      border-bottom: 1px solid #e9ecef;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .notification-header h3 {
-      margin: 0;
-      font-size: 16px;
-    }
-
-    .notification-list {
-      max-height: 300px;
-      overflow-y: auto;
-    }
-
-    .notification-item {
-      padding: 12px 16px;
-      border-bottom: 1px solid #e9ecef;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .notification-item:hover {
-      background-color: #f8f9fa;
-    }
-
-    .notification-item.unread {
-      background-color: #fff3f4;
-    }
-
-    .notification-item .title {
-      font-weight: 600;
-      color: #dc3545;
-      margin-bottom: 4px;
-    }
-
-    .notification-item .message {
-      color: #666;
-      font-size: 14px;
-      margin-bottom: 4px;
-    }
-
-    .notification-item .time {
-      color: #999;
-      font-size: 12px;
-    }
-
-    .no-notifications {
-      padding: 16px;
-      text-align: center;
-      color: #666;
-      font-style: italic;
-    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="sidebar">
+    <aside class="sidebar">
       <div class="logo">
         <i class="fas fa-tint"></i>
       </div>
-    </div>
+      <nav>
+        <a href="#" class="active"><i class="fas fa-th-large"></i></a>
+        <a href="#"><i class="fas fa-users"></i></a>
+        <a href="#"><i class="fas fa-image"></i></a>
+        <a href="#"><i class="fas fa-file-alt"></i></a>
+        <a href="#"><i class="fas fa-folder"></i></a>
+      </nav>
+    </aside>
 
     <main class="main-content">
       <header>
-        <div class="page-title">
-          <h1 style="color: #333; font-size: 24px; font-weight: 600; margin: 0;">Donor Dashboard</h1>
+        <div class="back-button">
+          <a href="#"><i class="fas fa-arrow-left"></i> Back to dashboard</a>
         </div>
         <div class="user-menu">
-          <div class="notifications" onclick="toggleNotifications()">
+          <div class="notifications">
             <i class="fas fa-bell"></i>
-            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
-            <div class="notification-dropdown" id="notificationDropdown">
-              <div class="notification-header">
-                <h3>Notifications</h3>
-                <button onclick="markAllAsRead(event)" class="mark-all-read">Mark all as read</button>
-              </div>
-              <div class="notification-list" id="notificationList">
-                <!-- Notifications will be inserted here -->
-              </div>
-            </div>
           </div>
           <div class="profile-menu" id="profileInfo">
+            <img src="" alt="Profile" id="profileImage">
             <span id="profileName"></span>
           </div>
-          <button onclick="logout()" class="logout-btn">
-            <i class="fas fa-sign-out-alt"></i>
-            Logout
-          </button>
         </div>
       </header>
 
@@ -737,6 +528,7 @@
         if (!donorData) return;
 
         document.getElementById('profileName').textContent = `${donorData.first_name || ''} ${donorData.last_name || ''}`;
+        document.getElementById('profileImage').src = 'https://via.placeholder.com/40';
 
         document.getElementById('donorId').textContent = donorData.donor_id || 'Not specified';
         document.getElementById('bloodType').textContent = donorData.blood_type || 'Not specified';
@@ -767,7 +559,6 @@
 
         await fetchBloodRequests();
         await fetchDonationHistory();
-        await fetchNotifications();
       } catch (error) {
         console.error('Error initializing dashboard:', error);
       }
@@ -981,7 +772,7 @@
             .urgency-low { color: #28a745; font-weight: bold; }
             
             .status-pending { color: #ffc107; }
-            .status-accepted { color: #dc3545; }
+            .status-accepted { color: #28a745; }
             .status-completed { color: #17a2b8; }
             .status-cancelled { color: #dc3545; }
             
@@ -1005,12 +796,12 @@
             }
             
             .accept-btn {
-              background: #28a745;
+              background: #4CAF50;
               color: white;
             }
             
             .accept-btn:hover {
-              background: #218838;
+              background: #45a049;
               transform: translateY(-1px);
             }
             
@@ -1072,7 +863,7 @@
           top: 20px;
           right: 20px;
           padding: 15px 25px;
-          background: #dc3545;
+          background: #4CAF50;
           color: white;
           border-radius: 6px;
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -1256,140 +1047,6 @@
       localStorage.removeItem('userId');
       localStorage.removeItem('userType');
       window.location.href = '/';
-    }
-
-    // Add notification functions
-    let notifications = [];
-    
-    function toggleNotifications() {
-      const dropdown = document.getElementById('notificationDropdown');
-      dropdown.classList.toggle('show');
-    }
-
-    // Close notifications when clicking outside
-    window.onclick = function(event) {
-      if (!event.target.matches('.notifications, .notifications *')) {
-        const dropdown = document.getElementById('notificationDropdown');
-        if (dropdown.classList.contains('show')) {
-          dropdown.classList.remove('show');
-        }
-      }
-    }
-
-    async function fetchNotifications() {
-      const token = localStorage.getItem('token');
-      try {
-        const response = await fetch(`${API_BASE_URL}/notifications`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch notifications');
-        }
-
-        const data = await response.json();
-        notifications = data.notifications || [];
-        updateNotificationBadge();
-        renderNotifications();
-      } catch (error) {
-        console.error('Error fetching notifications:', error);
-      }
-    }
-
-    function updateNotificationBadge() {
-      const badge = document.getElementById('notificationBadge');
-      const unreadCount = notifications.filter(n => !n.read).length;
-      
-      if (unreadCount > 0) {
-        badge.style.display = 'block';
-        badge.textContent = unreadCount;
-      } else {
-        badge.style.display = 'none';
-      }
-    }
-
-    function renderNotifications() {
-      const list = document.getElementById('notificationList');
-      
-      if (notifications.length === 0) {
-        list.innerHTML = '<div class="no-notifications">No notifications</div>';
-        return;
-      }
-
-      list.innerHTML = notifications
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .map(notification => `
-          <div class="notification-item ${notification.read ? '' : 'unread'}" 
-               onclick="markAsRead('${notification.id}')">
-            <div class="title">${notification.title}</div>
-            <div class="message">${notification.message}</div>
-            <div class="time">${formatNotificationTime(notification.created_at)}</div>
-          </div>
-        `).join('');
-    }
-
-    function formatNotificationTime(timestamp) {
-      const date = new Date(timestamp);
-      const now = new Date();
-      const diff = now - date;
-      
-      if (diff < 60000) return 'Just now';
-      if (diff < 3600000) return `${Math.floor(diff/60000)} minutes ago`;
-      if (diff < 86400000) return `${Math.floor(diff/3600000)} hours ago`;
-      return date.toLocaleDateString();
-    }
-
-    async function markAsRead(notificationId) {
-      const token = localStorage.getItem('token');
-      try {
-        const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}/read`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to mark notification as read');
-        }
-
-        notifications = notifications.map(n => 
-          n.id === notificationId ? {...n, read: true} : n
-        );
-        
-        updateNotificationBadge();
-        renderNotifications();
-      } catch (error) {
-        console.error('Error marking notification as read:', error);
-      }
-    }
-
-    async function markAllAsRead(event) {
-      event.stopPropagation();
-      const token = localStorage.getItem('token');
-      try {
-        const response = await fetch(`${API_BASE_URL}/notifications/mark-all-read`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to mark all notifications as read');
-        }
-
-        notifications = notifications.map(n => ({...n, read: true}));
-        updateNotificationBadge();
-        renderNotifications();
-      } catch (error) {
-        console.error('Error marking all notifications as read:', error);
-      }
     }
   </script>
 </body>

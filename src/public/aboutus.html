@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodLink - About Us</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles1.css">
+    <link rel="icon" href="logo2.png">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+            font-family: 'Open Sans', sans-serif;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="none" stroke="rgba(211, 47, 47, 0.1)" stroke-width="2" d="M0,160L48,170.7C96,181,192,203,288,192C384,181,480,139,576,138.7C672,139,768,181,864,197.3C960,213,1056,203,1152,181.3C1248,160,1344,128,1392,112L1440,96"></path></svg>') repeat-x center;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 180px 0;
+            color: white;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+            box-shadow: 0 0 20px rgba(211, 47, 47, 0.9);
+            position: relative;
+            background-image: url("back.jpg");
+        }
+
+        header h1 {
+            font-size: 3.8em;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            animation: fadeInDown 1s ease-in-out;
+        }
+
+        .content {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 50px;
+            margin-top: -60px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 1s ease-in-out;
+        }
+
+        .content h2 {
+            color: #d32f2f;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            position: relative;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+        }
+
+        .content h2::after {
+            content: '';
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #d32f2f, #f5c518);
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+        }
+
+        .content p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .values-section {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .value-card {
+            flex: 1;
+            background: wheat;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .value-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #d32f2f, #f5c518);
+            opacity: 0.8;
+        }
+
+        .value-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .value-card img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 20px;
+        }
+
+        .value-card h2 {
+            color: #d32f2f;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .value-card h2::after {
+            background: none;
+        }
+
+        .value-card p {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .cta {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .cta a {
+            display: inline-block;
+            padding: 15px 50px;
+            background: linear-gradient(45deg, #d32f2f, #f5c518);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .cta a:hover {
+            background: linear-gradient(45deg, #b71c1c, #d4a017);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(211, 47, 47, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(211, 47, 47, 0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5em;
+            }
+
+            .content h2 {
+                font-size: 1.8em;
+            }
+
+            .content p {
+                font-size: 1em;
+            }
+
+            .values-section {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .value-card {
+                padding: 20px;
+            }
+
+            .cta a {
+                padding: 12px 40px;
+                font-size: 1em;
+            }
+        }
+
+        /* Added Animation Styles */
+        .hidden {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="home.html" class="logo">
+                <span class="icon">
+                    <img src="logo2.png">
+                </span>
+                BloodLink
+            </a>
+            <div class="nav-links">
+                <a href="home.html">Home</a>
+                <a href="aboutus.html">About</a>
+                <a href="ourdonors.html">Our Donors</a>
+                <a href="faq.html">FAQ</a>
+                <a href="index.html">Login</a>
+                <a href="index.html">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hidden">
+        <h1>About BloodLink</h1>
+    </header>
+
+    <div class="container">
+        <div class="content hidden">
+            <h2>Welcome to BloodLink</h2>
+            <p>BloodLink is a revolutionary web-based blood donation matching system dedicated to saving lives through seamless, efficient, and reliable blood donor connections. Blood donation is a critical component of healthcare, yet many patients face life-threatening delays due to a shortage of available blood. Our platform is designed to eliminate these challenges by providing an easy-to-use, responsive, and effective solution that connects donors with those in urgent need. Whether it’s for medical emergencies, surgeries, or chronic conditions, BloodLink ensures that every drop counts and reaches those who need it the most.</p>
+            <p>At BloodLink, we believe that no one should suffer due to the unavailability of blood when compassionate individuals are willing to donate. Our system leverages modern technology to create a real-time, location-based network of donors and recipients. By streamlining the donor-matching process, we make it easier for healthcare institutions such as hospitals and individuals to find compatible donors with minimal delays. Our goal is to build a trusted community where donors feel empowered to contribute and recipients can receive life-saving transfusions at the right time. Through this initiative, we aim to foster a culture of voluntary blood donation and make a lasting impact on global healthcare.</p>
+
+            <div class="values-section hidden">
+                <div class="value-card hidden">
+                    <img src="img1.png" alt="Purpose Icon">
+                    <h2>Our Purpose</h2>
+                    <p>At BloodLink, our purpose is to bridge the gap between blood donors and those in urgent need, ensuring that no life is lost due to the unavailability of blood. We strive to create a reliable and accessible system that fosters a culture of voluntary blood donation and strengthens healthcare support networks.</p>
+                </div>
+                <div class="value-card hidden">
+                    <img src="logo2.png" alt="Vision Icon">
+                    <h2>Our Vision</h2>
+                    <p>To become the leading digital blood donation network that revolutionizes the way blood donors and recipients connect—empowering communities, enhancing healthcare systems, and ultimately saving lives through innovative technology and compassionate service.</p>
+                </div>
+                <div class="value-card hidden">
+                    <img src="img2.png" alt="Mission Icon">
+                    <h2>Our Mission</h2>
+                    <p>Our mission is to create a lifesaving network that encourages and streamlines voluntary blood donation while fostering a compassionate community dedicated to helping others. Whether you are a donor looking to make a difference or a patient seeking assistance, BloodLink is here to connect you to the right match at the right time.</p>
+                </div>
+            </div>
+
+            <div class="cta hidden">
+                <a href="index.html">Join us in our mission to save lives, one donation at a time!</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer hidden">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p><strong>Phone:</strong> +254795280808</p>
+                <p>Email 
+    <a href="https://mail.google.com/mail/?view=cm&to=bloodlink24@gmail.com&subject=BloodLink%20Website%20Inquiry&body=Hello%20BloodLink%20Team%2C%0D%0AI%20am%20interested%20in%20learning%20more%20about%20your%20services." target="_blank">
+      bloodlink24@gmail.com
+    </a>
+  </p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="aboutus.html">About Us</a></li>
+                    <li><a href="ourdonors.html">Our Donors</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Latest Updates</h3>
+                <ul>
+                    <li><em>April 4, 2025:</em> Successfully launched BloodLink.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 BloodLink. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script data-cfasync operand_a="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script>
+        (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'92ae6a8608d46730',t:'MTc0Mzc0NDY1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
+
+        // Added Scroll Animation Trigger
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.hidden').forEach(element => {
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>

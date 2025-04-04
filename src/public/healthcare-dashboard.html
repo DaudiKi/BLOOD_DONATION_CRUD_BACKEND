@@ -6,195 +6,35 @@
   <link rel="stylesheet" href="patient-dashboard.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <style>
-    /* Add heading styles */
-    .page-title h1 {
-      color: #dc3545;
-      font-size: 24px;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    /* Add logout button styles */
-    .logout-btn {
-      background: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 16px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s;
-      margin-left: 16px;
-    }
-
-    .logout-btn:hover {
-      background: #c82333;
-      transform: translateY(-1px);
-    }
-
-    .user-menu {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    /* Add text color styles */
-    h1, h2, h3 {
-      color: #dc3545 !important;
-      font-weight: 600;
-    }
-
-    .patient-info strong,
-    .info-table strong {
-      color: #dc3545;
-      font-weight: 600;
-    }
-
-    #profileName {
-      color: #dc3545;
-      font-weight: 600;
-    }
-
-    .blood-request-section h2,
-    .request-status h2 {
-      color: #dc3545 !important;
-      font-weight: 600;
-      margin-bottom: 20px;
-    }
-
-    .request-status th {
-      color: #dc3545 !important;
-      font-weight: 600;
-    }
-
-    .request-form button {
-      background: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-
-    .request-form button:hover {
-      background: #c82333;
-      transform: translateY(-1px);
-    }
-
-    #requestTable th {
-      color: #dc3545 !important;
-      font-weight: 600;
-    }
-
-    #requestTable button {
-      background: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 12px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-
-    #requestTable button:hover {
-      background: #c82333;
-      transform: translateY(-1px);
-    }
-
-    /* Form styles */
-    .request-form select,
-    .request-form input,
-    .request-form textarea {
-      border: 1px solid #ced4da;
-      border-radius: 4px;
-      padding: 8px;
-      margin-bottom: 10px;
-      width: 100%;
-    }
-
-    .request-form select:focus,
-    .request-form input:focus,
-    .request-form textarea:focus {
-      outline: none;
-      border-color: #6c757d;
-      box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.25);
-    }
-
-    #editProfileForm input {
-      border: 1px solid #ced4da;
-      border-radius: 4px;
-      padding: 8px;
-      margin-bottom: 10px;
-      width: 100%;
-    }
-
-    #editProfileForm input:focus {
-      outline: none;
-      border-color: #6c757d;
-      box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.25);
-    }
-
-    /* Table styles */
-    .info-table td {
-      padding: 8px;
-      border-bottom: 1px solid #ced4da;
-    }
-
-    .info-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .info-table {
-      padding: 16px;
-      background-color: #fff;
-      border: none;
-    }
-
-    /* Status colors */
-    .status-pending { color: #ffc107; font-weight: 600; }
-    .status-accepted { color: #dc3545; font-weight: 600; }
-    .status-completed { color: #28a745; font-weight: 600; }
-    .status-cancelled { color: #6c757d; font-weight: 600; }
-
-    /* Notifications */
-    .notifications i {
-      color: #dc3545;
-      font-size: 20px;
-    }
-  </style>
 </head>
 <body>
   <div class="container">
-    <div class="sidebar">
+    <aside class="sidebar">
       <div class="logo">
         <i class="fas fa-hospital"></i>
       </div>
-    </div>
+      <nav>
+        <a href="#" class="active"><i class="fas fa-th-large"></i></a>
+        <a href="#"><i class="fas fa-users"></i></a>
+        <a href="#"><i class="fas fa-image"></i></a>
+        <a href="#"><i class="fas fa-file-alt"></i></a>
+        <a href="#"><i class="fas fa-folder"></i></a>
+      </nav>
+    </aside>
 
     <main class="main-content">
       <header>
-        <div class="page-title">
-          <h1>Healthcare Institution Dashboard</h1>
+        <div class="back-button">
+          <a href="#"><i class="fas fa-arrow-left"></i> Back to dashboard</a>
         </div>
         <div class="user-menu">
           <div class="notifications">
             <i class="fas fa-bell"></i>
           </div>
           <div class="profile-menu" id="profileInfo">
+            <img src="" alt="Profile" id="profileImage">
             <span id="profileName"></span>
           </div>
-          <button onclick="logout()" class="logout-btn">
-            <i class="fas fa-sign-out-alt"></i>
-            Logout
-          </button>
         </div>
       </header>
 
@@ -378,6 +218,7 @@
 
         // Update profile section
         document.getElementById('profileName').textContent = institutionData.name || '';
+        document.getElementById('profileImage').src = institutionData.logo_url || 'https://via.placeholder.com/40';
 
         // Update institution information
         document.getElementById('institutionId').textContent = institutionData.institution_id || 'Not specified';
